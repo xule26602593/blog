@@ -1,0 +1,76 @@
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: blog_db
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_general_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./blog-server/src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - blog-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: blog-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - blog-network
+
+  # 后端服务
+  blog-server:
+    build:
+      context: ./blog-server
+      dockerfile: Dockerfile
+    container_name: blog-server
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./upload_data:/app/uploads
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - blog-network
+
+  # 前端服务
+  blog-web:
+    build:
+      context: ./blog-web
+      dockerfile: Dockerfile
+    container_name: blog-web
+    restart: always
+    ports:
+      - "19999:80"
+    depends_on:
+      - blog-server
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge

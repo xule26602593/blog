@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: blog-server
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+
+# MyBatis Plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.blog.domain.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# JWT Configuration
+jwt:
+  secret: blog-system-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256
+  expiration: 86400000 # 24 hours
+  header: Authorization
+  prefix: "Bearer "
+
+# File Upload
+file:
+  upload-path: /home/demo/blog-server/uploads/
+  allowed-types: jpg,jpeg,png,gif,bmp,webp
+  max-size: 10485760 # 10MB
+
+# Logging
+logging:
+  level:
+    com.blog: debug
+    org.springframework.security: info

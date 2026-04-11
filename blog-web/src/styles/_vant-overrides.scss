@@ -1,0 +1,249 @@
+// ========================================
+// Vant Component Overrides - Apple Style
+// ========================================
+
+// ========================================
+// Button
+// ========================================
+.van-button {
+  font-family: var(--font-sans);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.van-button--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+
+  &:hover {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+  }
+}
+
+.van-button--default {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+
+  &:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+// ========================================
+// Input
+// ========================================
+.van-field {
+  font-family: var(--font-sans);
+
+  .van-field__control {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+}
+
+.van-cell {
+  font-family: var(--font-sans);
+  background: var(--bg-card);
+  color: var(--text-primary);
+
+  &::after {
+    border-color: var(--border-color);
+  }
+}
+
+.van-cell-group--inset {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+// ========================================
+// Card
+// ========================================
+.van-card {
+  font-family: var(--font-sans);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// ========================================
+// Dialog
+// ========================================
+.van-dialog {
+  font-family: var(--font-sans);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+
+  .van-dialog__header {
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+  }
+
+  .van-dialog__message {
+    color: var(--text-secondary);
+  }
+}
+
+// ========================================
+// Popup
+// ========================================
+.van-popup {
+  font-family: var(--font-sans);
+
+  &--round {
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  }
+}
+
+// ========================================
+// Tag
+// ========================================
+.van-tag {
+  font-family: var(--font-sans);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-full);
+
+  &--primary {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+}
+
+// ========================================
+// NavBar
+// ========================================
+.van-nav-bar {
+  font-family: var(--font-sans);
+  background: var(--bg-blur);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  .van-nav-bar__title {
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+  }
+
+  .van-nav-bar__text,
+  .van-nav-bar__arrow {
+    color: var(--color-primary);
+  }
+}
+
+// ========================================
+// Tab
+// ========================================
+.van-tabs {
+  font-family: var(--font-sans);
+
+  .van-tabs__nav {
+    background: transparent;
+  }
+
+  .van-tab {
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+    transition: color var(--transition-fast);
+
+    &--active {
+      color: var(--color-primary);
+    }
+  }
+
+  .van-tabs__line {
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    height: 3px;
+  }
+}
+
+// ========================================
+// List
+// ========================================
+.van-list {
+  font-family: var(--font-sans);
+}
+
+.van-cell {
+  &:active {
+    background: var(--bg-hover);
+  }
+}
+
+// ========================================
+// Pull Refresh
+// ========================================
+.van-pull-refresh {
+  .van-pull-refresh__head {
+    color: var(--text-secondary);
+  }
+}
+
+// ========================================
+// Loading
+// ========================================
+.van-loading {
+  .van-loading__spinner {
+    color: var(--color-primary);
+  }
+
+  .van-loading__text {
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+  }
+}
+
+// ========================================
+// Toast
+// ========================================
+.van-toast {
+  font-family: var(--font-sans);
+  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+// ========================================
+// Dark Mode Adjustments
+// ========================================
+html.dark {
+  .van-cell {
+    background: var(--bg-card);
+    color: var(--text-primary);
+
+    &::after {
+      border-color: var(--border-color);
+    }
+  }
+
+  .van-card {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+  }
+
+  .van-dialog {
+    background: var(--bg-card);
+  }
+
+  .van-popup {
+    background: var(--bg-card);
+  }
+}

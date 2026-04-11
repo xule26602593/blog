@@ -1,0 +1,295 @@
+// ========================================
+// Auth Page 风格混入
+// 认证页面（登录/注册/找回密码）统一风格混入定义
+// ========================================
+
+@use 'auth-variables' as *;
+
+// ========== 页面容器 ==========
+@mixin auth-page-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: $auth-bg-light;
+  overflow: hidden;
+}
+
+// ========== 背景装饰 ==========
+@mixin auth-bg-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: $auth-animation-float;
+  }
+
+  .circle-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    left: -100px;
+    background: $auth-gradient-rgba;
+    animation-delay: 0s;
+  }
+
+  .circle-2 {
+    width: 400px;
+    height: 400px;
+    bottom: -150px;
+    right: -150px;
+    background: linear-gradient(135deg, rgba(64, 158, 255, 0.2), rgba(102, 126, 234, 0.2));
+    animation-delay: -5s;
+  }
+
+  .circle-3 {
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(118, 75, 162, 0.15), rgba(64, 158, 255, 0.15));
+    animation-delay: -10s;
+  }
+}
+
+// ========== 认证卡片 ==========
+@mixin auth-card {
+  position: relative;
+  width: $auth-card-width;
+  max-width: 90vw;
+  padding: $auth-card-padding;
+  background: $auth-card-bg;
+  border-radius: $auth-card-radius;
+  box-shadow: $auth-card-shadow;
+  backdrop-filter: blur(10px);
+  animation: $auth-animation-slide;
+}
+
+// ========== 卡片头部 ==========
+@mixin auth-card-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $auth-logo-size;
+    height: $auth-logo-size;
+    margin-bottom: 16px;
+    background: $auth-gradient;
+    border-radius: 16px;
+    color: $auth-text-white;
+    box-shadow: 0 8px 20px $auth-shadow-light;
+    animation: $auth-animation-pulse;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: $auth-text-primary;
+    margin: 0 0 8px;
+    letter-spacing: 1px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: $auth-text-secondary;
+    margin: 0;
+  }
+}
+
+// ========== 表单样式 ==========
+@mixin auth-form {
+  :deep(.el-form-item) {
+    margin-bottom: 24px;
+  }
+
+  :deep(.el-input) {
+    --el-input-border-radius: #{$auth-input-radius};
+
+    .el-input__wrapper {
+      padding: 1px 15px;
+      box-shadow: 0 0 0 1px $auth-border-color inset;
+      transition: all $auth-transition;
+
+      &:hover {
+        box-shadow: 0 0 0 1px $auth-border-hover inset;
+      }
+
+      &.is-focus {
+        box-shadow: 0 0 0 1px $auth-primary inset,
+                    0 0 0 3px $auth-primary-light;
+      }
+    }
+
+    .el-input__prefix {
+      color: $auth-text-secondary;
+      transition: color $auth-transition;
+    }
+
+    &.is-focus .el-input__prefix {
+      color: $auth-primary;
+    }
+  }
+
+  :deep(.el-form-item__error) {
+    padding-top: 4px;
+    font-size: 12px;
+  }
+}
+
+// ========== 主按钮 ==========
+@mixin auth-primary-btn {
+  width: 100%;
+  height: $auth-btn-height;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  border: none;
+  border-radius: $auth-input-radius;
+  background: $auth-gradient;
+  box-shadow: 0 4px 15px $auth-shadow;
+  transition: all $auth-transition;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px $auth-shadow;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px $auth-shadow;
+  }
+
+  &.is-loading,
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// ========== 卡片底部 ==========
+@mixin auth-card-footer {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid $auth-divider;
+  margin-top: 24px;
+
+  .text {
+    color: $auth-text-secondary;
+    font-size: 14px;
+  }
+
+  .link {
+    color: $auth-primary;
+    font-size: 14px;
+    font-weight: 500;
+    margin-left: 4px;
+    transition: opacity $auth-transition;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ========== 响应式适配 ==========
+@mixin auth-responsive-tablet {
+  @media (max-width: 768px) {
+    padding: 20px;
+
+    .card-header {
+      .title { font-size: 22px; }
+      .subtitle { font-size: 13px; }
+    }
+  }
+}
+
+@mixin auth-responsive-mobile {
+  @media (max-width: 480px) {
+    padding: $auth-card-padding-mobile;
+
+    .logo {
+      width: $auth-logo-size-mobile;
+      height: $auth-logo-size-mobile;
+
+      .el-icon { font-size: 28px; }
+    }
+
+    .title { font-size: 20px; }
+
+    :deep(.el-input__wrapper) {
+      padding: 1px 12px;
+    }
+
+    .auth-btn,
+    [class*="-btn"] {
+      height: $auth-btn-height-mobile;
+      font-size: 15px;
+    }
+  }
+}
+
+// ========== 暗色主题 ==========
+@mixin auth-dark-theme {
+  html.dark & {
+    background: $auth-bg-dark;
+
+    .auth-card,
+    &[class*="-card"] {
+      background: $auth-dark-card-bg;
+      box-shadow: $auth-dark-card-shadow;
+    }
+
+    .title { color: $auth-text-white; }
+    .subtitle { color: #a0a0a0; }
+
+    .card-footer,
+    [class*="-footer"] {
+      border-top-color: $auth-dark-divider;
+    }
+
+    .bg-decoration .circle,
+    .circle {
+      opacity: 0.4;
+    }
+
+    :deep(.el-input__wrapper) {
+      background-color: $auth-dark-input-bg;
+      box-shadow: 0 0 0 1px $auth-dark-border inset;
+
+      &:hover {
+        box-shadow: 0 0 0 1px $auth-dark-border-hover inset;
+      }
+    }
+  }
+}
+
+// ========== 动画关键帧 ==========
+@mixin auth-keyframes {
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-20px) rotate(5deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(20px) rotate(-5deg); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 20px $auth-shadow-light; }
+    50% { box-shadow: 0 8px 30px $auth-shadow; }
+  }
+}

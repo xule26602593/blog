@@ -1,0 +1,162 @@
+// ========================================
+// Apple-Style Design Tokens
+// ========================================
+// Design Philosophy:
+// 1. Clarity - Clean visual hierarchy, generous whitespace
+// 2. Deference - Content-first approach, UI recedes
+// 3. Depth - Subtle layering, glass effects, meaningful shadows
+
+// ========================================
+// Color System - Light Mode
+// ========================================
+:root {
+  // Backgrounds - Clean whites and subtle grays
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F7;
+  --bg-tertiary: #E8E8ED;
+  --bg-card: #FFFFFF;
+  --bg-elevated: rgba(255, 255, 255, 0.72);
+  --bg-blur: rgba(255, 255, 255, 0.8);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.08);
+
+  // Text - Apple's gray scale
+  --text-primary: #1D1D1F;
+  --text-secondary: #6E6E73;
+  --text-tertiary: #86868B;
+  --text-muted: #AEAEB2;
+  --text-inverse: #FFFFFF;
+
+  // Accent - Apple Blue
+  --color-primary: #007AFF;
+  --color-primary-hover: #0056CC;
+  --color-primary-light: rgba(0, 122, 255, 0.1);
+  --color-accent: #5856D6;
+
+  // System Colors
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-error: #FF3B30;
+  --color-info: #5AC8FA;
+
+  // Borders & Shadows
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 24px 80px rgba(0, 0, 0, 0.16);
+  --shadow-glow: 0 0 40px rgba(0, 122, 255, 0.15);
+
+  // Glass Effect
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: 20px;
+
+  // Spacing - 4px base grid
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  // Border Radius - Apple's continuous corners
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  // Typography - SF Pro inspired scale
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+    'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'New York', Georgia, 'Noto Serif SC', serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  // Font Sizes - Apple's scale
+  --text-xs: 0.6875rem;    // 11px
+  --text-sm: 0.8125rem;    // 13px
+  --text-base: 0.9375rem;  // 15px
+  --text-lg: 1.0625rem;    // 17px
+  --text-xl: 1.3125rem;    // 21px
+  --text-2xl: 1.6875rem;   // 27px
+  --text-3xl: 2.125rem;    // 34px
+  --text-4xl: 2.75rem;     // 44px
+  --text-5xl: 3.5rem;      // 56px
+  --text-6xl: 4.5rem;      // 72px
+
+  // Line Heights
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.47;
+  --leading-relaxed: 1.65;
+
+  // Font Weights
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  // Letter Spacing
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+
+  // Transitions - Apple's timing functions
+  --transition-fast: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --transition-base: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --transition-slow: 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  // Z-Index
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+}
+
+// ========================================
+// Color System - Dark Mode
+// ========================================
+html.dark {
+  --bg-primary: #000000;
+  --bg-secondary: #1C1C1E;
+  --bg-tertiary: #2C2C2E;
+  --bg-card: #1C1C1E;
+  --bg-elevated: rgba(28, 28, 30, 0.72);
+  --bg-blur: rgba(28, 28, 30, 0.8);
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #F5F5F7;
+  --text-secondary: #A1A1A6;
+  --text-tertiary: #6E6E73;
+  --text-muted: #48484A;
+  --text-inverse: #1D1D1F;
+
+  --color-primary: #0A84FF;
+  --color-primary-hover: #409CFF;
+  --color-primary-light: rgba(10, 132, 255, 0.15);
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 24px 80px rgba(0, 0, 0, 0.6);
+
+  --glass-bg: rgba(28, 28, 30, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,22 @@
+// ========================================
+// Auth Page 风格入口
+// 在组件中通过 @use 引入使用
+// ========================================
+
+@forward 'auth-variables';
+@forward 'auth-mixins';
+
+// 使用示例：
+// @use '@/styles/modules/auth' as auth;
+//
+// .login-page {
+//   @include auth.auth-page-container;
+// }
+//
+// .login-card {
+//   @include auth.auth-card;
+// }
+//
+// .login-btn {
+//   @include auth.auth-primary-btn;
+// }

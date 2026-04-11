@@ -1,0 +1,56 @@
+// ========================================
+// Auth Page 风格变量
+// 认证页面（登录/注册/找回密码）统一风格变量定义
+// ========================================
+
+// ========== 主色调 ==========
+$auth-primary: #409eff;
+$auth-primary-light: rgba(64, 158, 255, 0.1);
+$auth-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$auth-gradient-rgba: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+$auth-shadow: rgba(102, 126, 234, 0.4);
+$auth-shadow-light: rgba(102, 126, 234, 0.3);
+
+// ========== 卡片 ==========
+$auth-card-bg: rgba(255, 255, 255, 0.95);
+$auth-card-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+$auth-card-radius: 16px;
+$auth-card-width: 420px;
+$auth-card-padding: 40px;
+$auth-card-padding-mobile: 30px 24px;
+
+// ========== 文字 ==========
+$auth-text-primary: #303133;
+$auth-text-secondary: #909399;
+$auth-text-white: #ffffff;
+
+// ========== 边框 ==========
+$auth-border-color: #dcdfe6;
+$auth-border-hover: #c0c4cc;
+$auth-border-focus: #409eff;
+$auth-divider: #ebeef5;
+
+// ========== 页面背景 ==========
+$auth-bg-light: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+$auth-bg-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+
+// ========== 暗色主题 ==========
+$auth-dark-card-bg: rgba(30, 30, 46, 0.95);
+$auth-dark-card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+$auth-dark-input-bg: #1e1e2e;
+$auth-dark-border: #363636;
+$auth-dark-border-hover: #4a4a4a;
+$auth-dark-divider: #363636;
+
+// ========== 尺寸 ==========
+$auth-logo-size: 64px;
+$auth-logo-size-mobile: 56px;
+$auth-btn-height: 48px;
+$auth-btn-height-mobile: 44px;
+$auth-input-radius: 10px;
+
+// ========== 动画 ==========
+$auth-transition: 0.3s ease;
+$auth-animation-float: float 20s ease-in-out infinite;
+$auth-animation-slide: slideUp 0.6s ease-out;
+$auth-animation-pulse: pulse 2s ease-in-out infinite;

@@ -1,0 +1,356 @@
+// ========================================
+// 卡片组件样式
+// ========================================
+
+// 基础卡片 - 增强版
+.card-elevated {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+  }
+}
+
+// 卡片带渐变边框
+.card-gradient-border {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: var(--gradient-primary);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    animation: gradient-shift 3s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  .card-content {
+    position: relative;
+    z-index: 1;
+    background: var(--bg-card);
+    border-radius: calc(var(--radius-xl) - 2px);
+  }
+}
+
+// 玻璃态卡片
+.card-glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.82);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+  }
+
+  html.dark & {
+    background: rgba(28, 25, 23, 0.72);
+
+    &:hover {
+      background: rgba(28, 25, 23, 0.85);
+    }
+  }
+}
+
+// 发光卡片
+.card-glow {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
+    transform: translateY(-4px);
+  }
+}
+
+// 卡片悬浮效果 - 用于文章卡片
+.card-hover-lift {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-6px) scale(1.01);
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(0.99);
+  }
+}
+
+// 卡片封面图效果
+.card-cover {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.08);
+    }
+
+    .cover-overlay {
+      opacity: 1;
+    }
+  }
+}
+
+// 卡片标签
+.card-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-primary);
+  background: rgba(180, 83, 9, 0.08);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: rgba(180, 83, 9, 0.15);
+    color: var(--color-accent);
+  }
+
+  html.dark & {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--color-primary);
+  }
+}
+
+// 卡片标签组
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+// 卡片标题 - 渐变效果
+.card-title-gradient {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-snug);
+  transition: all var(--transition-fast);
+
+  a {
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-primary) 100%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-clip: text;
+    -webkit-background-clip: text;
+    transition: all var(--transition-fast);
+  }
+
+  &:hover a {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+// 卡片统计数字 - 动画效果
+.card-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    transition: color var(--transition-fast);
+
+    svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+      transition: all var(--transition-fast);
+    }
+
+    &:hover {
+      color: var(--color-primary);
+
+      svg {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+// 特色卡片 - 用于置顶文章
+.card-featured {
+  position: relative;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all var(--transition-base);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gradient-primary);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform var(--transition-base);
+  }
+
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+
+    &::before {
+      transform: scaleY(1);
+    }
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: white;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-full);
+  }
+}
+
+// 统计卡片 - 用于仪表盘
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-base);
+
+  .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--gradient-primary);
+    border-radius: var(--radius-lg);
+    color: white;
+    transition: transform var(--transition-fast);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &:hover .stat-icon {
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  .stat-value {
+    font-family: var(--font-serif);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+}
+
+// 卡片列表项
+.card-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+// 数字增长动画
+.animate-number {
+  display: inline-block;
+  animation: countUp 1s var(--ease-out);
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
