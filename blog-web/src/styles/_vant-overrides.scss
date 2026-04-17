@@ -14,6 +14,20 @@
   &:active {
     transform: scale(0.97);
   }
+
+  // 确保按钮内容垂直居中
+  .van-button__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+
+  .van-button__text {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
 }
 
 .van-button--primary {
@@ -216,9 +230,66 @@
 .van-toast {
   font-family: var(--font-sans);
   border-radius: var(--radius-xl);
-  background: var(--bg-elevated);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  color: white;
+  padding: var(--space-3) var(--space-5);
+  min-width: 120px;
+
+  .van-toast__text {
+    color: white;
+    font-size: var(--text-sm);
+  }
+
+  .van-toast__icon {
+    font-size: 20px;
+  }
+
+  // 成功状态
+  &.van-toast--success {
+    background: rgba(34, 197, 94, 0.9);
+
+    .van-toast__text {
+      color: white;
+    }
+
+    .van-icon {
+      color: white;
+    }
+  }
+
+  // 失败状态
+  &.van-toast--fail {
+    background: rgba(239, 68, 68, 0.9);
+
+    .van-toast__text {
+      color: white;
+    }
+
+    .van-icon {
+      color: white;
+    }
+  }
+}
+
+// 亮色模式下确保 Toast 可见
+html:not(.dark) {
+  .van-toast {
+    background: rgba(0, 0, 0, 0.8);
+
+    .van-toast__text {
+      color: white;
+    }
+
+    &.van-toast--success {
+      background: rgba(22, 163, 74, 0.95);
+    }
+
+    &.van-toast--fail {
+      background: rgba(220, 38, 38, 0.95);
+    }
+  }
 }
 
 // ========================================

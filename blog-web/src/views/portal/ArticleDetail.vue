@@ -1,5 +1,14 @@
 <template>
   <div class="article-detail">
+    <!-- 目录导航（PC端右侧悬浮，移动端浮动按钮） -->
+    <TocNavigation
+      v-if="headings.length > 0"
+      class="toc-sidebar"
+      :headings="headings"
+      :active-id="activeId"
+      @select="scrollToHeading"
+    />
+
     <article class="article">
       <!-- 文章头部 -->
       <header class="article-header">
@@ -8,7 +17,9 @@
             <span v-if="article.categoryName" class="meta-category">{{ article.categoryName }}</span>
             <span class="meta-date">{{ formatDate(article.publishTime) }}</span>
             <span class="meta-dot">·</span>
-            <span class="meta-reading">{{ article.viewCount }} 次阅读</span>
+            <span class="meta-reading">约 {{ readingInfo.minutes }} 分钟</span>
+            <span class="meta-dot">·</span>
+            <span class="meta-words">{{ readingInfo.words }} 字</span>
           </div>
         </div>
         <h1 class="article-title">{{ article.title }}</h1>
@@ -31,8 +42,13 @@
         <img :src="article.coverImage" :alt="article.title" loading="lazy" />
       </div>
 
-      <!-- 文章内容 -->
-      <div class="article-content markdown-body" v-html="renderedContent"></div>
+      <!-- 文章内容（使用 v-viewer 指令实现图片点击放大） -->
+      <div
+        ref="articleContentRef"
+        class="article-content markdown-body"
+        v-html="renderedContent"
+        v-viewer
+      ></div>
 
       <!-- 文章底部操作 -->
       <footer class="article-footer">
@@ -110,7 +126,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import { marked } from 'marked'
@@ -119,6 +135,9 @@ import dayjs from 'dayjs'
 import { getArticle, likeArticle, favoriteArticle } from '@/api/article'
 import { getComments, addComment } from '@/api/comment'
 import { useUserStore } from '@/stores/user'
+import { calculateReadingTime } from '@/utils/readingTime'
+import { useToc } from '@/composables/useToc'
+import TocNavigation from '@/components/TocNavigation.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -127,6 +146,15 @@ const article = ref({})
 const comments = ref([])
 const commentContent = ref('')
 const commentLoading = ref(false)
+const articleContentRef = ref(null)
+
+// TOC 目录
+const { headings, activeId, extractHeadings, scrollToHeading } = useToc(articleContentRef)
+
+// 阅读时长
+const readingInfo = computed(() => {
+  return calculateReadingTime(article.value.content || '')
+})
 
 const renderedContent = computed(() => {
   if (!article.value.content) return ''
@@ -148,6 +176,12 @@ const fetchArticle = async () => {
     const res = await getArticle(route.params.id)
     article.value = res.data || {}
     document.title = `${article.value.title} - 随笔`
+
+    // 文章加载后提取目录和添加复制按钮
+    nextTick(() => {
+      extractHeadings()
+      addCopyButtons()
+    })
   } catch (error) {
     console.error('获取文章失败', error)
   }
@@ -215,6 +249,65 @@ const handleComment = async () => {
   }
 }
 
+// 添加代码块复制按钮
+const addCopyButtons = () => {
+  if (!articleContentRef.value) return
+
+  const codeBlocks = articleContentRef.value.querySelectorAll('pre')
+
+  codeBlocks.forEach((pre) => {
+    // 避免重复添加
+    if (pre.querySelector('.copy-btn')) return
+
+    // 设置 pre 为相对定位
+    pre.style.position = 'relative'
+
+    // 创建复制按钮
+    const copyBtn = document.createElement('button')
+    copyBtn.className = 'copy-btn'
+    copyBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+      </svg>
+    `
+    copyBtn.title = '复制代码'
+
+    copyBtn.addEventListener('click', async () => {
+      const code = pre.querySelector('code')?.textContent || ''
+      try {
+        await navigator.clipboard.writeText(code)
+        copyBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        `
+        copyBtn.classList.add('copied')
+        copyBtn.title = '已复制'
+        showToast({
+          type: 'success',
+          message: '✓ 代码已复制到剪贴板',
+          duration: 2000,
+          position: 'bottom'
+        })
+
+        setTimeout(() => {
+          copyBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+            </svg>
+          `
+          copyBtn.classList.remove('copied')
+          copyBtn.title = '复制代码'
+        }, 2000)
+      } catch (err) {
+        showToast('复制失败')
+      }
+    })
+
+    pre.appendChild(copyBtn)
+  })
+}
+
 onMounted(() => {
   fetchArticle()
   fetchComments()
@@ -226,6 +319,61 @@ onMounted(() => {
   max-width: 800px;
   margin: 0 auto;
   animation: slideUp var(--transition-slow) var(--ease-out);
+}
+
+// ========================================
+// TOC Sidebar Position
+// ========================================
+.toc-sidebar {
+  right: 24px;
+  top: 120px;
+}
+
+// ========================================
+// Code Copy Button (使用 :deep 穿透 scoped)
+// ========================================
+.article-content {
+  :deep(.copy-btn) {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.1));
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    opacity: 0;
+    transition: all var(--transition-fast);
+
+    svg {
+      color: var(--text-secondary);
+    }
+
+    &:hover {
+      background: var(--color-primary);
+      svg {
+        color: white;
+      }
+    }
+
+    // 复制成功状态
+    &.copied {
+      opacity: 1 !important;
+      background: #22c55e;
+
+      svg {
+        color: white;
+      }
+    }
+  }
+
+  :deep(pre:hover .copy-btn) {
+    opacity: 1;
+  }
 }
 
 // ========================================
@@ -272,7 +420,8 @@ onMounted(() => {
   color: var(--text-muted);
 }
 
-.meta-reading {
+.meta-reading,
+.meta-words {
   color: var(--text-muted);
 }
 
@@ -691,7 +840,17 @@ onMounted(() => {
 // ========================================
 // Responsive
 // ========================================
+// PC端: >= 1024px 显示右侧悬浮目录
+// 平板/移动端: < 1024px 显示移动端浮动按钮（由 TocNavigation 组件处理）
+
+@media (min-width: 1024px) {
+  .toc-sidebar {
+    display: block;
+  }
+}
+
 @media (max-width: 768px) {
+
   .article-header {
     padding: var(--space-6);
   }

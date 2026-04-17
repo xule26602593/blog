@@ -12,7 +12,7 @@
     <div class="tag-list">
       <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
         <van-list
-          v-model:loading="loading"
+          :loading="loading"
           :finished="finished"
           finished-text="没有更多了"
           @load="onLoad"
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Edit Dialog -->
-    <van-popup v-model:show="dialogVisible" position="bottom" round style="height: auto; max-height: 80vh;">
+    <van-popup :show="dialogVisible" position="bottom" round style="height: auto; max-height: 80vh;">
       <div class="dialog-content">
         <div class="dialog-header">
           <h3 class="dialog-title">{{ isEdit ? '编辑标签' : '新增标签' }}</h3>
@@ -98,11 +98,12 @@
 
     <!-- Delete Confirmation Dialog -->
     <van-dialog
-      v-model:show="showDeleteDialog"
+      :show="showDeleteDialog"
       title="确认删除"
       message="确定要删除该标签吗？"
       show-cancel-button
       @confirm="confirmDelete"
+      @cancel="showDeleteDialog = false"
     />
   </div>
 </template>
@@ -224,9 +225,11 @@ onMounted(() => {
 }
 
 .btn-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   margin-right: var(--space-1);
+  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .tag-list {
@@ -295,6 +298,11 @@ onMounted(() => {
   gap: var(--space-2);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border-light);
+
+  :deep(.van-button__text) {
+    text-align: center;
+    width: 100%;
+  }
 }
 
 .pagination {

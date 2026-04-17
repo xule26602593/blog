@@ -20,6 +20,18 @@ const routes = [
         meta: { title: '文章详情' }
       },
       {
+        path: 'category/:id',
+        name: 'CategoryArticles',
+        component: () => import('@/views/portal/CategoryArticles.vue'),
+        meta: { title: '分类文章' }
+      },
+      {
+        path: 'tag/:id',
+        name: 'TagArticles',
+        component: () => import('@/views/portal/TagArticles.vue'),
+        meta: { title: '标签文章' }
+      },
+      {
         path: 'archives',
         name: 'Archives',
         component: () => import('@/views/portal/Archives.vue'),

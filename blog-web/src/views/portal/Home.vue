@@ -154,7 +154,7 @@
               v-for="category in categories"
               :key="category.id"
               class="category-item"
-              @click="router.push({ path: '/', query: { categoryId: category.id } })"
+              @click="router.push('/category/' + category.id)"
             >
               <span class="category-name">{{ category.name }}</span>
               <span class="category-count">{{ category.articleCount }}</span>
@@ -176,7 +176,7 @@
               v-for="tag in tags"
               :key="tag.id"
               class="tag-btn"
-              @click="router.push({ path: '/', query: { tagId: tag.id } })"
+              @click="router.push('/tag/' + tag.id)"
             >
               {{ tag.name }}
             </button>

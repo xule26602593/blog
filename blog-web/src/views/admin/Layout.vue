@@ -690,7 +690,28 @@ onUnmounted(() => {
 // ========================================
 @media (max-width: 1024px) {
   .sidebar {
-    width: 88px;
+    width: 68px;
+    padding: var(--space-3);
+  }
+
+  .sidebar-inner {
+    padding: var(--space-2);
+  }
+
+  .brand {
+    justify-content: center;
+    padding: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 
   .brand-text,
@@ -700,9 +721,18 @@ onUnmounted(() => {
     display: none;
   }
 
+  .nav-section {
+    gap: var(--space-1);
+  }
+
   .nav-item {
     justify-content: center;
-    padding: var(--space-3);
+    padding: var(--space-2);
+
+    .nav-icon {
+      width: 22px;
+      height: 22px;
+    }
   }
 
   .collapse-btn {
@@ -782,7 +812,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  height: 60px;
+  height: 64px;
+  padding: 0 var(--space-2);
 }
 
 .mobile-admin-item {
@@ -804,8 +835,9 @@ onUnmounted(() => {
   transition: all var(--transition-fast);
 
   svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
     transition: all var(--transition-fast);
   }
 
