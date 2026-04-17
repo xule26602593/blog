@@ -1,5 +1,12 @@
 <template>
   <div class="home">
+    <!-- 初始加载状态 -->
+    <div v-if="initialLoading" class="loading-container">
+      <van-loading type="spinner" size="24px" color="var(--color-primary)" vertical>加载中...</van-loading>
+    </div>
+
+    <!-- 内容 -->
+    <template v-else>
     <!-- Hero - 编辑风格的大标题 -->
     <section class="hero">
       <div class="hero-content">
@@ -184,6 +191,7 @@
         </section>
       </aside>
     </div>
+    </template>
   </div>
 </template>
 
@@ -198,6 +206,7 @@ const router = useRouter()
 const appStore = useAppStore()
 
 const loading = ref(false)
+const initialLoading = ref(true)
 const articleList = ref([])
 const hotArticles = ref([])
 const topArticles = ref([])
@@ -251,18 +260,39 @@ const loadMore = () => {
 }
 
 onMounted(async () => {
-  await appStore.initApp()
-  categories.value = appStore.categories
-  tags.value = appStore.tags
-  fetchArticles()
-  fetchHotArticles()
-  fetchTopArticles()
+  try {
+    await appStore.initApp()
+    categories.value = appStore.categories
+    tags.value = appStore.tags
+    await Promise.all([
+      fetchArticles(),
+      fetchHotArticles(),
+      fetchTopArticles()
+    ])
+  } catch (error) {
+    console.error('初始化失败', error)
+  } finally {
+    initialLoading.value = false
+  }
 })
 </script>
 
 <style lang="scss" scoped>
 .home {
   animation: fadeIn var(--transition-slow) ease;
+}
+
+// ========================================
+// Loading Container
+// ========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-4);
+  animation: fadeIn var(--transition-base) ease;
 }
 
 // ========================================

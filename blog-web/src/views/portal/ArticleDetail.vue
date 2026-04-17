@@ -1,5 +1,12 @@
 <template>
   <div class="article-detail">
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <van-loading type="spinner" size="24px" color="var(--color-primary)" vertical>加载中...</van-loading>
+    </div>
+
+    <!-- 文章内容 -->
+    <template v-else>
     <!-- 目录导航（PC端右侧悬浮，移动端浮动按钮） -->
     <TocNavigation
       v-if="headings.length > 0"
@@ -42,12 +49,13 @@
         <img :src="article.coverImage" :alt="article.title" loading="lazy" />
       </div>
 
-      <!-- 文章内容（使用 v-viewer 指令实现图片点击放大） -->
+      <!-- 文章内容（使用 v-viewer 指令实现图片点击放大，v-copy-button 实现代码复制） -->
       <div
         ref="articleContentRef"
         class="article-content markdown-body"
         v-html="renderedContent"
         v-viewer
+        v-copy-button
       ></div>
 
       <!-- 文章底部操作 -->
@@ -80,7 +88,10 @@
       </div>
 
       <div class="comment-form">
-        <div class="comment-avatar">{{ userStore.userInfo?.nickname?.charAt(0) || '?' }}</div>
+        <div class="comment-avatar">
+          <img v-if="userStore.userInfo?.avatar" :src="userStore.userInfo.avatar" :alt="userStore.userInfo.nickname" />
+          <span v-else>{{ userStore.userInfo?.nickname?.charAt(0) || '?' }}</span>
+        </div>
         <div class="comment-input-wrapper">
           <textarea
             v-model="commentContent"
@@ -103,7 +114,10 @@
 
       <div class="comment-list">
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <div class="comment-avatar">{{ comment.nickname?.charAt(0) || '?' }}</div>
+          <div class="comment-avatar">
+            <img v-if="comment.avatar" :src="comment.avatar" :alt="comment.nickname" />
+            <span v-else>{{ comment.nickname?.charAt(0) || '?' }}</span>
+          </div>
           <div class="comment-body">
             <div class="comment-header">
               <span class="comment-author">{{ comment.nickname }}</span>
@@ -122,6 +136,7 @@
         </div>
       </div>
     </section>
+    </template>
   </div>
 </template>
 
@@ -147,6 +162,7 @@ const comments = ref([])
 const commentContent = ref('')
 const commentLoading = ref(false)
 const articleContentRef = ref(null)
+const loading = ref(true)
 
 // TOC 目录
 const { headings, activeId, extractHeadings, scrollToHeading } = useToc(articleContentRef)
@@ -172,18 +188,21 @@ const renderedContent = computed(() => {
 const formatDate = (date) => dayjs(date).format('YYYY-MM-DD HH:mm')
 
 const fetchArticle = async () => {
+  loading.value = true
   try {
     const res = await getArticle(route.params.id)
     article.value = res.data || {}
     document.title = `${article.value.title} - 随笔`
 
-    // 文章加载后提取目录和添加复制按钮
+    // 文章加载后提取目录
     nextTick(() => {
       extractHeadings()
-      addCopyButtons()
     })
   } catch (error) {
     console.error('获取文章失败', error)
+    showToast('获取文章失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -193,6 +212,7 @@ const fetchComments = async () => {
     comments.value = res.data?.records || []
   } catch (error) {
     console.error('获取评论失败', error)
+    showToast('获取评论失败')
   }
 }
 
@@ -249,65 +269,6 @@ const handleComment = async () => {
   }
 }
 
-// 添加代码块复制按钮
-const addCopyButtons = () => {
-  if (!articleContentRef.value) return
-
-  const codeBlocks = articleContentRef.value.querySelectorAll('pre')
-
-  codeBlocks.forEach((pre) => {
-    // 避免重复添加
-    if (pre.querySelector('.copy-btn')) return
-
-    // 设置 pre 为相对定位
-    pre.style.position = 'relative'
-
-    // 创建复制按钮
-    const copyBtn = document.createElement('button')
-    copyBtn.className = 'copy-btn'
-    copyBtn.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-      </svg>
-    `
-    copyBtn.title = '复制代码'
-
-    copyBtn.addEventListener('click', async () => {
-      const code = pre.querySelector('code')?.textContent || ''
-      try {
-        await navigator.clipboard.writeText(code)
-        copyBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-        `
-        copyBtn.classList.add('copied')
-        copyBtn.title = '已复制'
-        showToast({
-          type: 'success',
-          message: '✓ 代码已复制到剪贴板',
-          duration: 2000,
-          position: 'bottom'
-        })
-
-        setTimeout(() => {
-          copyBtn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-            </svg>
-          `
-          copyBtn.classList.remove('copied')
-          copyBtn.title = '复制代码'
-        }, 2000)
-      } catch (err) {
-        showToast('复制失败')
-      }
-    })
-
-    pre.appendChild(copyBtn)
-  })
-}
-
 onMounted(() => {
   fetchArticle()
   fetchComments()
@@ -319,6 +280,19 @@ onMounted(() => {
   max-width: 800px;
   margin: 0 auto;
   animation: slideUp var(--transition-slow) var(--ease-out);
+}
+
+// ========================================
+// Loading Container
+// ========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-4);
+  animation: fadeIn var(--transition-base) ease;
 }
 
 // ========================================
@@ -671,10 +645,17 @@ onMounted(() => {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: white;
-  background: var(--gradient-primary);
+  background: var(--color-primary);
   border-radius: var(--radius-full);
   box-shadow: 0 0 0 2px transparent;
   transition: all var(--transition-fast);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .comment-form:focus-within .comment-avatar {
@@ -778,6 +759,8 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   font-size: var(--text-xs);
+  color: white;
+  background: var(--color-primary);
   box-shadow: 0 0 0 2px transparent;
   transition: all var(--transition-fast);
 }
@@ -892,12 +875,13 @@ onMounted(() => {
 
   .comment-form {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .comment-avatar {
     width: 36px;
     height: 36px;
+    align-self: flex-start;
   }
 }
 

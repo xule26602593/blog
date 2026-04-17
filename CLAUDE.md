@@ -11,7 +11,10 @@ make down      # Stop all services
 make logs      # Tail logs
 make restart   # Restart all services
 make clean     # Remove containers, volumes, and images
+make rebuild   # Force rebuild and recreate containers
 ```
+
+Docker ports: MySQL 3306, Redis 6379, Backend 8080, Frontend 19999
 
 ### Backend (blog-server)
 ```bash
@@ -29,7 +32,7 @@ pnpm dev                          # Dev server on port 3000
 pnpm build                        # Production build to dist/
 ```
 
-### Database
+### Database Initialization
 ```bash
 mysql -u root -p
 CREATE DATABASE blog_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -67,22 +70,23 @@ com.blog
 - Global exception handler in `common/exception/`
 
 ### Frontend (blog-web)
-- **Framework**: Vue 3.4 + Vite 5
-- **UI**: Element Plus 2.4
+- **Framework**: Vue 3.5 + Vite 8
+- **UI**: Vant 4 (mobile-first component library)
+- **Markdown**: md-editor-v3 with syntax highlighting
 - **State**: Pinia stores in `stores/`
 - **HTTP**: Axios with request wrapper in `utils/request.js`
 
 **Directory Structure**:
 ```
 src/
-├── api/             # Axios API modules (auth.js, article.js, etc.)
+├── api/             # Axios API modules (auth.js, article.js, admin.js, etc.)
 ├── components/      # Reusable Vue components
 ├── router/          # Vue Router with auth guards
 ├── stores/          # Pinia stores (user.js, app.js, theme.js)
 ├── utils/           # request.js (axios instance with interceptors)
 └── views/
-    ├── admin/       # Admin panel (Dashboard, ArticleManage, etc.)
-    └── portal/      # Public pages (Home, ArticleDetail, Login, etc.)
+    ├── admin/       # Admin panel (Dashboard, ArticleManage, ArticleEdit, etc.)
+    └── portal/      # Public pages (Home, ArticleDetail, Login, UserCenter, etc.)
 ```
 
 **Routing**:
@@ -127,11 +131,21 @@ src/
 
 ### Frontend Conventions
 - Auto-import enabled for Vue APIs, Vue Router, Pinia (see `vite.config.js`)
-- Element Plus components auto-registered via unplugin
+- Vant components auto-registered via unplugin with VantResolver
 - API base URL proxied through Vite dev server (`/api` → `http://localhost:8080`)
 - User state persisted in Pinia `userStore` with `token`, `userInfo`, `roleCode`
+- Router uses hash history mode (`createWebHashHistory`)
 
 ### Database Schema
 - Schema initialization: `blog-server/src/main/resources/db/schema.sql`
-- Tables: `sys_role`, `sys_user`, `category`, `tag`, `article`, `article_tag`, `comment`, `user_action`
+- Tables: `sys_role`, `sys_user`, `category`, `tag`, `article`, `article_tag`, `comment`, `message`, `user_action`, `visit_log`, `sys_config`
 - Character set: utf8mb4
+
+### Security White List
+Public endpoints (no auth required):
+- `/api/portal/**` - All public portal APIs
+- `/api/auth/login`, `/api/auth/register` - Authentication
+- `/uploads/**` - Static file uploads
+- `/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**` - API documentation
+
+Admin endpoints require `ROLE_ADMIN`: `/api/admin/**`

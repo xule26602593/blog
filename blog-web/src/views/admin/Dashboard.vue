@@ -1,5 +1,12 @@
 <template>
   <div class="dashboard">
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <van-loading type="spinner" size="24px" color="var(--color-primary)" vertical>加载中...</van-loading>
+    </div>
+
+    <!-- 仪表盘内容 -->
+    <template v-else>
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-content">
@@ -92,14 +99,17 @@
         </div>
       </section>
     </div>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { showToast } from 'vant'
 import { getDashboard } from '@/api/admin'
 
 const dashboard = ref({})
+const loading = ref(true)
 
 const formatNumber = (num) => {
   if (num >= 10000) {
@@ -109,11 +119,15 @@ const formatNumber = (num) => {
 }
 
 const fetchDashboard = async () => {
+  loading.value = true
   try {
     const res = await getDashboard()
     dashboard.value = res.data || {}
   } catch (error) {
     console.error('获取仪表盘数据失败', error)
+    showToast('获取数据失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -125,6 +139,19 @@ onMounted(() => {
 <style lang="scss" scoped>
 .dashboard {
   animation: fadeIn var(--transition-slow) ease;
+}
+
+// ========================================
+// Loading Container
+// ========================================
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: var(--space-4);
+  animation: fadeIn var(--transition-base) ease;
 }
 
 .stats-grid {

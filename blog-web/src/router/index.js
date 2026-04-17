@@ -132,27 +132,37 @@ router.beforeEach((to, from, next) => {
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 我的博客` : '我的博客'
 
-  const userStore = useUserStore()
+  try {
+    const userStore = useUserStore()
 
-  // 需要登录
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-    return
+    // 需要登录
+    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+      return
+    }
+
+    // 需要管理员权限
+    if (to.meta.requiresAdmin && userStore.roleCode !== 'ADMIN') {
+      next({ name: 'Home' })
+      return
+    }
+
+    // 已登录用户访问登录/注册页面
+    if ((to.name === 'Login' || to.name === 'Register') && userStore.isLoggedIn) {
+      next({ name: 'Home' })
+      return
+    }
+
+    next()
+  } catch (error) {
+    // Pinia 实例未初始化时，重定向到登录页
+    console.error('路由守卫访问 Store 失败:', error)
+    if (to.meta.requiresAuth || to.meta.requiresAdmin) {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+    } else {
+      next()
+    }
   }
-
-  // 需要管理员权限
-  if (to.meta.requiresAdmin && userStore.roleCode !== 'ADMIN') {
-    next({ name: 'Home' })
-    return
-  }
-
-  // 已登录用户访问登录/注册页面
-  if ((to.name === 'Login' || to.name === 'Register') && userStore.isLoggedIn) {
-    next({ name: 'Home' })
-    return
-  }
-
-  next()
 })
 
 export default router

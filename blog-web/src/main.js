@@ -19,11 +19,17 @@ import router from './router'
 // Styles (Apple design system)
 import './styles/index.scss'
 
+// Custom directives
+import { vCopyButton } from './directives/copyButton'
+
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 app.use(Vant)
 app.use(VueViewer)
+
+// Register custom directives
+app.directive('copy-button', vCopyButton)
 
 app.mount('#app')
