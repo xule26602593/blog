@@ -203,12 +203,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void deleteArticle(Long id) {
-        Article article = articleMapper.selectById(id);
-        if (article == null) {
+        // 使用 deleteById 会自动执行逻辑删除（UPDATE SET deleted = 1）
+        int rows = articleMapper.deleteById(id);
+        if (rows == 0) {
             throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
         }
-        article.setDeleted(1);
-        articleMapper.updateById(article);
     }
 
     @Override
