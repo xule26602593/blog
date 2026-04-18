@@ -73,7 +73,7 @@ public class PortalController {
 
     @Operation(summary = "按分类查询文章")
     @GetMapping("/articles/category/{categoryId}")
-    public Result<List<ArticleListVO>> getArticlesByCategory(
+    public Result<Page<ArticleListVO>> getArticlesByCategory(
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {
@@ -82,7 +82,7 @@ public class PortalController {
 
     @Operation(summary = "按标签查询文章")
     @GetMapping("/articles/tag/{tagId}")
-    public Result<List<ArticleListVO>> getArticlesByTag(
+    public Result<Page<ArticleListVO>> getArticlesByTag(
             @PathVariable Long tagId,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {

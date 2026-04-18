@@ -1,10 +1,10 @@
 # 前端 Dockerfile
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 # 复制 package.json
-COPY package*.json ./
+COPY package*.json ./7+9
 
 RUN npm install -g pnpm --registry=https://registry.npmmirror.com
 

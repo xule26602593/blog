@@ -30,9 +30,6 @@
           </div>
         </div>
       </div>
-      <div class="hero-decoration">
-        <div class="decoration-line"></div>
-      </div>
     </section>
 
     <!-- Content -->
@@ -403,21 +400,6 @@ onMounted(async () => {
   width: 1px;
   height: 32px;
   background: var(--border-color);
-}
-
-.hero-decoration {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 60px;
-}
-
-.decoration-line {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, var(--color-primary), transparent);
 }
 
 // ========================================

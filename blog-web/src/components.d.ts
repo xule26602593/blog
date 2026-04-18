@@ -17,7 +17,6 @@ declare module 'vue' {
     ArticleCard: typeof import('./components/ArticleCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Skeleton: typeof import('./components/common/Skeleton.vue')['default']
     TocNavigation: typeof import('./components/TocNavigation.vue')['default']
     VanButton: typeof import('vant/es')['Button']
     VanCellGroup: typeof import('vant/es')['CellGroup']

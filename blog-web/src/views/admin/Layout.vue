@@ -185,15 +185,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { getPendingCount } from '@/api/comment'
+import { usePendingCount } from '@/composables/usePendingCount'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
 const isCollapse = ref(false)
-const pendingCount = ref(0)
 const showUserMenu = ref(false)
+const { pendingCount, fetchPendingCount } = usePendingCount()
 
 const menuItems = [
   { path: '/admin', label: '仪表盘' },
@@ -229,15 +229,6 @@ const handleCommand = (command) => {
   } else if (command === 'logout') {
     userStore.logout()
     router.push('/login')
-  }
-}
-
-const fetchPendingCount = async () => {
-  try {
-    const res = await getPendingCount()
-    pendingCount.value = res.data || 0
-  } catch (error) {
-    console.error('获取待审核数量失败', error)
   }
 }
 

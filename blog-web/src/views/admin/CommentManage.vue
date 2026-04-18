@@ -82,6 +82,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import { showToast } from 'vant'
 import { getAdminComments, auditComment, deleteComment } from '@/api/comment'
+import { usePendingCount } from '@/composables/usePendingCount'
+
+const { fetchPendingCount, decrementPendingCount } = usePendingCount()
 
 const loading = ref(false)
 const refreshing = ref(false)
@@ -150,6 +153,7 @@ const handleAudit = async (row, status) => {
   try {
     await auditComment(row.id, status)
     showToast({ type: 'success', message: status === 1 ? '审核通过' : '已拒绝' })
+    decrementPendingCount()
     fetchComments()
   } catch (error) {
     console.error('审核失败', error)
@@ -167,6 +171,10 @@ const confirmDelete = async () => {
   try {
     await deleteComment(commentToDelete.value.id)
     showToast({ type: 'success', message: '删除成功' })
+    // 如果删除的是待审核评论，需要更新待审核数量
+    if (commentToDelete.value.status === 0) {
+      decrementPendingCount()
+    }
     fetchComments()
   } catch (error) {
     console.error('删除失败', error)
