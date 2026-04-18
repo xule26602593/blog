@@ -174,7 +174,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { showToast } from 'vant'
 import { marked } from 'marked'
@@ -306,6 +306,20 @@ onMounted(() => {
   fetchArticle()
   fetchComments()
 })
+
+// 监听路由参数变化，当从一篇文章跳转到另一篇文章时重新加载数据
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId && newId !== oldId) {
+      // 滚动到页面顶部
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // 重新加载文章和评论
+      fetchArticle()
+      fetchComments()
+    }
+  }
+)
 </script>
 
 <style lang="scss" scoped>
