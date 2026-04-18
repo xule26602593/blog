@@ -15,6 +15,10 @@ public class ArticleMapperProvider {
             return "SELECT a.id, a.title, c.name AS categoryName " +
                    "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
         }
+        // Validate format: only digits and commas to prevent SQL injection
+        if (!tagIdsStr.matches("^[0-9]+(,[0-9]+)*$")) {
+            throw new IllegalArgumentException("Invalid tagIdsStr format: must be comma-separated numbers");
+        }
         return """
             SELECT a.id, a.title, c.name AS categoryName
             FROM article a
@@ -36,6 +40,10 @@ public class ArticleMapperProvider {
         if (tagIdsStr == null || tagIdsStr.isEmpty()) {
             return "SELECT a.id, a.title, c.name AS categoryName " +
                    "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
+        }
+        // Validate format: only digits and commas to prevent SQL injection
+        if (!tagIdsStr.matches("^[0-9]+(,[0-9]+)*$")) {
+            throw new IllegalArgumentException("Invalid tagIdsStr format: must be comma-separated numbers");
         }
         return """
             SELECT a.id, a.title, c.name AS categoryName
