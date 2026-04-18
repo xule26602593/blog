@@ -28,9 +28,27 @@ public interface ArticleService {
 
     Page<ArticleListVO> searchArticle(String keyword, int pageNum, int pageSize);
 
-    List<ArticleListVO> getArticlesByCategory(Long categoryId, int pageNum, int pageSize);
+    Page<ArticleListVO> getArticlesByCategory(Long categoryId, int pageNum, int pageSize);
 
-    List<ArticleListVO> getArticlesByTag(Long tagId, int pageNum, int pageSize);
+    Page<ArticleListVO> getArticlesByTag(Long tagId, int pageNum, int pageSize);
 
     List<ArticleListVO> getArchiveList();
+
+    /**
+     * 获取上一篇文章
+     * @param currentId 当前文章ID
+     * @param categoryId 当前文章分类ID
+     * @param tagIds 当前文章标签ID列表
+     * @return 上一篇文章导航信息，没有返回null
+     */
+    ArticleVO.ArticleNavVO getPrevArticle(Long currentId, Long categoryId, List<Long> tagIds);
+
+    /**
+     * 获取下一篇文章
+     * @param currentId 当前文章ID
+     * @param categoryId 当前文章分类ID
+     * @param tagIds 当前文章标签ID列表
+     * @return 下一篇文章导航信息，没有返回null
+     */
+    ArticleVO.ArticleNavVO getNextArticle(Long currentId, Long categoryId, List<Long> tagIds);
 }
