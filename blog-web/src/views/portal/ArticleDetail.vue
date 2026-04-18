@@ -76,6 +76,39 @@
           </button>
         </div>
       </footer>
+
+      <!-- 文章导航 -->
+      <nav v-if="article.prevArticle || article.nextArticle" class="article-nav">
+        <router-link
+          v-if="article.prevArticle"
+          :to="`/article/${article.prevArticle.id}`"
+          class="nav-btn nav-prev"
+        >
+          <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+          <div class="nav-content">
+            <span class="nav-label">上一篇</span>
+            <span class="nav-title">{{ article.prevArticle.title }}</span>
+          </div>
+        </router-link>
+        <div v-else class="nav-btn nav-empty"></div>
+
+        <router-link
+          v-if="article.nextArticle"
+          :to="`/article/${article.nextArticle.id}`"
+          class="nav-btn nav-next"
+        >
+          <div class="nav-content">
+            <span class="nav-label">下一篇</span>
+            <span class="nav-title">{{ article.nextArticle.title }}</span>
+          </div>
+          <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </router-link>
+        <div v-else class="nav-btn nav-empty"></div>
+      </nav>
     </article>
 
     <!-- 评论区 -->
@@ -512,6 +545,78 @@ onMounted(() => {
   padding-top: var(--space-8);
 }
 
+// ========================================
+// Article Navigation
+// ========================================
+.article-nav {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-10);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  min-height: 60px;
+
+  &:hover:not(.nav-empty) {
+    background: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &.nav-prev {
+    text-align: left;
+  }
+
+  &.nav-next {
+    text-align: right;
+    flex-direction: row-reverse;
+  }
+
+  &.nav-empty {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.nav-arrow {
+  width: 24px;
+  height: 24px;
+  stroke: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.nav-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.nav-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .article-footer {
   padding: var(--space-6) var(--space-10) var(--space-10);
   border-top: 1px solid var(--border-color);
@@ -619,12 +724,18 @@ onMounted(() => {
 }
 
 .comments-count {
-  font-size: var(--text-sm);
-  font-weight: var(--font-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   color: white;
   background: var(--gradient-primary);
-  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
+  box-sizing: border-box;
 }
 
 .comment-form {
@@ -869,6 +980,22 @@ onMounted(() => {
     justify-content: center;
   }
 
+  .article-nav {
+    padding: var(--space-5) var(--space-6);
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .nav-btn {
+    &:not(.nav-empty) {
+      min-height: 50px;
+    }
+  }
+
+  .nav-empty {
+    display: none;
+  }
+
   .comments {
     padding: var(--space-6);
   }
@@ -906,6 +1033,10 @@ onMounted(() => {
   .article-footer {
     padding: var(--space-5);
     gap: var(--space-2);
+  }
+
+  .article-nav {
+    padding: var(--space-4) var(--space-5);
   }
 }
 </style>
