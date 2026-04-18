@@ -117,7 +117,11 @@ public class ArticleServiceImpl implements ArticleService {
             vo.setIsLiked(checkUserAction(userId, id, 1));
             vo.setIsFavorited(checkUserAction(userId, id, 2));
         }
-        
+
+        // 设置上一篇和下一篇
+        vo.setPrevArticle(getPrevArticle(id, article.getCategoryId(), tagIds));
+        vo.setNextArticle(getNextArticle(id, article.getCategoryId(), tagIds));
+
         return vo;
     }
 
@@ -251,39 +255,42 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<ArticleListVO> getArticlesByCategory(Long categoryId, int pageNum, int pageSize) {
+    public Page<ArticleListVO> getArticlesByCategory(Long categoryId, int pageNum, int pageSize) {
+        Page<Article> page = new Page<>(pageNum, pageSize);
+
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Article::getDeleted, 0)
                .eq(Article::getStatus, 1)
                .eq(Article::getCategoryId, categoryId)
-               .orderByDesc(Article::getPublishTime)
-               .last("LIMIT " + ((pageNum - 1) * pageSize) + ", " + pageSize);
-        
-        List<Article> articles = articleMapper.selectList(wrapper);
-        return convertToVOList(articles);
+               .orderByDesc(Article::getPublishTime);
+
+        Page<Article> articlePage = articleMapper.selectPage(page, wrapper);
+        return convertToVOPage(articlePage);
     }
 
     @Override
-    public List<ArticleListVO> getArticlesByTag(Long tagId, int pageNum, int pageSize) {
+    public Page<ArticleListVO> getArticlesByTag(Long tagId, int pageNum, int pageSize) {
         List<Long> articleIds = articleTagMapper.selectList(
                 new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, tagId))
                 .stream()
                 .map(ArticleTag::getArticleId)
                 .collect(Collectors.toList());
-        
+
         if (articleIds.isEmpty()) {
-            return new ArrayList<>();
+            Page<ArticleListVO> emptyPage = new Page<>(pageNum, pageSize, 0);
+            emptyPage.setRecords(new ArrayList<>());
+            return emptyPage;
         }
-        
+
+        Page<Article> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Article::getDeleted, 0)
                .eq(Article::getStatus, 1)
                .in(Article::getId, articleIds)
-               .orderByDesc(Article::getPublishTime)
-               .last("LIMIT " + ((pageNum - 1) * pageSize) + ", " + pageSize);
-        
-        List<Article> articles = articleMapper.selectList(wrapper);
-        return convertToVOList(articles);
+               .orderByDesc(Article::getPublishTime);
+
+        Page<Article> articlePage = articleMapper.selectPage(page, wrapper);
+        return convertToVOPage(articlePage);
     }
 
     @Override
@@ -292,11 +299,57 @@ public class ArticleServiceImpl implements ArticleService {
         wrapper.eq(Article::getDeleted, 0)
                .eq(Article::getStatus, 1)
                .orderByDesc(Article::getPublishTime);
-        
+
         List<Article> articles = articleMapper.selectList(wrapper);
         return convertToVOList(articles);
     }
-    
+
+    @Override
+    public ArticleVO.ArticleNavVO getPrevArticle(Long currentId, Long categoryId, List<Long> tagIds) {
+        // 1. 查找同分类上一篇
+        if (categoryId != null) {
+            ArticleVO.ArticleNavVO article = articleMapper.selectPrevByCategory(currentId, categoryId);
+            if (article != null) {
+                return article;
+            }
+        }
+
+        // 2. 查找同标签上一篇
+        if (tagIds != null && !tagIds.isEmpty()) {
+            String tagIdsStr = String.join(",", tagIds.stream().map(String::valueOf).collect(Collectors.toList()));
+            ArticleVO.ArticleNavVO article = articleMapper.selectPrevByTags(currentId, tagIdsStr);
+            if (article != null) {
+                return article;
+            }
+        }
+
+        // 3. 全局上一篇
+        return articleMapper.selectPrevGlobal(currentId);
+    }
+
+    @Override
+    public ArticleVO.ArticleNavVO getNextArticle(Long currentId, Long categoryId, List<Long> tagIds) {
+        // 1. 查找同分类下一篇
+        if (categoryId != null) {
+            ArticleVO.ArticleNavVO article = articleMapper.selectNextByCategory(currentId, categoryId);
+            if (article != null) {
+                return article;
+            }
+        }
+
+        // 2. 查找同标签下一篇
+        if (tagIds != null && !tagIds.isEmpty()) {
+            String tagIdsStr = String.join(",", tagIds.stream().map(String::valueOf).collect(Collectors.toList()));
+            ArticleVO.ArticleNavVO article = articleMapper.selectNextByTags(currentId, tagIdsStr);
+            if (article != null) {
+                return article;
+            }
+        }
+
+        // 3. 全局下一篇
+        return articleMapper.selectNextGlobal(currentId);
+    }
+
     private Page<ArticleListVO> convertToVOPage(Page<Article> articlePage) {
         Page<ArticleListVO> voPage = new Page<>(articlePage.getCurrent(), articlePage.getSize(), articlePage.getTotal());
         voPage.setRecords(convertToVOList(articlePage.getRecords()));
