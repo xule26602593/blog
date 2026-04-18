@@ -4,7 +4,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # 复制 package.json
-COPY package*.json ./7+9
+COPY package*.json ./
 
 RUN npm install -g pnpm --registry=https://registry.npmmirror.com
 
