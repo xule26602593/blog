@@ -1004,6 +1004,18 @@ watch(
     &:not(.nav-empty) {
       min-height: 50px;
     }
+
+    // 移动端统一左对齐布局，不再左右分列
+    &.nav-prev,
+    &.nav-next {
+      flex-direction: row;
+      text-align: left;
+    }
+
+    // 下一篇箭头移到右边
+    &.nav-next {
+      flex-direction: row-reverse;
+    }
   }
 
   .nav-empty {

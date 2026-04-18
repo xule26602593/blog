@@ -4,6 +4,10 @@ FROM maven:3.9-eclipse-temurin-17-alpine AS build
 # 工作目录
 WORKDIR /app
 
+COPY pom.xml .
+
+RUN mvn dependency:go-offline -DskipTests
+
 # 把项目代码复制到镜像里
 COPY . .
 
