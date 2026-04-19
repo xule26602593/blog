@@ -79,3 +79,6 @@ redis_data/
 upload_data/
 .claude/settings.local.json
 .claude/plans/
+
+# Worktrees
+.worktrees/
