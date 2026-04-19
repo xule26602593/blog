@@ -1,3 +1,4 @@
+USE blog_db;
 -- 创建阅读历史表
 CREATE TABLE IF NOT EXISTS `reading_history` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
