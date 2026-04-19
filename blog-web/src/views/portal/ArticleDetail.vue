@@ -182,6 +182,7 @@ import hljs from 'highlight.js'
 import dayjs from 'dayjs'
 import { getArticle, likeArticle, favoriteArticle } from '@/api/article'
 import { getComments, addComment } from '@/api/comment'
+import { recordHistory } from '@/api/history'
 import { useUserStore } from '@/stores/user'
 import { calculateReadingTime } from '@/utils/readingTime'
 import { useToc } from '@/composables/useToc'
@@ -226,6 +227,11 @@ const fetchArticle = async () => {
     const res = await getArticle(route.params.id)
     article.value = res.data || {}
     document.title = `${article.value.title} - 随笔`
+
+    // 记录阅读历史（仅登录用户）
+    if (userStore.isLoggedIn) {
+      recordHistory(article.value.id).catch(() => {})
+    }
 
     // 文章加载后提取目录
     nextTick(() => {
