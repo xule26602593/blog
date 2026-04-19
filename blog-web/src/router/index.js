@@ -47,7 +47,31 @@ const routes = [
         path: 'user',
         name: 'UserCenter',
         component: () => import('@/views/portal/UserCenter.vue'),
-        meta: { title: '个人中心', requiresAuth: true }
+        meta: { title: '个人中心', requiresAuth: true },
+        children: [
+          {
+            path: '',
+            redirect: 'profile'
+          },
+          {
+            path: 'profile',
+            name: 'UserProfile',
+            component: () => import('@/views/portal/UserProfile.vue'),
+            meta: { title: '个人资料' }
+          },
+          {
+            path: 'favorites',
+            name: 'UserFavorites',
+            component: () => import('@/views/portal/UserFavorites.vue'),
+            meta: { title: '我的收藏' }
+          },
+          {
+            path: 'history',
+            name: 'UserHistory',
+            component: () => import('@/views/portal/UserHistory.vue'),
+            meta: { title: '阅读历史' }
+          }
+        ]
       }
     ]
   },
