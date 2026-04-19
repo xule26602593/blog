@@ -16,6 +16,7 @@
     "marked": "^18.0.0",
     "md-editor-v3": "^6.4.2",
     "pinia": "^3.0.4",
+    "qrcode-generator": "^2.0.4",
     "v-viewer": "^3.0.23",
     "vant": "^4.9.24",
     "viewerjs": "^1.11.7",

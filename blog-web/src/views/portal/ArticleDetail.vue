@@ -74,6 +74,12 @@
             </svg>
             <span>{{ article.isFavorited ? '已收藏' : '收藏' }}</span>
           </button>
+          <button class="action-btn" @click="showSharePanel = true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+            </svg>
+            <span>分享</span>
+          </button>
         </div>
       </footer>
 
@@ -170,6 +176,13 @@
       </div>
     </section>
     </template>
+
+    <!-- 分享面板 -->
+    <SharePanel
+      v-model:show="showSharePanel"
+      :url="articleUrl"
+      :title="article.title"
+    />
   </div>
 </template>
 
@@ -187,6 +200,7 @@ import { useUserStore } from '@/stores/user'
 import { calculateReadingTime } from '@/utils/readingTime'
 import { useToc } from '@/composables/useToc'
 import TocNavigation from '@/components/TocNavigation.vue'
+import SharePanel from '@/components/SharePanel.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -197,6 +211,12 @@ const commentContent = ref('')
 const commentLoading = ref(false)
 const articleContentRef = ref(null)
 const loading = ref(true)
+const showSharePanel = ref(false)
+
+// 文章分享链接
+const articleUrl = computed(() => {
+  return `${window.location.origin}/#/article/${article.value.id}`
+})
 
 // TOC 目录
 const { headings, activeId, extractHeadings, scrollToHeading } = useToc(articleContentRef)
