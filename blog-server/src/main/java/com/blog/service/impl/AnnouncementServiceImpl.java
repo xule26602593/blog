@@ -30,6 +30,15 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
+    public List<Announcement> getPublishedAnnouncements() {
+        return announcementMapper.selectList(
+            new LambdaQueryWrapper<Announcement>()
+                .eq(Announcement::getStatus, 1)
+                .orderByDesc(Announcement::getPublishTime)
+        );
+    }
+
+    @Override
     public Announcement getAnnouncementById(Long id) {
         Announcement announcement = announcementMapper.selectById(id);
         if (announcement == null) {

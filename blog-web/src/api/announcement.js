@@ -1,5 +1,10 @@
 import request from '@/utils/request'
 
+// 获取已发布公告列表（前台）
+export function getPublishedAnnouncements() {
+  return request.get('/api/portal/announcements')
+}
+
 // 获取公告列表（管理端）
 export function getAnnouncements() {
   return request.get('/api/admin/announcements')

@@ -7,6 +7,8 @@ public interface AnnouncementService {
 
     List<Announcement> getAnnouncementList();
 
+    List<Announcement> getPublishedAnnouncements();
+
     Announcement getAnnouncementById(Long id);
 
     void saveOrUpdateAnnouncement(Announcement announcement);
