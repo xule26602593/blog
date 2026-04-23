@@ -23,6 +23,7 @@
         <jjwt.version>0.12.3</jjwt.version>
         <hutool.version>5.8.23</hutool.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
+        <netty.version>4.1.119.Final</netty.version>
     </properties>
 
     <dependencies>
@@ -37,15 +38,20 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.27.0</version>
         </dependency>
 
         <!-- MySQL Driver -->

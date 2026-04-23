@@ -123,6 +123,27 @@
 
       <!-- Sidebar -->
       <aside class="sidebar">
+        <!-- Hot Series -->
+        <section v-if="hotSeries.length > 0" class="sidebar-section">
+          <div class="section-title-row">
+            <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+            </svg>
+            <h4 class="sidebar-title">热门系列</h4>
+          </div>
+          <div class="series-list">
+            <router-link
+              v-for="series in hotSeries"
+              :key="series.id"
+              :to="'/series/' + series.id"
+              class="series-item"
+            >
+              <span class="series-name">{{ series.name }}</span>
+              <span class="series-count">{{ series.articleCount }}篇</span>
+            </router-link>
+          </div>
+        </section>
+
         <!-- Hot -->
         <section class="sidebar-section hot-section">
           <div class="section-title-row">
@@ -196,6 +217,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getArticles, getHotArticles, getTopArticles } from '@/api/article'
+import { getHotSeries } from '@/api/series'
 import { useAppStore } from '@/stores/app'
 import dayjs from 'dayjs'
 
@@ -206,6 +228,7 @@ const loading = ref(false)
 const initialLoading = ref(true)
 const articleList = ref([])
 const hotArticles = ref([])
+const hotSeries = ref([])
 const topArticles = ref([])
 const pageNum = ref(1)
 const hasMore = ref(true)
@@ -251,6 +274,15 @@ const fetchTopArticles = async () => {
   }
 }
 
+const fetchHotSeries = async () => {
+  try {
+    const res = await getHotSeries(5)
+    hotSeries.value = res.data || []
+  } catch (error) {
+    console.error('获取热门系列失败', error)
+  }
+}
+
 const loadMore = () => {
   pageNum.value++
   fetchArticles()
@@ -264,7 +296,8 @@ onMounted(async () => {
     await Promise.all([
       fetchArticles(),
       fetchHotArticles(),
-      fetchTopArticles()
+      fetchTopArticles(),
+      fetchHotSeries()
     ])
   } catch (error) {
     console.error('初始化失败', error)
@@ -907,6 +940,43 @@ onMounted(async () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+// Hot Series
+.series-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.series-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background: var(--bg-hover);
+    transform: translateX(4px);
+
+    .series-name {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.series-name {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.series-count {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
 // Categories

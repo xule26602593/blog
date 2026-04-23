@@ -44,15 +44,24 @@ const routes = [
         meta: { title: '搜索' }
       },
       {
+        path: 'series',
+        name: 'SeriesList',
+        component: () => import('@/views/portal/SeriesList.vue'),
+        meta: { title: '系列' }
+      },
+      {
+        path: 'series/:id',
+        name: 'SeriesDetail',
+        component: () => import('@/views/portal/SeriesDetail.vue'),
+        meta: { title: '系列详情' }
+      },
+      {
         path: 'user',
         name: 'UserCenter',
         component: () => import('@/views/portal/UserCenter.vue'),
         meta: { title: '个人中心', requiresAuth: true },
+        redirect: '/user/profile',
         children: [
-          {
-            path: '',
-            redirect: 'profile'
-          },
           {
             path: 'profile',
             name: 'UserProfile',
@@ -128,6 +137,18 @@ const routes = [
         name: 'CommentManage',
         component: () => import('@/views/admin/CommentManage.vue'),
         meta: { title: '评论管理' }
+      },
+      {
+        path: 'series',
+        name: 'SeriesManage',
+        component: () => import('@/views/admin/SeriesManage.vue'),
+        meta: { title: '系列管理' }
+      },
+      {
+        path: 'series/edit/:id?',
+        name: 'SeriesEdit',
+        component: () => import('@/views/admin/SeriesEdit.vue'),
+        meta: { title: '系列编辑' }
       }
     ]
   },

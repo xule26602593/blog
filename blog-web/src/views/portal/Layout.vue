@@ -628,6 +628,20 @@
         <span>登录</span>
       </router-link>
     </nav>
+
+    <!-- Back to Top Button -->
+    <Transition name="fade">
+      <button
+        v-show="showBackToTop"
+        class="back-to-top"
+        @click="scrollToTop"
+        title="回到顶部"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+      </button>
+    </Transition>
   </div>
 </template>
 
@@ -647,8 +661,23 @@ const searchFocused = ref(false);
 const mobileMenuOpen = ref(false);
 const mobileSearchOpen = ref(false);
 const mobileSearchInput = ref(null);
+const showBackToTop = ref(false);
 
 const currentYear = computed(() => new Date().getFullYear());
+
+// Scroll listener for back to top button
+const handleScroll = () => {
+  showBackToTop.value = window.scrollY > 300;
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Add scroll listener on mount
+if (typeof window !== "undefined") {
+  window.addEventListener("scroll", handleScroll);
+}
 
 watch(
   () => route.query.keyword,
@@ -1657,6 +1686,44 @@ const handleLogout = () => {
   display: none;
 }
 
+// ========================================
+// Back to Top Button
+// ========================================
+.back-to-top {
+  position: fixed;
+  bottom: calc(var(--space-8) + 70px);
+  right: var(--space-6);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-fast);
+  z-index: var(--z-fixed);
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .search-toggle,
   .menu-toggle {
@@ -1673,6 +1740,18 @@ const handleLogout = () => {
 
   .main {
     min-height: calc(100vh - 60px - 70px);
+  }
+
+  .back-to-top {
+    bottom: calc(var(--space-6) + 70px);
+    right: var(--space-4);
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 </style>

@@ -92,10 +92,35 @@ watch(visible, (val) => {
 
 const copyLink = async () => {
   try {
-    await navigator.clipboard.writeText(props.url)
-    showToast({ type: 'success', message: '链接已复制' })
-    visible.value = false
+    // 方案1: 使用现代 Clipboard API（需要 HTTPS）
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(props.url)
+      showToast({ type: 'success', message: '链接已复制' })
+      visible.value = false
+      return
+    }
+    
+    // 方案2: 降级使用 document.execCommand（兼容 HTTP）
+    const textArea = document.createElement('textarea')
+    textArea.value = props.url
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-9999px'
+    textArea.style.top = '0'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    const successful = document.execCommand('copy')
+    document.body.removeChild(textArea)
+    
+    if (successful) {
+      showToast({ type: 'success', message: '链接已复制' })
+      visible.value = false
+    } else {
+      showToast('复制失败，请手动复制')
+    }
   } catch (error) {
+    console.error('复制失败:', error)
     showToast('复制失败，请手动复制')
   }
 }

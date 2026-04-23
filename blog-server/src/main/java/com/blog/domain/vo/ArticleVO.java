@@ -49,6 +49,11 @@ public class ArticleVO {
     private Boolean isFavorited;
 
     /**
+     * 所属系列
+     */
+    private List<SeriesSimpleVO> series;
+
+    /**
      * 上一篇文章
      */
     private ArticleNavVO prevArticle;
@@ -66,5 +71,14 @@ public class ArticleVO {
         private Long id;
         private String title;
         private String categoryName;
+    }
+
+    /**
+     * 系列简要信息
+     */
+    @Data
+    public static class SeriesSimpleVO {
+        private Long id;
+        private String name;
     }
 }

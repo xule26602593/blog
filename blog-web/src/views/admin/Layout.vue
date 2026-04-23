@@ -74,6 +74,16 @@
               </svg>
               <span class="nav-label">评论管理</span>
             </router-link>
+            <router-link
+              to="/admin/series"
+              class="nav-item"
+              :class="{ active: isActive('/admin/series') }"
+            >
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+              </svg>
+              <span class="nav-label">系列管理</span>
+            </router-link>
           </div>
         </nav>
 
@@ -176,6 +186,12 @@
           </svg>
           <span>评论</span>
         </router-link>
+        <router-link to="/admin/series" class="mobile-admin-item" :class="{ active: route.path.startsWith('/admin/series') }">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+          </svg>
+          <span>系列</span>
+        </router-link>
       </div>
     </nav>
   </div>
@@ -200,7 +216,8 @@ const menuItems = [
   { path: '/admin/articles', label: '文章管理' },
   { path: '/admin/categories', label: '分类管理' },
   { path: '/admin/tags', label: '标签管理' },
-  { path: '/admin/comments', label: '评论管理' }
+  { path: '/admin/comments', label: '评论管理' },
+  { path: '/admin/series', label: '系列管理' }
 ]
 
 const pageMeta = [
@@ -208,7 +225,8 @@ const pageMeta = [
   { path: '/admin/articles', title: '文章管理', description: '管理文章内容' },
   { path: '/admin/categories', title: '分类管理', description: '管理分类目录' },
   { path: '/admin/tags', title: '标签管理', description: '管理标签体系' },
-  { path: '/admin/comments', title: '评论管理', description: '审核评论内容' }
+  { path: '/admin/comments', title: '评论管理', description: '审核评论内容' },
+  { path: '/admin/series', title: '系列管理', description: '管理文章系列' }
 ]
 
 const isActive = (path) => {

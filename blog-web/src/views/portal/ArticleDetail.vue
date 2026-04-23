@@ -30,6 +30,17 @@
           </div>
         </div>
         <h1 class="article-title">{{ article.title }}</h1>
+        <div v-if="article.series?.length" class="article-series">
+          <span class="series-label">所属系列：</span>
+          <router-link
+            v-for="s in article.series"
+            :key="s.id"
+            :to="'/series/' + s.id"
+            class="series-link"
+          >
+            {{ s.name }}
+          </router-link>
+        </div>
         <div class="header-bottom">
           <div class="author-info">
             <div class="author-avatar">{{ article.authorName?.charAt(0) || 'A' }}</div>
@@ -480,6 +491,30 @@ watch(
   margin-bottom: var(--space-6);
   line-height: var(--leading-tight);
   color: var(--text-primary);
+}
+
+.article-series {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.series-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.series-link {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .header-bottom {

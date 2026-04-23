@@ -226,6 +226,43 @@ CREATE TABLE `reading_history` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='阅读历史表';
 
 -- =============================================
+-- 13. 文章系列表
+-- =============================================
+DROP TABLE IF EXISTS `series`;
+CREATE TABLE `series` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `name` VARCHAR(100) NOT NULL COMMENT '系列名称',
+    `description` VARCHAR(500) DEFAULT NULL COMMENT '系列介绍',
+    `cover_image` VARCHAR(255) DEFAULT NULL COMMENT '封面图片',
+    `mode` TINYINT DEFAULT 0 COMMENT '模式 0:有序(章节式) 1:无序(主题式)',
+    `article_count` INT DEFAULT 0 COMMENT '文章数量(冗余字段)',
+    `view_count` BIGINT DEFAULT 0 COMMENT '浏览量',
+    `sort` INT DEFAULT 0 COMMENT '排序',
+    `status` TINYINT DEFAULT 1 COMMENT '状态 0:禁用 1:启用',
+    `author_id` BIGINT DEFAULT NULL COMMENT '创建者ID',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除 0:未删除 1:已删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_status_sort` (`status`, `sort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章系列表';
+
+-- =============================================
+-- 14. 系列文章关联表
+-- =============================================
+DROP TABLE IF EXISTS `series_article`;
+CREATE TABLE `series_article` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `series_id` BIGINT NOT NULL COMMENT '系列ID',
+    `article_id` BIGINT NOT NULL COMMENT '文章ID',
+    `chapter_order` INT DEFAULT 0 COMMENT '章节顺序(有序模式下使用)',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_series_article` (`series_id`, `article_id`),
+    KEY `idx_article_id` (`article_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系列文章关联表';
+
+-- =============================================
 -- 初始化数据
 -- =============================================
 
@@ -266,3 +303,41 @@ INSERT INTO `sys_config` (`config_key`, `config_value`, `description`) VALUES
 ('site_footer', 'Copyright © 2024 My Blog', '页脚信息'),
 ('comment_open', 'true', '是否开启评论'),
 ('comment_need_audit', 'true', '评论是否需要审核');
+
+-- =============================================
+-- 全文检索相关表和索引
+-- =============================================
+
+-- 为 article 表添加全文索引 (ngram 中文分词)
+CREATE FULLTEXT INDEX idx_ft_article
+ON article(title, content) WITH PARSER ngram;
+
+-- =============================================
+-- 15. 搜索历史表
+-- =============================================
+DROP TABLE IF EXISTS `search_history`;
+CREATE TABLE `search_history` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT DEFAULT NULL COMMENT '用户ID(登录用户)',
+    `keyword` VARCHAR(100) NOT NULL COMMENT '搜索关键词',
+    `result_count` INT DEFAULT 0 COMMENT '搜索结果数量',
+    `ip_address` VARCHAR(50) DEFAULT NULL COMMENT 'IP地址',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '搜索时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_time` (`user_id`, `create_time`),
+    KEY `idx_keyword` (`keyword`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='搜索历史表';
+
+-- =============================================
+-- 16. 搜索建议表
+-- =============================================
+DROP TABLE IF EXISTS `search_suggestion`;
+CREATE TABLE `search_suggestion` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `keyword` VARCHAR(100) NOT NULL COMMENT '关键词',
+    `search_count` INT DEFAULT 1 COMMENT '搜索次数',
+    `last_search_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '最后搜索时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_keyword` (`keyword`),
+    KEY `idx_count` (`search_count` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='搜索建议表';

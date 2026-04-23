@@ -32,6 +32,7 @@ services:
       - "6379:6379"
     volumes:
       - ./redis_data:/data
+    command: redis-server --requirepass redis123456
     networks:
       - blog-network
 

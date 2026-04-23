@@ -14,7 +14,9 @@
         class="tab-item"
         :class="{ active: isActive(tab.path) }"
       >
-        <component :is="tab.icon" class="tab-icon" />
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" :d="tab.iconPath" />
+        </svg>
         <span>{{ tab.label }}</span>
       </router-link>
     </nav>
@@ -29,7 +31,7 @@
 </template>
 
 <script setup>
-import { computed, h } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -38,23 +40,17 @@ const tabs = [
   {
     path: '/user/profile',
     label: '个人资料',
-    icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.5' }, [
-      h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z' })
-    ])
+    iconPath: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z'
   },
   {
     path: '/user/favorites',
     label: '我的收藏',
-    icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.5' }, [
-      h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z' })
-    ])
+    iconPath: 'M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z'
   },
   {
     path: '/user/history',
     label: '阅读历史',
-    icon: h('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.5' }, [
-      h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z' })
-    ])
+    iconPath: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z'
   }
 ]
 
@@ -87,11 +83,8 @@ const isActive = (path) => {
 
 .tabs {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
-  padding: var(--space-1);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-xl);
 }
 
 .tab-item {
@@ -104,24 +97,29 @@ const isActive = (path) => {
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--text-secondary);
-  text-decoration: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
+  text-decoration: none;
   transition: all var(--transition-fast);
 
   &:hover {
-    color: var(--text-primary);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
   }
 
   &.active {
     color: white;
     background: var(--gradient-primary);
+    border-color: transparent;
     box-shadow: var(--shadow-sm);
   }
 }
 
 .tab-icon {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .fade-enter-active,
@@ -140,11 +138,18 @@ const isActive = (path) => {
   }
 
   .tabs {
-    flex-wrap: wrap;
+    gap: var(--space-2);
   }
 
   .tab-item {
-    flex: 1 1 calc(50% - var(--space-1));
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+    gap: var(--space-1);
+  }
+
+  .tab-icon {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>

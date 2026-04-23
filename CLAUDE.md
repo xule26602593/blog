@@ -123,6 +123,12 @@ src/
 
 ## Development Notes
 
+### Context7 Usage Rule
+**IMPORTANT**: Whenever the user mentions libraries, frameworks, or code generation, ALWAYS use the context7 MCP tool to fetch up-to-date documentation before proceeding. This ensures accurate, current information about:
+- Library APIs and usage patterns
+- Framework features and best practices
+- Code generation tools and their capabilities
+
 ### Backend Conventions
 - Entities use `@TableName`, `@TableId(type = IdType.AUTO)` from MyBatis Plus
 - Soft delete via `deleted` field (0=active, 1=deleted)

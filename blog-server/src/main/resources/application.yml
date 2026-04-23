@@ -48,3 +48,13 @@ logging:
   level:
     com.blog: debug
     org.springframework.security: info
+
+# Search Configuration
+search:
+  highlight:
+    content-length: 200
+  history:
+    max-size: 10
+    expire-days: 30
+  suggestion:
+    max-size: 10

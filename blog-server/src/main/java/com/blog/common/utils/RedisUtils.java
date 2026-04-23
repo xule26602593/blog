@@ -1,129 +1,161 @@
 package com.blog.common.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.RequiredArgsConstructor;
+import org.redisson.api.RBucket;
+import org.redisson.api.RList;
+import org.redisson.api.RMap;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.Set;
 
 @Component
+@RequiredArgsConstructor
 public class RedisUtils {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private final RedissonClient redissonClient;
 
     // ========== String ==========
 
     public void set(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
-    }
-
-    public void set(String key, Object value, long timeout, TimeUnit unit) {
-        redisTemplate.opsForValue().set(key, value, timeout, unit);
+        redissonClient.getBucket(key).set(value);
     }
 
     public void set(String key, Object value, long seconds) {
-        redisTemplate.opsForValue().set(key, value, seconds, TimeUnit.SECONDS);
+        redissonClient.getBucket(key).set(value, Duration.ofSeconds(seconds));
     }
 
     public Object get(String key) {
-        return redisTemplate.opsForValue().get(key);
+        return redissonClient.getBucket(key).get();
     }
 
     public boolean delete(String key) {
-        return Boolean.TRUE.equals(redisTemplate.delete(key));
+        return redissonClient.getBucket(key).delete();
     }
 
     public long delete(Collection<String> keys) {
-        Long count = redisTemplate.delete(keys);
-        return count != null ? count : 0;
+        long count = 0;
+        for (String key : keys) {
+            if (redissonClient.getBucket(key).delete()) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public boolean hasKey(String key) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        return redissonClient.getBucket(key).isExists();
     }
 
-    public boolean expire(String key, long timeout, TimeUnit unit) {
-        return Boolean.TRUE.equals(redisTemplate.expire(key, timeout, unit));
+    public boolean expire(String key, long seconds) {
+        RBucket<Object> bucket = redissonClient.getBucket(key);
+        if (bucket.isExists()) {
+            bucket.set(bucket.get(), Duration.ofSeconds(seconds));
+            return true;
+        }
+        return false;
     }
 
     public long getExpire(String key) {
-        Long expire = redisTemplate.getExpire(key, TimeUnit.SECONDS);
-        return expire != null ? expire : -2;
+        long remainTime = redissonClient.getBucket(key).remainTimeToLive();
+        return remainTime > 0 ? remainTime / 1000 : -2;
     }
 
     public long increment(String key, long delta) {
-        Long result = redisTemplate.opsForValue().increment(key, delta);
-        return result != null ? result : 0;
+        return redissonClient.getAtomicLong(key).addAndGet(delta);
     }
 
     public long decrement(String key, long delta) {
-        Long result = redisTemplate.opsForValue().decrement(key, delta);
-        return result != null ? result : 0;
+        return redissonClient.getAtomicLong(key).addAndGet(-delta);
     }
 
     // ========== Hash ==========
 
     public void hSet(String key, String hashKey, Object value) {
-        redisTemplate.opsForHash().put(key, hashKey, value);
+        redissonClient.getMap(key).put(hashKey, value);
     }
 
     public Object hGet(String key, String hashKey) {
-        return redisTemplate.opsForHash().get(key, hashKey);
+        return redissonClient.getMap(key).get(hashKey);
     }
 
     public void hDelete(String key, Object... hashKeys) {
-        redisTemplate.opsForHash().delete(key, hashKeys);
+        redissonClient.getMap(key).fastRemove(hashKeys);
     }
 
     public boolean hHasKey(String key, String hashKey) {
-        return redisTemplate.opsForHash().hasKey(key, hashKey);
+        return redissonClient.getMap(key).containsKey(hashKey);
     }
 
     public long hIncrement(String key, String hashKey, long delta) {
-        return redisTemplate.opsForHash().increment(key, hashKey, delta);
+        RMap<Object, Object> map = redissonClient.getMap(key);
+        Object value = map.get(hashKey);
+        long newValue = (value != null ? ((Number) value).longValue() : 0) + delta;
+        map.put(hashKey, newValue);
+        return newValue;
     }
 
     // ========== Set ==========
 
     public long sAdd(String key, Object... values) {
-        Long result = redisTemplate.opsForSet().add(key, values);
-        return result != null ? result : 0;
+        RSet<Object> set = redissonClient.getSet(key);
+        long count = 0;
+        for (Object value : values) {
+            if (set.add(value)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public long sRemove(String key, Object... values) {
-        Long result = redisTemplate.opsForSet().remove(key, values);
-        return result != null ? result : 0;
+        RSet<Object> set = redissonClient.getSet(key);
+        long count = 0;
+        for (Object value : values) {
+            if (set.remove(value)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public long sSize(String key) {
-        Long size = redisTemplate.opsForSet().size(key);
-        return size != null ? size : 0;
+        return redissonClient.getSet(key).size();
     }
 
     // ========== List ==========
 
     public long lPush(String key, Object value) {
-        Long result = redisTemplate.opsForList().leftPush(key, value);
-        return result != null ? result : 0;
+        redissonClient.getList(key).add(0, value);
+        return redissonClient.getList(key).size();
     }
 
     public long rPush(String key, Object value) {
-        Long result = redisTemplate.opsForList().rightPush(key, value);
-        return result != null ? result : 0;
+        redissonClient.getList(key).add(value);
+        return redissonClient.getList(key).size();
     }
 
     public Object lPop(String key) {
-        return redisTemplate.opsForList().leftPop(key);
+        RList<Object> list = redissonClient.getList(key);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.remove(0);
     }
 
     public Object rPop(String key) {
-        return redisTemplate.opsForList().rightPop(key);
+        RList<Object> list = redissonClient.getList(key);
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.remove(list.size() - 1);
     }
 
     public long lSize(String key) {
-        Long size = redisTemplate.opsForList().size(key);
-        return size != null ? size : 0;
+        return redissonClient.getList(key).size();
     }
 }

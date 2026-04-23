@@ -3,11 +3,14 @@ package com.blog.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.Article;
 import com.blog.domain.vo.ArticleVO.ArticleNavVO;
+import com.blog.domain.vo.SearchVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
 
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
@@ -101,4 +104,19 @@ public interface ArticleMapper extends BaseMapper<Article> {
         LIMIT 1
         """)
     ArticleNavVO selectNextGlobal(@Param("currentId") Long currentId);
+
+    // ==================== 全文检索 ====================
+
+    /**
+     * 全文检索文章（使用 MATCH AGAINST）
+     */
+    List<SearchVO> searchFulltext(@Param("keyword") String keyword,
+                                  @Param("sortBy") String sortBy,
+                                  @Param("offset") int offset,
+                                  @Param("size") int size);
+
+    /**
+     * 全文检索文章总数
+     */
+    Long searchFulltextCount(@Param("keyword") String keyword);
 }

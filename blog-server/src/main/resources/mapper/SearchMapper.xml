@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.repository.mapper.ArticleMapper">
+
+    <select id="searchFulltext" resultType="com.blog.domain.vo.SearchVO">
+        SELECT
+            a.id,
+            a.title,
+            a.summary,
+            a.content AS contentHighlight,
+            a.cover_image AS coverImage,
+            c.name AS categoryName,
+            DATE_FORMAT(a.publish_time, '%Y-%m-%d %H:%i:%s') AS publishTime,
+            MATCH(a.title, a.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) AS score
+        FROM article a
+        LEFT JOIN category c ON a.category_id = c.id
+        WHERE a.status = 1
+          AND a.deleted = 0
+          AND MATCH(a.title, a.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+        ORDER BY
+            <choose>
+                <when test="sortBy == 'time'">
+                    a.publish_time DESC
+                </when>
+                <otherwise>
+                    score DESC
+                </otherwise>
+            </choose>
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="searchFulltextCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM article a
+        WHERE a.status = 1
+          AND a.deleted = 0
+          AND MATCH(a.title, a.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+    </select>
+
+</mapper>

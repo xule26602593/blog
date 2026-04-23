@@ -5,11 +5,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.common.exception.BusinessException;
 import com.blog.common.result.ErrorCode;
 import com.blog.common.utils.BeanCopyUtils;
+import com.blog.common.utils.DistributedLockUtils;
+import org.springframework.cache.annotation.Cacheable;
 import com.blog.domain.dto.ArticleDTO;
 import com.blog.domain.dto.ArticleQueryDTO;
 import com.blog.domain.entity.Article;
 import com.blog.domain.entity.ArticleTag;
 import com.blog.domain.entity.Category;
+import com.blog.domain.entity.Series;
 import com.blog.domain.entity.Tag;
 import com.blog.domain.entity.User;
 import com.blog.domain.entity.UserAction;
@@ -19,6 +22,8 @@ import com.blog.domain.vo.TagVO;
 import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.ArticleTagMapper;
 import com.blog.repository.mapper.CategoryMapper;
+import com.blog.repository.mapper.SeriesArticleMapper;
+import com.blog.repository.mapper.SeriesMapper;
 import com.blog.repository.mapper.TagMapper;
 import com.blog.repository.mapper.UserActionMapper;
 import com.blog.repository.mapper.UserMapper;
@@ -33,7 +38,12 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +56,9 @@ public class ArticleServiceImpl implements ArticleService {
     private final ArticleTagMapper articleTagMapper;
     private final UserMapper userMapper;
     private final UserActionMapper userActionMapper;
+    private final SeriesMapper seriesMapper;
+    private final SeriesArticleMapper seriesArticleMapper;
+    private final DistributedLockUtils lockUtils;
 
     @Override
     public Page<ArticleListVO> pageArticle(ArticleQueryDTO query) {
@@ -118,6 +131,21 @@ public class ArticleServiceImpl implements ArticleService {
             vo.setIsFavorited(checkUserAction(userId, id, 2));
         }
 
+        // 设置所属系列
+        List<Long> seriesIds = seriesArticleMapper.selectSeriesIdsByArticleId(id);
+        if (!seriesIds.isEmpty()) {
+            List<Series> seriesList = seriesMapper.selectBatchIds(seriesIds);
+            vo.setSeries(seriesList.stream()
+                    .filter(s -> s.getDeleted() == 0 && s.getStatus() == 1)
+                    .map(s -> {
+                        ArticleVO.SeriesSimpleVO svo = new ArticleVO.SeriesSimpleVO();
+                        svo.setId(s.getId());
+                        svo.setName(s.getName());
+                        return svo;
+                    })
+                    .collect(Collectors.toList()));
+        }
+
         // 设置上一篇和下一篇
         vo.setPrevArticle(getPrevArticle(id, article.getCategoryId(), tagIds));
         vo.setNextArticle(getNextArticle(id, article.getCategoryId(), tagIds));
@@ -126,25 +154,27 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Cacheable(value = "hotArticles", key = "#limit")
     public List<ArticleListVO> getHotArticles(int limit) {
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Article::getDeleted, 0)
                .eq(Article::getStatus, 1)
                .orderByDesc(Article::getViewCount)
                .last("LIMIT " + limit);
-        
+
         List<Article> articles = articleMapper.selectList(wrapper);
         return convertToVOList(articles);
     }
 
     @Override
+    @Cacheable(value = "topArticles", key = "'default'")
     public List<ArticleListVO> getTopArticles() {
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Article::getDeleted, 0)
                .eq(Article::getStatus, 1)
                .eq(Article::getIsTop, 1)
                .orderByDesc(Article::getPublishTime);
-        
+
         List<Article> articles = articleMapper.selectList(wrapper);
         return convertToVOList(articles);
     }
@@ -152,8 +182,13 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional
     public void saveOrUpdateArticle(ArticleDTO dto) {
+        String lockKey = "lock:article:" + (dto.getId() != null ? dto.getId() : "new");
+        lockUtils.executeWithLock(lockKey, () -> doSaveOrUpdateArticle(dto));
+    }
+
+    private void doSaveOrUpdateArticle(ArticleDTO dto) {
         Article article;
-        
+
         if (dto.getId() == null) {
             article = new Article();
             article.setViewCount(0L);
@@ -166,7 +201,7 @@ public class ArticleServiceImpl implements ArticleService {
                 throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
             }
         }
-        
+
         article.setTitle(dto.getTitle());
         article.setSummary(dto.getSummary());
         article.setContent(dto.getContent());
@@ -174,12 +209,12 @@ public class ArticleServiceImpl implements ArticleService {
         article.setCategoryId(dto.getCategoryId());
         article.setIsTop(dto.getIsTop() != null ? dto.getIsTop() : 0);
         article.setStatus(dto.getStatus() != null ? dto.getStatus() : 0);
-        
+
         // 发布时设置发布时间
         if (article.getStatus() == 1 && article.getPublishTime() == null) {
             article.setPublishTime(LocalDateTime.now());
         }
-        
+
         if (dto.getId() == null) {
             articleMapper.insert(article);
         } else {
@@ -188,7 +223,7 @@ public class ArticleServiceImpl implements ArticleService {
             articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
                     .eq(ArticleTag::getArticleId, article.getId()));
         }
-        
+
         // 保存标签关联
         if (dto.getTagIds() != null && !dto.getTagIds().isEmpty()) {
             for (Long tagId : dto.getTagIds()) {
@@ -356,28 +391,81 @@ public class ArticleServiceImpl implements ArticleService {
     }
     
     private List<ArticleListVO> convertToVOList(List<Article> articles) {
+        if (articles.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 1. 收集所有 categoryId
+        Set<Long> categoryIds = articles.stream()
+                .map(Article::getCategoryId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // 2. 批量查询分类
+        Map<Long, Category> categoryMap = new HashMap<>();
+        if (!categoryIds.isEmpty()) {
+            List<Category> categories = categoryMapper.selectBatchIds(categoryIds);
+            categoryMap = categories.stream()
+                    .collect(Collectors.toMap(Category::getId, c -> c));
+        }
+
+        // 3. 收集所有 articleId
+        List<Long> articleIds = articles.stream()
+                .map(Article::getId)
+                .collect(Collectors.toList());
+
+        // 4. 批量查询文章-标签关联
+        List<ArticleTag> articleTags = articleTagMapper.selectByArticleIds(articleIds);
+
+        // 5. 构建 articleId -> tagIds 映射
+        Map<Long, List<Long>> articleTagMap = articleTags.stream()
+                .collect(Collectors.groupingBy(
+                        ArticleTag::getArticleId,
+                        Collectors.mapping(ArticleTag::getTagId, Collectors.toList())
+                ));
+
+        // 6. 收集所有 tagId 并批量查询标签
+        Set<Long> tagIds = articleTags.stream()
+                .map(ArticleTag::getTagId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Tag> tagMap = new HashMap<>();
+        if (!tagIds.isEmpty()) {
+            List<Tag> tags = tagMapper.selectBatchIds(tagIds);
+            tagMap = tags.stream()
+                    .collect(Collectors.toMap(Tag::getId, t -> t));
+        }
+
+        // 7. 组装结果
+        Map<Long, Category> finalCategoryMap = categoryMap;
+        Map<Long, Tag> finalTagMap = tagMap;
+
         return articles.stream().map(article -> {
             ArticleListVO vo = BeanCopyUtils.copy(article, ArticleListVO.class);
-            
+
+            // 设置分类
             if (article.getCategoryId() != null) {
-                Category category = categoryMapper.selectById(article.getCategoryId());
+                Category category = finalCategoryMap.get(article.getCategoryId());
                 if (category != null) {
                     vo.setCategoryName(category.getName());
                 }
             }
-            
-            List<Long> tagIds = articleTagMapper.selectTagIdsByArticleId(article.getId());
-            if (!tagIds.isEmpty()) {
-                List<Tag> tags = tagMapper.selectBatchIds(tagIds);
-                vo.setTags(tags.stream()
+
+            // 设置标签
+            List<Long> tagIdList = articleTagMap.get(article.getId());
+            if (tagIdList != null && !tagIdList.isEmpty()) {
+                List<TagVO> tagVOList = tagIdList.stream()
+                        .map(finalTagMap::get)
+                        .filter(Objects::nonNull)
                         .map(tag -> BeanCopyUtils.copy(tag, TagVO.class))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
+                vo.setTags(tagVOList);
             }
-            
+
             if (article.getPublishTime() != null) {
                 vo.setPublishTime(article.getPublishTime().toString());
             }
-            
+
             return vo;
         }).collect(Collectors.toList());
     }

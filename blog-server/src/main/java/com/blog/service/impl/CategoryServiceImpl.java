@@ -11,6 +11,8 @@ import com.blog.domain.vo.CategoryVO;
 import com.blog.repository.mapper.CategoryMapper;
 import com.blog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
+    @Cacheable(value = "category", key = "'list'")
     public List<CategoryVO> listAll() {
         List<Category> categories = categoryMapper.selectList(
                 new LambdaQueryWrapper<Category>()
@@ -66,6 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "category", key = "'list'")
     public void saveOrUpdate(CategoryDTO dto) {
         Category category;
         if (dto.getId() == null) {
@@ -91,6 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "category", key = "'list'")
     public void delete(Long id) {
         Integer count = categoryMapper.countArticles(id);
         if (count > 0) {
