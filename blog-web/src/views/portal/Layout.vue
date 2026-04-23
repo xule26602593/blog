@@ -102,6 +102,21 @@
             </svg>
           </button>
 
+          <!-- 通知图标 -->
+          <router-link
+            v-if="userStore.isLoggedIn"
+            to="/notifications"
+            class="icon-btn notification-btn"
+            title="通知"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+            <span v-if="userStore.unreadNotificationCount > 0" class="notification-badge">
+              {{ userStore.unreadNotificationCount > 99 ? '99+' : userStore.unreadNotificationCount }}
+            </span>
+          </router-link>
+
           <button
             class="icon-btn theme-toggle"
             @click="toggleTheme"
@@ -646,7 +661,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { useThemeStore } from "@/stores/theme";
@@ -748,6 +763,13 @@ const handleLogout = () => {
   closeMobileMenu();
   router.push("/");
 };
+
+// Fetch unread notification count on mount
+onMounted(() => {
+  if (userStore.isLoggedIn) {
+    userStore.fetchUnreadCount();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -991,6 +1013,27 @@ const handleLogout = () => {
     color: var(--color-primary);
     background: var(--bg-hover);
   }
+}
+
+.notification-btn {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: var(--font-bold);
+  color: white;
+  background: var(--color-error);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .user-menu {

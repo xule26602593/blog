@@ -16,6 +16,7 @@ import com.blog.domain.entity.Series;
 import com.blog.domain.entity.Tag;
 import com.blog.domain.entity.User;
 import com.blog.domain.entity.UserAction;
+import com.blog.domain.entity.UserFollow;
 import com.blog.domain.vo.ArticleListVO;
 import com.blog.domain.vo.ArticleVO;
 import com.blog.domain.vo.TagVO;
@@ -26,10 +27,13 @@ import com.blog.repository.mapper.SeriesArticleMapper;
 import com.blog.repository.mapper.SeriesMapper;
 import com.blog.repository.mapper.TagMapper;
 import com.blog.repository.mapper.UserActionMapper;
+import com.blog.repository.mapper.UserFollowMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.ArticleService;
+import com.blog.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -59,6 +63,8 @@ public class ArticleServiceImpl implements ArticleService {
     private final SeriesMapper seriesMapper;
     private final SeriesArticleMapper seriesArticleMapper;
     private final DistributedLockUtils lockUtils;
+    private final NotificationService notificationService;
+    private final UserFollowMapper userFollowMapper;
 
     @Override
     public Page<ArticleListVO> pageArticle(ArticleQueryDTO query) {
@@ -213,6 +219,12 @@ public class ArticleServiceImpl implements ArticleService {
         // 发布时设置发布时间
         if (article.getStatus() == 1 && article.getPublishTime() == null) {
             article.setPublishTime(LocalDateTime.now());
+
+            // 新发布文章，通知粉丝
+            if (dto.getId() == null) {
+                // 异步通知粉丝
+                notifyFollowers(article.getId(), article.getTitle());
+            }
         }
 
         if (dto.getId() == null) {
@@ -484,5 +496,25 @@ public class ArticleServiceImpl implements ArticleService {
                 .eq(UserAction::getArticleId, articleId)
                 .eq(UserAction::getActionType, actionType));
         return count > 0;
+    }
+
+    @Async
+    private void notifyFollowers(Long articleId, String articleTitle) {
+        Long authorId = getCurrentUserId();
+        User author = userMapper.selectById(authorId);
+        if (author == null) return;
+
+        String authorName = author.getNickname() != null ? author.getNickname() : author.getUsername();
+
+        // 获取粉丝列表
+        List<Long> followerIds = userFollowMapper.selectList(
+            new LambdaQueryWrapper<UserFollow>()
+                .eq(UserFollow::getFollowingId, authorId)
+        ).stream().map(UserFollow::getFollowerId).collect(Collectors.toList());
+
+        // 为每个粉丝创建通知
+        for (Long followerId : followerIds) {
+            notificationService.createFollowNotification(followerId, articleId, articleTitle, authorId, authorName);
+        }
     }
 }

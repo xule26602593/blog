@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { login as loginApi, getCurrentUser } from '@/api/auth'
+import { getUnreadCount } from '@/api/notification'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const userInfo = ref(JSON.parse(localStorage.getItem('userInfo') || 'null'))
+  const unreadNotificationCount = ref(0)
 
   const isLoggedIn = computed(() => !!token.value)
   const roleCode = computed(() => userInfo.value?.roleCode || '')
@@ -51,15 +53,28 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
   }
 
+  // 获取未读通知数
+  async function fetchUnreadCount() {
+    if (!isLoggedIn.value) return
+    try {
+      const res = await getUnreadCount()
+      unreadNotificationCount.value = res.data || 0
+    } catch (e) {
+      console.error('获取未读通知数失败', e)
+    }
+  }
+
   return {
     token,
     userInfo,
     isLoggedIn,
     roleCode,
     isAdmin,
+    unreadNotificationCount,
     login,
     fetchUserInfo,
     logout,
-    updateUserInfo
+    updateUserInfo,
+    fetchUnreadCount
   }
 })

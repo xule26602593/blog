@@ -7,27 +7,19 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("sys_user")
-public class User implements Serializable {
+@TableName("announcement")
+public class Announcement implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String username;
+    private String title;
 
-    private String password;
-
-    private String nickname;
-
-    private String email;
-
-    private String avatar;
+    private String content;
 
     private Integer status;
 
-    private Long roleId;
-
-    private String roleCode;
+    private LocalDateTime publishTime;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -35,12 +27,6 @@ public class User implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
-    private LocalDateTime lastLoginTime;
-
     @TableLogic
     private Integer deleted;
-
-    private Integer followerCount;
-
-    private Integer followingCount;
 }

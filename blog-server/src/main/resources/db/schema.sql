@@ -341,3 +341,58 @@ CREATE TABLE `search_suggestion` (
     UNIQUE KEY `uk_keyword` (`keyword`),
     KEY `idx_count` (`search_count` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='搜索建议表';
+
+-- =============================================
+-- 17. 用户关注表
+-- =============================================
+DROP TABLE IF EXISTS `user_follow`;
+CREATE TABLE `user_follow` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `follower_id` BIGINT NOT NULL COMMENT '关注者ID',
+    `following_id` BIGINT NOT NULL COMMENT '被关注者ID',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '关注时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_follower_following` (`follower_id`, `following_id`),
+    KEY `idx_follower` (`follower_id`),
+    KEY `idx_following` (`following_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户关注表';
+
+-- =============================================
+-- 18. 通知表
+-- =============================================
+DROP TABLE IF EXISTS `notification`;
+CREATE TABLE `notification` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL COMMENT '接收通知的用户ID',
+    `type` TINYINT NOT NULL COMMENT '通知类型 1:关注动态 2:评论通知 3:回复通知 4:系统公告',
+    `title` VARCHAR(200) NOT NULL COMMENT '通知标题',
+    `content` VARCHAR(500) DEFAULT NULL COMMENT '通知内容',
+    `related_id` BIGINT DEFAULT NULL COMMENT '关联ID(文章ID/评论ID/公告ID)',
+    `sender_id` BIGINT DEFAULT NULL COMMENT '发送者ID(系统公告为NULL)',
+    `is_read` TINYINT DEFAULT 0 COMMENT '是否已读 0:未读 1:已读',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_read` (`user_id`, `is_read`),
+    KEY `idx_user_time` (`user_id`, `create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知表';
+
+-- =============================================
+-- 19. 系统公告表
+-- =============================================
+DROP TABLE IF EXISTS `announcement`;
+CREATE TABLE `announcement` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `title` VARCHAR(200) NOT NULL COMMENT '公告标题',
+    `content` TEXT NOT NULL COMMENT '公告内容',
+    `status` TINYINT DEFAULT 1 COMMENT '状态 0:草稿 1:已发布',
+    `publish_time` DATETIME DEFAULT NULL COMMENT '发布时间',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_status_time` (`status`, `publish_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统公告表';
+
+-- 为用户表添加关注数和粉丝数字段
+ALTER TABLE `sys_user` ADD COLUMN `follower_count` INT DEFAULT 0 COMMENT '粉丝数';
+ALTER TABLE `sys_user` ADD COLUMN `following_count` INT DEFAULT 0 COMMENT '关注数';

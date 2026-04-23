@@ -56,6 +56,12 @@ const routes = [
         meta: { title: '系列详情' }
       },
       {
+        path: 'notifications',
+        name: 'Notification',
+        component: () => import('@/views/portal/Notification.vue'),
+        meta: { title: '通知中心', requiresAuth: true }
+      },
+      {
         path: 'user',
         name: 'UserCenter',
         component: () => import('@/views/portal/UserCenter.vue'),
@@ -79,6 +85,18 @@ const routes = [
             name: 'UserHistory',
             component: () => import('@/views/portal/UserHistory.vue'),
             meta: { title: '阅读历史' }
+          },
+          {
+            path: 'following',
+            name: 'UserFollowing',
+            component: () => import('@/views/portal/UserFollowing.vue'),
+            meta: { title: '关注' }
+          },
+          {
+            path: 'followers',
+            name: 'UserFollowers',
+            component: () => import('@/views/portal/UserFollowers.vue'),
+            meta: { title: '粉丝' }
           }
         ]
       }
@@ -149,6 +167,12 @@ const routes = [
         name: 'SeriesEdit',
         component: () => import('@/views/admin/SeriesEdit.vue'),
         meta: { title: '系列编辑' }
+      },
+      {
+        path: 'announcements',
+        name: 'AnnouncementManage',
+        component: () => import('@/views/admin/AnnouncementManage.vue'),
+        meta: { title: '公告管理' }
       }
     ]
   },

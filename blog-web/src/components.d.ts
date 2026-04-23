@@ -15,6 +15,7 @@ declare module 'vue' {
     AppButton: typeof import('./components/common/AppButton.vue')['default']
     AppCard: typeof import('./components/common/AppCard.vue')['default']
     ArticleCard: typeof import('./components/ArticleCard.vue')['default']
+    FollowButton: typeof import('./components/FollowButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchBox: typeof import('./components/SearchBox.vue')['default']

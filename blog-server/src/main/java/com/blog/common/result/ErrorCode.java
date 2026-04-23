@@ -32,6 +32,9 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(3001, "评论不存在"),
     COMMENT_DISABLED(3002, "评论功能已关闭"),
 
+    // 参数相关 1500+
+    PARAMS_ERROR(1501, "参数错误"),
+
     // 文件相关 4000+
     FILE_UPLOAD_ERROR(4001, "文件上传失败"),
     FILE_TYPE_ERROR(4002, "文件类型不支持"),
