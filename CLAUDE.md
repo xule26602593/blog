@@ -147,6 +147,9 @@ src/
 - Tables: `sys_role`, `sys_user`, `category`, `tag`, `article`, `article_tag`, `comment`, `message`, `user_action`, `visit_log`, `sys_config`
 - Character set: utf8mb4
 
+### Documented Solutions
+`docs/solutions/` contains documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
+
 ### Security White List
 Public endpoints (no auth required):
 - `/api/portal/**` - All public portal APIs
