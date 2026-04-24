@@ -38,6 +38,30 @@ const routes = [
         meta: { title: '归档' }
       },
       {
+        path: 'messages/inbox',
+        name: 'MessageInbox',
+        component: () => import('@/views/portal/MessageInbox.vue'),
+        meta: { title: '私信', requiresAuth: true }
+      },
+      {
+        path: 'messages/chat/:id',
+        name: 'MessageChat',
+        component: () => import('@/views/portal/MessageChat.vue'),
+        meta: { title: '聊天', requiresAuth: true }
+      },
+      {
+        path: 'knowledge-graph',
+        name: 'KnowledgeGraph',
+        component: () => import('@/views/portal/KnowledgeGraph.vue'),
+        meta: { title: '知识图谱' }
+      },
+      {
+        path: 'messages',
+        name: 'MessageBoard',
+        component: () => import('@/views/portal/MessageBoard.vue'),
+        meta: { title: '留言板' }
+      },
+      {
         path: 'search',
         name: 'Search',
         component: () => import('@/views/portal/Search.vue'),
@@ -54,6 +78,12 @@ const routes = [
         name: 'SeriesDetail',
         component: () => import('@/views/portal/SeriesDetail.vue'),
         meta: { title: '系列详情' }
+      },
+      {
+        path: 'user/:id',
+        name: 'UserProfilePublic',
+        component: () => import('@/views/portal/UserProfilePublic.vue'),
+        meta: { title: '用户主页' }
       },
       {
         path: 'notifications',
@@ -173,6 +203,12 @@ const routes = [
         name: 'AnnouncementManage',
         component: () => import('@/views/admin/AnnouncementManage.vue'),
         meta: { title: '公告管理' }
+      },
+      {
+        path: 'statistics',
+        name: 'Statistics',
+        component: () => import('@/views/admin/Statistics.vue'),
+        meta: { title: '访问统计' }
       }
     ]
   },

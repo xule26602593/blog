@@ -43,4 +43,8 @@ public class User implements Serializable {
     private Integer followerCount;
 
     private Integer followingCount;
+
+    private String bio;
+
+    private String website;
 }

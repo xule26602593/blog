@@ -31,6 +31,21 @@ public class SpringCacheConfig {
         // 置顶文章缓存 - 10 分钟
         config.put("topArticles", new CacheConfig(10 * 60 * 1000, 0));
 
+        // 文章详情缓存 - 1 小时
+        config.put("articleDetail", new CacheConfig(60 * 60 * 1000, 0));
+
+        // 文章列表缓存 - 10 分钟
+        config.put("articleList", new CacheConfig(10 * 60 * 1000, 0));
+
+        // 系统配置缓存 - 永久存储，手动失效
+        config.put("sysConfig", new CacheConfig(0, 0));
+
+        // 敏感词库缓存 - 永久存储，手动失效
+        config.put("sensitiveWords", new CacheConfig(0, 0));
+
+        // 相关推荐缓存 - 10 分钟
+        config.put("relatedArticles", new CacheConfig(10 * 60 * 1000, 0));
+
         return new RedissonSpringCacheManager(redissonClient, config);
     }
 }

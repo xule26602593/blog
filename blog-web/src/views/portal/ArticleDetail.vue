@@ -28,6 +28,9 @@
             <span class="meta-dot">·</span>
             <span class="meta-words">{{ readingInfo.words }} 字</span>
           </div>
+          <button class="reading-settings-btn" @click="showReadingSettings = true" title="阅读设置">
+            <van-icon name="setting-o" size="18" />
+          </button>
         </div>
         <h1 class="article-title">{{ article.title }}</h1>
         <div v-if="article.series?.length" class="article-series">
@@ -64,6 +67,11 @@
       <div
         ref="articleContentRef"
         class="article-content markdown-body"
+        :style="{
+          fontSize: readingStore.getFontSizeValue(),
+          backgroundColor: readingStore.getThemeValue().bg,
+          color: readingStore.getThemeValue().text
+        }"
         v-html="renderedContent"
         v-viewer
         v-copy-button
@@ -194,6 +202,9 @@
       :url="articleUrl"
       :title="article.title"
     />
+
+    <!-- 阅读设置面板 -->
+    <ReadingSettings v-model:show="showReadingSettings" />
   </div>
 </template>
 
@@ -208,13 +219,16 @@ import { getArticle, likeArticle, favoriteArticle } from '@/api/article'
 import { getComments, addComment } from '@/api/comment'
 import { recordHistory } from '@/api/history'
 import { useUserStore } from '@/stores/user'
+import { useReadingStore } from '@/stores/reading'
 import { calculateReadingTime } from '@/utils/readingTime'
 import { useToc } from '@/composables/useToc'
 import TocNavigation from '@/components/TocNavigation.vue'
 import SharePanel from '@/components/SharePanel.vue'
+import ReadingSettings from '@/components/ReadingSettings.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
+const readingStore = useReadingStore()
 
 const article = ref({})
 const comments = ref([])
@@ -223,6 +237,7 @@ const commentLoading = ref(false)
 const articleContentRef = ref(null)
 const loading = ref(true)
 const showSharePanel = ref(false)
+const showReadingSettings = ref(false)
 
 // 文章分享链接
 const articleUrl = computed(() => {
@@ -450,6 +465,10 @@ watch(
 }
 
 .header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
   margin-bottom: var(--space-5);
 }
 
@@ -459,6 +478,28 @@ watch(
   flex-wrap: wrap;
   gap: var(--space-2);
   font-size: var(--text-sm);
+}
+
+.reading-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+  }
 }
 
 .meta-category {
@@ -618,6 +659,7 @@ watch(
 .article-content {
   padding: var(--space-10);
   padding-top: var(--space-8);
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 // ========================================

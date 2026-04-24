@@ -16,6 +16,7 @@ import com.blog.repository.mapper.CommentMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.CommentService;
+import com.blog.service.SensitiveWordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
+    private final SensitiveWordService sensitiveWordService;
 
     @Override
     public Page<CommentVO> pageComment(Long articleId, int pageNum, int pageSize) {
@@ -91,7 +93,11 @@ public class CommentServiceImpl implements CommentService {
         comment.setArticleId(dto.getArticleId());
         comment.setParentId(dto.getParentId() != null ? dto.getParentId() : 0L);
         comment.setReplyId(dto.getReplyId());
-        comment.setContent(dto.getContent());
+
+        // 敏感词过滤
+        String filteredContent = sensitiveWordService.filter(dto.getContent());
+        comment.setContent(filteredContent);
+
         comment.setIpAddress(IpUtils.getIpAddress());
         
         // 获取当前登录用户
