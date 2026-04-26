@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <div v-if="userStore.isLoggedIn && user.id !== userStore.userInfo?.id" class="user-actions">
+        <div v-if="userStore.isLoggedIn && user.id !== userStore.userInfo?.userId" class="user-actions">
           <van-button
             :type="user.isFollowing ? 'default' : 'primary'"
             @click="handleFollow"

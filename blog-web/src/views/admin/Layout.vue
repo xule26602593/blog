@@ -282,10 +282,11 @@ onUnmounted(() => {
   width: 280px;
   flex-shrink: 0;
   padding: var(--space-5);
-  transition: width var(--transition-base);
+  transition: width var(--transition-base), padding var(--transition-base);
 
   &.collapsed {
-    width: 88px;
+    width: 80px;
+    padding: var(--space-4);
   }
 }
 
@@ -299,6 +300,11 @@ onUnmounted(() => {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-2xl);
+  transition: padding var(--transition-base);
+}
+
+.collapsed .sidebar-inner {
+  padding: var(--space-2);
 }
 
 // Brand
@@ -351,6 +357,21 @@ onUnmounted(() => {
 
 .collapsed .brand-text {
   display: none;
+}
+
+.collapsed .brand {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.collapsed .brand-mark {
+  width: 40px;
+  height: 40px;
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 // Navigation
@@ -447,6 +468,11 @@ onUnmounted(() => {
   .nav-badge {
     display: none;
   }
+
+  .nav-icon {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 // Collapse Button
@@ -473,6 +499,16 @@ onUnmounted(() => {
     color: var(--color-primary);
     background: var(--bg-hover);
     border-color: var(--color-primary);
+  }
+}
+
+.collapsed .collapse-btn {
+  padding: var(--space-3);
+
+  svg {
+    transform: rotate(180deg);
+    width: 20px;
+    height: 20px;
   }
 }
 

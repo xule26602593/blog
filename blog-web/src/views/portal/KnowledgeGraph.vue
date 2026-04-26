@@ -30,22 +30,51 @@ const fetchGraphData = async () => {
   loading.value = true
   try {
     const res = await request.get('/api/portal/knowledge-graph')
+    console.log('知识图谱接口返回:', res)
     if (res.data) {
       graphData.value = res.data
+      console.log('节点数量:', res.data.nodes?.length, '连线数量:', res.data.links?.length)
+
+      // 先关闭 loading，确保 DOM 已渲染
+      loading.value = false
+
       await nextTick()
+      console.log('nextTick 后，chartRef:', chartRef.value)
       renderChart()
+    } else {
+      loading.value = false
     }
   } catch (error) {
     console.error('获取知识图谱失败:', error)
-  } finally {
     loading.value = false
   }
 }
 
 const renderChart = () => {
-  if (!chartRef.value || graphData.value.nodes.length === 0) return
+  if (!chartRef.value) {
+    console.error('chartRef 不存在')
+    return
+  }
+
+  if (graphData.value.nodes.length === 0) {
+    console.error('节点数据为空')
+    return
+  }
+
+  console.log('开始渲染图表，节点数:', graphData.value.nodes.length, '连线数:', graphData.value.links.length)
+
+  // 销毁旧实例
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
 
   chartInstance = echarts.init(chartRef.value)
+
+  // 创建 id -> name 映射
+  const nodeMap = new Map()
+  graphData.value.nodes.forEach(node => {
+    nodeMap.set(node.id, node.name)
+  })
 
   const nodes = graphData.value.nodes.map(node => ({
     id: String(node.id),
