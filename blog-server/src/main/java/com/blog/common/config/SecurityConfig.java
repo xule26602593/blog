@@ -30,6 +30,7 @@ public class SecurityConfig {
 
     // 白名单路径
     private static final String[] WHITE_LIST = {
+            "/actuator/**",
             "/api/portal/**",
             "/api/auth/login",
             "/api/auth/register",
@@ -43,6 +44,11 @@ public class SecurityConfig {
             "/error"
     };
 
+    // AI端点 - 需要登录认证
+    private static final String[] AI_AUTHENTICATED = {
+            "/api/portal/ai/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -52,6 +58,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(AI_AUTHENTICATED).authenticated()
                         .requestMatchers(WHITE_LIST).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

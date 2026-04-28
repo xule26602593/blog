@@ -46,8 +46,8 @@
           <van-field name="radio" label="模式">
             <template #input>
               <van-radio-group v-model="form.mode" direction="horizontal">
-                <van-radio :value="0">有序（章节式）</van-radio>
-                <van-radio :value="1">无序（主题式）</van-radio>
+                <van-radio :name="0">有序（章节式）</van-radio>
+                <van-radio :name="1">无序（主题式）</van-radio>
               </van-radio-group>
             </template>
           </van-field>

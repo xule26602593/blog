@@ -1,1 +1,18 @@
-{}
+{
+  "skipWebFetchPreflight": true,
+  "sandbox": {
+    "network": {
+      "allowedDomains": [
+        "localhost",
+        "127.0.0.1",
+        "docs.spring.io",
+        "*.spring.io",
+        "repo.maven.apache.org",
+        "*.maven.apache.org",
+        "maven.aliyun.com",
+        "*.aliyun.com",
+        "gitee.com"
+      ]
+    }
+  }
+}

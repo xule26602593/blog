@@ -142,8 +142,8 @@ const fetchNotifications = async () => {
   loading.value = true
   try {
     const res = await getNotifications(currentType.value)
-    notifications.value = res.data?.records || []
-    total.value = res.data?.total || 0
+    notifications.value = res.data?.list || []
+    total.value = notifications.value.length
   } catch (error) {
     console.error('获取通知列表失败', error)
   } finally {

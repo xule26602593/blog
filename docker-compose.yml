@@ -50,6 +50,9 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - TZ=Asia/Shanghai
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_API_ENDPOINT=${AI_API_ENDPOINT:-https://dashscope.aliyuncs.com/compatible-mode}
+      - AI_MODEL=${AI_MODEL:-glm-5.1}
     depends_on:
       mysql:
         condition: service_healthy

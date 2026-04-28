@@ -134,6 +134,26 @@
         </router-link>
         <div v-else class="nav-btn nav-empty"></div>
       </nav>
+
+      <!-- 推荐文章区域 -->
+      <div v-if="recommendArticles.length > 0" class="recommend-section">
+        <h3 class="recommend-title">推荐阅读</h3>
+        <div class="recommend-list">
+          <div
+            v-for="rec in recommendArticles"
+            :key="rec.id"
+            class="recommend-item"
+            @click="goToArticle(rec.id)"
+          >
+            <h4 class="recommend-item-title">{{ rec.title }}</h4>
+            <p class="recommend-item-summary">{{ rec.summary }}</p>
+            <div class="recommend-item-meta">
+              <span class="meta-category">{{ rec.categoryName }}</span>
+              <span class="meta-views">{{ rec.viewCount }} 阅读</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </article>
 
     <!-- 评论区 -->
@@ -215,7 +235,7 @@ import { showToast } from 'vant'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
 import dayjs from 'dayjs'
-import { getArticle, likeArticle, favoriteArticle } from '@/api/article'
+import { getArticle, likeArticle, favoriteArticle, getRecommendations, recordReading } from '@/api/article'
 import { getComments, addComment } from '@/api/comment'
 import { recordHistory } from '@/api/history'
 import { useUserStore } from '@/stores/user'
@@ -238,6 +258,7 @@ const articleContentRef = ref(null)
 const loading = ref(true)
 const showSharePanel = ref(false)
 const showReadingSettings = ref(false)
+const recommendArticles = ref([])
 
 // 文章分享链接
 const articleUrl = computed(() => {
@@ -277,7 +298,12 @@ const fetchArticle = async () => {
     // 记录阅读历史（仅登录用户）
     if (userStore.isLoggedIn) {
       recordHistory(article.value.id).catch(() => {})
+      // 记录阅读，更新用户画像
+      recordReading(article.value.id).catch(() => {})
     }
+
+    // 获取推荐文章
+    fetchRecommendations()
 
     // 文章加载后提取目录
     nextTick(() => {
@@ -299,6 +325,19 @@ const fetchComments = async () => {
     console.error('获取评论失败', error)
     showToast('获取评论失败')
   }
+}
+
+const fetchRecommendations = async () => {
+  try {
+    const res = await getRecommendations(article.value.id, 5)
+    recommendArticles.value = res.data || []
+  } catch (error) {
+    console.error('获取推荐失败', error)
+  }
+}
+
+const goToArticle = (id) => {
+  window.location.href = `/#/article/${id}`
 }
 
 const handleLike = async () => {
@@ -1049,6 +1088,81 @@ watch(
 }
 
 // ========================================
+// Recommendation Section
+// ========================================
+.recommend-section {
+  margin-top: var(--space-6);
+  padding: var(--space-6) var(--space-10);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.recommend-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.recommend-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.recommend-item {
+  padding: var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+.recommend-item-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.recommend-item-summary {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.recommend-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+
+  .meta-category {
+    padding: var(--space-1) var(--space-2);
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    border-radius: var(--radius-sm);
+  }
+
+  .meta-views {
+    color: var(--text-muted);
+  }
+}
+
+// ========================================
 // Responsive
 // ========================================
 // PC端: >= 1024px 显示右侧悬浮目录
@@ -1166,6 +1280,14 @@ watch(
 
   .article-nav {
     padding: var(--space-4) var(--space-5);
+  }
+
+  .recommend-section {
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .recommend-item {
+    padding: var(--space-3);
   }
 }
 </style>

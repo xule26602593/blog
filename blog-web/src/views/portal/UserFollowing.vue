@@ -61,6 +61,7 @@ const defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/s
 const fetchFollowing = async () => {
   const userId = userStore.userInfo?.userId || userStore.userInfo?.id
   if (!userId) {
+    console.error('userId is undefined, redirecting to login')
     router.push('/login')
     return
   }
@@ -68,7 +69,7 @@ const fetchFollowing = async () => {
   loading.value = true
   try {
     const res = await getFollowing(userId)
-    followingList.value = res.data || []
+    followingList.value = res.data?.list || res.data || []
   } catch (error) {
     console.error('获取关注列表失败', error)
   } finally {
@@ -77,6 +78,10 @@ const fetchFollowing = async () => {
 }
 
 const goToUser = (userId) => {
+  if (!userId) {
+    console.error('goToUser called with undefined userId')
+    return
+  }
   router.push(`/user/${userId}`)
 }
 

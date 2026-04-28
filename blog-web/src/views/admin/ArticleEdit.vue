@@ -25,11 +25,22 @@
             placeholder="请输入文章摘要"
             maxlength="500"
             show-word-limit
-          />
+          >
+            <template #button>
+              <van-button size="small" :loading="aiLoading" @click="handleGenerateSummary">
+                AI生成
+              </van-button>
+            </template>
+          </van-field>
         </van-cell-group>
 
         <div class="form-section">
           <label class="form-label">内容</label>
+          <div class="content-toolbar">
+            <van-button type="primary" size="small" @click="showWritingPanel = true">
+              AI 写作助手
+            </van-button>
+          </div>
           <MdEditor
             ref="editorRef"
             v-model="form.content"
@@ -73,7 +84,13 @@
             label="标签"
             placeholder="请选择标签"
             @click="showTagPicker = true"
-          />
+          >
+            <template #button>
+              <van-button size="small" :loading="aiLoading" @click.stop="handleExtractTags">
+                AI提取
+              </van-button>
+            </template>
+          </van-field>
 
           <van-field name="switch" label="置顶">
             <template #input>
@@ -120,6 +137,23 @@
           </div>
         </div>
       </van-popup>
+
+      <!-- AI Result Dialog -->
+      <AiResultDialog
+        v-model:show="showAiDialog"
+        :title="aiDialogTitle"
+        :content="aiDialogContent"
+        :type="aiDialogType"
+        @apply="handleApplyAiResult"
+      />
+
+      <!-- AI Writing Panel -->
+      <AiWritingPanel
+        v-model:show="showWritingPanel"
+        :article-title="form.title"
+        :article-content="form.content"
+        @apply-content="handleApplyWritingContent"
+      />
     </div>
   </div>
 </template>
@@ -134,6 +168,9 @@ import { getArticle, saveArticle } from '@/api/article'
 import { getAdminAllCategories } from '@/api/category'
 import { getAdminAllTags } from '@/api/tag'
 import { uploadImage } from '@/api/admin'
+import { generateSummary, extractTags } from '@/api/ai'
+import AiResultDialog from '@/components/AiResultDialog.vue'
+import AiWritingPanel from '@/components/AiWritingPanel.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -145,6 +182,14 @@ const categories = ref([])
 const tags = ref([])
 const showCategoryPicker = ref(false)
 const showTagPicker = ref(false)
+
+// AI 相关状态
+const showAiDialog = ref(false)
+const aiDialogTitle = ref('')
+const aiDialogContent = ref('')
+const aiDialogType = ref('other')
+const aiLoading = ref(false)
+const showWritingPanel = ref(false)
 
 const isEdit = computed(() => !!route.params.id)
 
@@ -274,6 +319,72 @@ const submitForm = async () => {
   }
 }
 
+// AI 功能方法
+const handleGenerateSummary = async () => {
+  if (!form.title && !form.content) {
+    showToast('请先填写标题或内容')
+    return
+  }
+
+  aiLoading.value = true
+  try {
+    const res = await generateSummary({
+      title: form.title,
+      content: form.content
+    })
+    aiDialogTitle.value = 'AI生成的摘要'
+    aiDialogContent.value = res.data
+    aiDialogType.value = 'summary'
+    showAiDialog.value = true
+  } catch (error) {
+    console.error('生成摘要失败', error)
+    showToast('生成摘要失败')
+  } finally {
+    aiLoading.value = false
+  }
+}
+
+const handleExtractTags = async () => {
+  if (!form.title && !form.content) {
+    showToast('请先填写标题或内容')
+    return
+  }
+
+  aiLoading.value = true
+  try {
+    const res = await extractTags({
+      title: form.title,
+      content: form.content
+    })
+    // 将标签应用到表单
+    if (res.data.existingTags?.length > 0) {
+      const existingTagIds = res.data.existingTags.map(tag => tag.id)
+      form.tagIds = [...new Set([...form.tagIds, ...existingTagIds])]
+    }
+    if (res.data.newTagNames?.length > 0) {
+      showToast({ type: 'success', message: `发现 ${res.data.newTagNames.length} 个新标签建议: ${res.data.newTagNames.join(', ')}` })
+    } else {
+      showToast({ type: 'success', message: '标签提取成功' })
+    }
+  } catch (error) {
+    console.error('标签提取失败', error)
+    showToast('标签提取失败')
+  } finally {
+    aiLoading.value = false
+  }
+}
+
+const handleApplyAiResult = (content) => {
+  if (aiDialogType.value === 'summary') {
+    form.summary = content
+  }
+}
+
+const handleApplyWritingContent = (content) => {
+  // 将生成的内容追加到文章内容
+  form.content += '\n\n' + content
+}
+
 onMounted(() => {
   fetchCategories()
   fetchTags()
@@ -319,6 +430,12 @@ onMounted(() => {
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.content-toolbar {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: var(--space-2);
 }
 

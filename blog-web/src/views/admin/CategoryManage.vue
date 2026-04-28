@@ -96,8 +96,8 @@
           <van-field name="radio" label="状态">
             <template #input>
               <van-radio-group v-model="form.status" direction="horizontal">
-                <van-radio :value="1">启用</van-radio>
-                <van-radio :value="0">禁用</van-radio>
+                <van-radio :name="1">启用</van-radio>
+                <van-radio :name="0">禁用</van-radio>
               </van-radio-group>
             </template>
           </van-field>

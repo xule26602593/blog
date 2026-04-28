@@ -1,5 +1,6 @@
 package com.blog.controller.portal;
 
+import com.blog.common.enums.NotificationType;
 import com.blog.common.result.Result;
 import com.blog.domain.vo.NotificationVO;
 import com.blog.security.LoginUser;
@@ -21,9 +22,10 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/notifications")
-    public Result<Map<String, Object>> getNotifications(@RequestParam(required = false) Integer type) {
+    public Result<Map<String, Object>> getNotifications(@RequestParam(required = false) String type) {
         Long userId = getCurrentUserId();
-        List<NotificationVO> list = notificationService.getNotificationList(userId, type);
+        Integer typeCode = NotificationType.getCodeByName(type);
+        List<NotificationVO> list = notificationService.getNotificationList(userId, typeCode);
 
         Map<String, Object> result = new HashMap<>();
         result.put("list", list);

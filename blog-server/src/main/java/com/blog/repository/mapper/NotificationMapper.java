@@ -14,7 +14,7 @@ import java.util.List;
 public interface NotificationMapper extends BaseMapper<Notification> {
 
     @Select("""
-        SELECT n.id, n.type, n.title, n.content, n.related_id, n.sender_id,
+        SELECT n.id, n.type AS typeCode, n.title, n.content, n.related_id, n.sender_id,
                u.nickname AS senderName, u.avatar AS senderAvatar, n.is_read, n.create_time
         FROM notification n
         LEFT JOIN sys_user u ON n.sender_id = u.id
@@ -24,7 +24,7 @@ public interface NotificationMapper extends BaseMapper<Notification> {
     List<NotificationVO> selectNotificationList(@Param("userId") Long userId);
 
     @Select("""
-        SELECT n.id, n.type, n.title, n.content, n.related_id, n.sender_id,
+        SELECT n.id, n.type AS typeCode, n.title, n.content, n.related_id, n.sender_id,
                u.nickname AS senderName, u.avatar AS senderAvatar, n.is_read, n.create_time
         FROM notification n
         LEFT JOIN sys_user u ON n.sender_id = u.id

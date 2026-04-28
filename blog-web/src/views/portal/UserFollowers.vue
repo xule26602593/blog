@@ -68,7 +68,7 @@ const fetchFollowers = async () => {
   loading.value = true
   try {
     const res = await getFollowers(userId)
-    followersList.value = res.data || []
+    followersList.value = res.data?.list || res.data || []
   } catch (error) {
     console.error('获取粉丝列表失败', error)
   } finally {
@@ -77,6 +77,10 @@ const fetchFollowers = async () => {
 }
 
 const goToUser = (userId) => {
+  if (!userId) {
+    console.error('goToUser called with undefined userId')
+    return
+  }
   router.push(`/user/${userId}`)
 }
 

@@ -134,6 +134,7 @@ src/
 - Soft delete via `deleted` field (0=active, 1=deleted)
 - JWT secret configured in `application.yml` under `jwt.secret`
 - File uploads stored in path configured by `file.upload-path`
+- **Spring Boot 3 uses `jakarta.annotation`** (not `javax.annotation`) - use `jakarta.annotation.PostConstruct`, `jakarta.annotation.PreDestroy`, etc.
 
 ### Frontend Conventions
 - Auto-import enabled for Vue APIs, Vue Router, Pinia (see `vite.config.js`)

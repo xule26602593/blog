@@ -89,4 +89,13 @@ public class TagServiceImpl implements TagService {
                 .eq(ArticleTag::getTagId, id));
         tagMapper.deleteById(id);
     }
+
+    @Override
+    public List<Tag> findByNames(List<String> names) {
+        if (names == null || names.isEmpty()) {
+            return List.of();
+        }
+        return tagMapper.selectList(new LambdaQueryWrapper<Tag>()
+                .in(Tag::getName, names));
+    }
 }

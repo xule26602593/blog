@@ -1,6 +1,7 @@
 package com.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.blog.common.enums.NotificationType;
 import com.blog.domain.entity.Announcement;
 import com.blog.domain.entity.Notification;
 import com.blog.domain.entity.User;
@@ -51,7 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void createFollowNotification(Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
         Notification notification = new Notification();
         notification.setUserId(userId);
-        notification.setType(1);
+        notification.setType(NotificationType.FOLLOW.getCode());
         notification.setTitle("关注的作者发布了新文章");
         notification.setContent(senderName + " 发布了《" + truncateTitle(articleTitle) + "》");
         notification.setRelatedId(articleId);
@@ -65,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void createCommentNotification(Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
         Notification notification = new Notification();
         notification.setUserId(userId);
-        notification.setType(2);
+        notification.setType(NotificationType.COMMENT.getCode());
         notification.setTitle("文章收到新评论");
         notification.setContent(senderName + " 评论了《" + truncateTitle(articleTitle) + "》");
         notification.setRelatedId(articleId);
@@ -79,7 +80,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void createReplyNotification(Long userId, Long commentId, Long senderId, String senderName) {
         Notification notification = new Notification();
         notification.setUserId(userId);
-        notification.setType(3);
+        notification.setType(NotificationType.REPLY.getCode());
         notification.setTitle("评论收到回复");
         notification.setContent(senderName + " 回复了你的评论");
         notification.setRelatedId(commentId);
@@ -111,7 +112,7 @@ public class NotificationServiceImpl implements NotificationService {
             for (User user : users) {
                 Notification notification = new Notification();
                 notification.setUserId(user.getId());
-                notification.setType(4);
+                notification.setType(NotificationType.ANNOUNCEMENT.getCode());
                 notification.setTitle("系统公告");
                 notification.setContent(title);
                 notification.setRelatedId(announcementId);

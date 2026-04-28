@@ -84,3 +84,21 @@ export function updateArticleStatus(id, status) {
 export function toggleArticleTop(id) {
   return request.put(`/api/admin/articles/${id}/top`)
 }
+
+// ========== 推荐功能 ==========
+
+/**
+ * 获取推荐文章
+ */
+export function getRecommendations(articleId, limit = 5) {
+  return request.get('/api/portal/articles/recommendations', {
+    params: { articleId, limit }
+  })
+}
+
+/**
+ * 记录阅读
+ */
+export function recordReading(articleId) {
+  return request.post(`/api/portal/articles/reading/${articleId}`)
+}

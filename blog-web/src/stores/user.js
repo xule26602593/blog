@@ -32,7 +32,12 @@ export const useUserStore = defineStore('user', () => {
   async function fetchUserInfo() {
     try {
       const res = await getCurrentUser()
-      userInfo.value = res.data
+      // 保留 userId，因为后端返回的是 id
+      userInfo.value = {
+        ...userInfo.value,
+        ...res.data,
+        userId: res.data.id
+      }
       localStorage.setItem('userInfo', JSON.stringify(userInfo.value))
     } catch (error) {
       logout()
