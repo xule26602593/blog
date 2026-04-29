@@ -44,17 +44,19 @@ SOURCE blog-server/src/main/resources/db/schema.sql;
 This is a full-stack blog system with Spring Boot 3 backend and Vue 3 frontend.
 
 ### Backend (blog-server)
-- **Framework**: Spring Boot 3.2.0 + Java 17
+- **Framework**: Spring Boot 3.5.14 + Java 17
 - **Security**: Spring Security + JWT authentication
 - **ORM**: MyBatis Plus 3.5.5
-- **Database**: MySQL 8.0 + Redis (caching)
+- **Database**: MySQL 8.0 + Redis (Redisson)
+- **AI**: Spring AI with OpenAI-compatible endpoints (default: Alibaba Qwen)
+- **Rate Limiting**: Alibaba Sentinel
 - **API Docs**: Swagger UI at `/swagger-ui.html`
 
 **Package Structure**:
 ```
 com.blog
 ├── common/          # Shared utilities, exceptions, result wrapper
-├── config/          # Spring configurations (Security, Redis, etc.)
+├── config/          # Spring configurations (Security, Redis, AI, etc.)
 ├── controller/      # REST endpoints
 │   ├── admin/       # Admin APIs (requires ADMIN role)
 │   └── portal/      # Public APIs
@@ -62,31 +64,33 @@ com.blog
 ├── repository/      # MyBatis Plus mappers
 ├── security/        # JWT filter, UserDetailsService
 └── service/         # Business logic (interface + impl/)
+    └── ai/          # AI-related services (summary, tags, chat)
 ```
 
 **Key Patterns**:
 - Service layer: Interface in `service/`, implementation in `service/impl/`
 - Response wrapper: `Result<T>` in `common/result/` for unified API responses
 - Global exception handler in `common/exception/`
+- AI services: Located in `service/ai/` for article summaries, tag extraction, chat assistance
 
 ### Frontend (blog-web)
 - **Framework**: Vue 3.5 + Vite 8
 - **UI**: Vant 4 (mobile-first component library)
 - **Markdown**: md-editor-v3 with syntax highlighting
-- **State**: Pinia stores in `stores/`
+- **State**: Pinia stores in `stores/` (user, app, theme, reading)
 - **HTTP**: Axios with request wrapper in `utils/request.js`
 
 **Directory Structure**:
 ```
 src/
-├── api/             # Axios API modules (auth.js, article.js, admin.js, etc.)
+├── api/             # Axios API modules (auth, article, admin, ai, series, etc.)
 ├── components/      # Reusable Vue components
 ├── router/          # Vue Router with auth guards
-├── stores/          # Pinia stores (user.js, app.js, theme.js)
+├── stores/          # Pinia stores (user, app, theme, reading)
 ├── utils/           # request.js (axios instance with interceptors)
 └── views/
-    ├── admin/       # Admin panel (Dashboard, ArticleManage, ArticleEdit, etc.)
-    └── portal/      # Public pages (Home, ArticleDetail, Login, UserCenter, etc.)
+    ├── admin/       # Admin panel (Dashboard, ArticleManage, ArticleEdit, SeriesManage, etc.)
+    └── portal/      # Public pages (Home, ArticleDetail, Login, UserCenter, Notification, etc.)
 ```
 
 **Routing**:
@@ -101,16 +105,22 @@ src/
 - `GET /api/portal/articles` - Paginated article list
 - `GET /api/portal/article/{id}` - Article detail
 - `GET /api/portal/articles/hot`, `/api/portal/articles/search` - Hot articles, search
+- `GET /api/portal/series`, `/api/portal/series/{id}` - Article series
+- `POST /api/follow/{userId}`, `/api/unfollow/{userId}` - Follow system
+- `GET /api/notifications` - User notifications
 
 **Admin (requires JWT + ADMIN role)**:
 - `GET/POST/PUT/DELETE /api/admin/articles` - Article CRUD
 - `GET/POST/PUT/DELETE /api/admin/categories` - Category CRUD
 - `GET/POST/PUT/DELETE /api/admin/tags` - Tag CRUD
 - `GET /api/admin/comments` - Comment management
+- `GET/POST/PUT/DELETE /api/admin/series` - Series management
+- `POST /api/admin/ai/*` - AI content generation endpoints
 
 ### Configuration
 
 - Backend: `application.yml` (main), `application-dev.yml`, `application-prod.yml`
+- AI: Configure via env vars `AI_API_KEY`, `AI_API_ENDPOINT`, `AI_MODEL` (defaults to Alibaba Qwen)
 - Frontend: `.env.development`, `.env.production` for API base URL
 - Docker: `docker-compose.yml` orchestrates MySQL, Redis, backend, frontend
 
@@ -145,8 +155,10 @@ src/
 
 ### Database Schema
 - Schema initialization: `blog-server/src/main/resources/db/schema.sql`
-- Tables: `sys_role`, `sys_user`, `category`, `tag`, `article`, `article_tag`, `comment`, `message`, `user_action`, `visit_log`, `sys_config`
-- Character set: utf8mb4
+- Core tables: `sys_role`, `sys_user`, `category`, `tag`, `article`, `article_tag`, `comment`, `message`, `user_action`, `visit_log`, `sys_config`
+- Extended tables: `series`, `series_article`, `reading_history`, `search_history`, `search_suggestion`, `user_follow`, `notification`, `announcement`
+- AI tables: `prompt_template`, `article_ai_meta`, `user_reading_profile`
+- Character set: utf8mb4 (required for Chinese content)
 
 ### Documented Solutions
 `docs/solutions/` contains documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
