@@ -5,17 +5,18 @@
 ## 技术栈
 
 ### 后端
-- Spring Boot 3.2.0
+- Spring Boot 3.5.14
 - Spring Security + JWT
-- MyBatis Plus 3.5.5
+- MyBatis Plus 3.27.0
 - MySQL 8.0
 - Redis
+- Spring AI（AI内容智能系统）
 
 ### 前端
-- Vue 3.4
-- Vite 5
-- Element Plus 2.4
-- Pinia
+- Vue 3.5
+- Vite 8
+- Vant 4（移动端组件库）
+- Pinia 3
 - Axios
 
 ## 项目结构
@@ -126,20 +127,23 @@ docker-compose down
 ## 功能模块
 
 ### 管理后台
-- 仪表盘 - 数据统计概览
+- 仪表盘 - 数据统计概览、知识图谱可视化
 - 文章管理 - CRUD、发布/撤回、置顶
 - 分类管理 - 文章分类维护
 - 标签管理 - 标签维护
 - 评论管理 - 评论审核
+- 公告管理 - 系统公告发布
+- AI内容智能系统 - 文章摘要生成、内容分析
 
 ### 用户前台
-- 首页 - 文章列表、热门文章
+- 首页 - 文章列表、热门文章、公告展示
 - 文章详情 - Markdown渲染、代码高亮
 - 归档 - 按时间线展示
 - 搜索 - 关键词搜索
 - 用户中心 - 个人信息管理
 - 点赞收藏 - 文章互动
 - 评论 - 发表评论
+- 关注系统 - 关注用户、消息通知
 
 ## API 接口
 
@@ -158,6 +162,18 @@ docker-compose down
 | /api/portal/articles/hot | GET | 热门文章 |
 | /api/portal/articles/search | GET | 搜索文章 |
 
+### 公告模块
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| /api/portal/announcements | GET | 获取已发布公告 |
+
+### 关注与通知模块
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| /api/follow/{userId} | POST | 关注用户 |
+| /api/unfollow/{userId} | POST | 取消关注 |
+| /api/notifications | GET | 获取通知列表 |
+
 ### 管理后台
 | 接口 | 方法 | 说明 |
 |------|------|------|
@@ -165,6 +181,7 @@ docker-compose down
 | /api/admin/categories | GET/POST | 分类管理 |
 | /api/admin/tags | GET/POST | 标签管理 |
 | /api/admin/comments | GET | 评论管理 |
+| /api/admin/announcements | GET/POST | 公告管理 |
 
 ## 后期拓展建议
 
@@ -174,6 +191,18 @@ docker-compose down
 4. **监控告警** - 集成 Prometheus + Grafana 监控
 5. **日志分析** - ELK 收集分析访问日志
 6. **缓存优化** - 文章详情页静态化
+7. **AI功能增强** - 更多AI辅助写作功能
+
+## 更新日志
+
+### v1.1.0
+- 升级 Spring Boot 至 3.5.14
+- 新增 AI 内容智能系统
+- 新增关注与通知系统
+- 新增公告管理功能
+- 新增知识图谱可视化
+- 前端升级 Vue 3.5 + Vite 8
+- 修复若干已知问题
 
 ## License
 
