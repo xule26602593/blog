@@ -72,6 +72,7 @@ com.blog
 - Response wrapper: `Result<T>` in `common/result/` for unified API responses
 - Global exception handler in `common/exception/`
 - AI services: Located in `service/ai/` for article summaries, tag extraction, chat assistance
+- DDD Architecture: System organized into bounded contexts (Content, User, Interaction, System) - see `docs/solutions/best-practices/ddd-refactoring-spring-boot-2026-04-25.md`
 
 ### Frontend (blog-web)
 - **Framework**: Vue 3.5 + Vite 8
@@ -97,6 +98,12 @@ src/
 - `/` → Portal pages (public)
 - `/admin` → Admin panel (requires `ADMIN` role)
 - Route guards in `router/index.js` check `userStore.isLoggedIn` and `userStore.roleCode`
+
+**Pinia Stores** (`stores/`):
+- `user.js` - User auth state (token, userInfo, roleCode), persisted to localStorage
+- `app.js` - App-level state (loading, theme)
+- `theme.js` - Theme preferences
+- `reading.js` - Reading progress and history
 
 ### API Endpoints
 
@@ -146,6 +153,14 @@ src/
 - File uploads stored in path configured by `file.upload-path`
 - **Spring Boot 3 uses `jakarta.annotation`** (not `javax.annotation`) - use `jakarta.annotation.PostConstruct`, `jakarta.annotation.PreDestroy`, etc.
 
+**AI Service Layer** (`service/ai/`):
+- `AiService.java` - Core AI client wrapper for Spring AI
+- `SummaryService.java` - Article summary generation
+- `TagExtractService.java` - Auto tag extraction from content
+- `WritingAssistantService.java` - Outline generation, content continuation, polishing
+- `PromptTemplateService.java` - Manage prompt templates from database
+- `RecommendService.java` - Content recommendations based on user profile
+
 ### Frontend Conventions
 - Auto-import enabled for Vue APIs, Vue Router, Pinia (see `vite.config.js`)
 - Vant components auto-registered via unplugin with VantResolver
@@ -171,3 +186,17 @@ Public endpoints (no auth required):
 - `/swagger-ui.html`, `/swagger-ui/**`, `/v3/api-docs/**` - API documentation
 
 Admin endpoints require `ROLE_ADMIN`: `/api/admin/**`
+
+## Testing
+
+Currently no automated tests exist. When adding tests:
+```bash
+# Backend (JUnit 5 + Spring Boot Test)
+cd blog-server
+mvn test                      # Run all tests
+mvn test -Dtest=ClassName    # Run specific test class
+
+# Frontend (not yet configured)
+cd blog-web
+pnpm test                     # Would run tests if configured
+```

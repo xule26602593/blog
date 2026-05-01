@@ -935,7 +935,7 @@ html.dark .auth-bg-decoration {
 
   .input-icon {
     width: 40px;
-    height: 44px;
+    height: 44px !important; // 确保覆盖基础样式
   }
 
   .form-input {
@@ -945,7 +945,7 @@ html.dark .auth-bg-decoration {
 
   .toggle-password {
     width: 40px;
-    height: 44px;
+    height: 44px !important; // 确保覆盖基础样式
   }
 }
 
