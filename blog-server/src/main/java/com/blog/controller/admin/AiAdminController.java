@@ -4,6 +4,7 @@ import com.blog.common.exception.BusinessException;
 import com.blog.common.result.Result;
 import com.blog.domain.dto.AiSummaryRequest;
 import com.blog.domain.dto.AiTagRequest;
+import com.blog.domain.dto.ProofreadResult;
 import com.blog.domain.dto.TagExtractResult;
 import com.blog.domain.entity.PromptTemplate;
 import com.blog.service.ai.PromptTemplateService;
@@ -92,43 +93,116 @@ public class AiAdminController {
     // ========== 写作助手接口 ==========
 
     /**
-     * 生成大纲（流式）
-     */
-    @GetMapping("/writing/outline")
-    public SseEmitter generateOutline(
-        @RequestParam String title,
-        @RequestParam(required = false) String description,
-        @RequestParam(defaultValue = "tech") String style
-    ) {
-        return writingAssistantService.generateOutline(title, description, style);
-    }
-
-    /**
      * 写作辅助（流式）
      */
     @PostMapping("/writing/stream")
     public SseEmitter writingStream(@RequestBody Map<String, Object> request) {
         String type = (String) request.get("type");
+        if (type == null || type.isBlank()) {
+            SseEmitter emitter = new SseEmitter();
+            emitter.completeWithError(new BusinessException("类型不能为空"));
+            return emitter;
+        }
+
         switch (type) {
+            case "outline":
+                String title = (String) request.get("title");
+                if (title == null || title.isBlank()) {
+                    SseEmitter emitter = new SseEmitter();
+                    emitter.completeWithError(new BusinessException("标题不能为空"));
+                    return emitter;
+                }
+                return writingAssistantService.generateOutline(
+                    title,
+                    (String) request.get("description"),
+                    (String) request.getOrDefault("style", "tech")
+                );
             case "continue":
+                String context = (String) request.get("context");
+                if (context == null || context.isBlank()) {
+                    SseEmitter emitter = new SseEmitter();
+                    emitter.completeWithError(new BusinessException("上下文内容不能为空"));
+                    return emitter;
+                }
                 return writingAssistantService.continueWriting(
-                    (String) request.get("context"),
+                    context,
                     (String) request.get("direction")
                 );
             case "polish":
-                return writingAssistantService.polish(
-                    (String) request.get("content"),
-                    (String) request.get("style")
-                );
             case "titles":
-                return writingAssistantService.generateTitles(
-                    (String) request.get("content"),
-                    request.get("count") != null ? ((Number) request.get("count")).intValue() : 5
-                );
+            case "expand":
+            case "rewrite":
+                String content = (String) request.get("content");
+                if (content == null || content.isBlank()) {
+                    SseEmitter emitter = new SseEmitter();
+                    emitter.completeWithError(new BusinessException("内容不能为空"));
+                    return emitter;
+                }
+                return switch (type) {
+                    case "polish" -> writingAssistantService.polish(
+                        content,
+                        (String) request.get("style")
+                    );
+                    case "titles" -> writingAssistantService.generateTitles(
+                        content,
+                        request.get("count") != null ? ((Number) request.get("count")).intValue() : 5
+                    );
+                    case "expand" -> writingAssistantService.expandWriting(
+                        content,
+                        (String) request.getOrDefault("direction", "丰富内容细节")
+                    );
+                    case "rewrite" -> writingAssistantService.rewriteWriting(
+                        content,
+                        (String) request.getOrDefault("style", "default")
+                    );
+                    default -> {
+                        SseEmitter emitter = new SseEmitter();
+                        emitter.completeWithError(new BusinessException("未知的写作辅助类型"));
+                        yield emitter;
+                    }
+                };
             default:
                 SseEmitter emitter = new SseEmitter();
                 emitter.completeWithError(new BusinessException("未知的写作辅助类型"));
                 return emitter;
         }
+    }
+
+    @PostMapping("/writing/expand")
+    public SseEmitter expandWriting(@RequestBody Map<String, String> request) {
+        String content = request.get("content");
+        if (content == null || content.isBlank()) {
+            SseEmitter emitter = new SseEmitter();
+            emitter.completeWithError(new BusinessException("内容不能为空"));
+            return emitter;
+        }
+        return writingAssistantService.expandWriting(
+            content,
+            request.getOrDefault("direction", "丰富内容细节")
+        );
+    }
+
+    @PostMapping("/writing/rewrite")
+    public SseEmitter rewriteWriting(@RequestBody Map<String, String> request) {
+        String content = request.get("content");
+        if (content == null || content.isBlank()) {
+            SseEmitter emitter = new SseEmitter();
+            emitter.completeWithError(new BusinessException("内容不能为空"));
+            return emitter;
+        }
+        return writingAssistantService.rewriteWriting(
+            content,
+            request.getOrDefault("style", "default")
+        );
+    }
+
+    @PostMapping("/writing/proofread")
+    public Result<ProofreadResult> proofread(@RequestBody Map<String, String> request) {
+        String content = request.get("content");
+        if (content == null || content.isBlank()) {
+            throw new BusinessException("内容不能为空");
+        }
+        ProofreadResult result = writingAssistantService.proofread(content);
+        return Result.success(result);
     }
 }

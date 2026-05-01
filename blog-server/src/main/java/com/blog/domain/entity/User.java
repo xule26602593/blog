@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -47,4 +48,20 @@ public class User implements Serializable {
     private String bio;
 
     private String website;
+
+    private Integer points;
+
+    private Integer totalPoints;
+
+    private Integer level;
+
+    private Integer checkinDays;
+
+    private Integer maxConsecutiveDays;
+
+    private LocalDate lastCheckinDate;
+
+    private Integer achievementCount;
+
+    private Integer totalAchievementPoints;
 }

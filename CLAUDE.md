@@ -128,7 +128,7 @@ src/
 
 | Role | Username | Password |
 |------|----------|----------|
-| Admin | admin | admin123 |
+| Admin | admin | test123 |
 | Test User | test | test123 |
 
 ## Development Notes

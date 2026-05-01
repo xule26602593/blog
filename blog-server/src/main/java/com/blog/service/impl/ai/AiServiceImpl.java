@@ -6,6 +6,7 @@ import com.blog.common.exception.BusinessException;
 import com.blog.domain.entity.PromptTemplate;
 import com.blog.service.ai.AiService;
 import com.blog.service.ai.PromptTemplateService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -24,6 +25,7 @@ public class AiServiceImpl implements AiService {
 
     private final ChatClient.Builder chatClientBuilder;
     private final PromptTemplateService templateService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${ai.providers.primary.endpoint:}")
     private String primaryEndpoint;
@@ -122,7 +124,8 @@ public class AiServiceImpl implements AiService {
             contentFlux.subscribe(
                 content -> {
                     try {
-                        emitter.send(SseEmitter.event().data(content));
+                        Map<String, String> delta = Map.of("type", "delta", "text", content);
+                        emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(delta)));
                     } catch (Exception e) {
                         log.error("发送SSE事件失败", e);
                         emitter.completeWithError(e);
@@ -130,9 +133,20 @@ public class AiServiceImpl implements AiService {
                 },
                 error -> {
                     log.error("AI流式调用失败", error);
+                    try {
+                        Map<String, String> err = Map.of("type", "error", "message", error.getMessage());
+                        emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(err)));
+                    } catch (Exception ignored) {}
                     emitter.completeWithError(error);
                 },
-                () -> emitter.complete()
+                () -> {
+                    try {
+                        emitter.send(SseEmitter.event().data("[DONE]"));
+                        emitter.complete();
+                    } catch (Exception e) {
+                        emitter.completeWithError(e);
+                    }
+                }
             );
         } catch (Exception e) {
             log.error("创建流式响应失败", e);

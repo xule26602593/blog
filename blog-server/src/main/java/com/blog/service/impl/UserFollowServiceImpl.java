@@ -8,6 +8,7 @@ import com.blog.domain.entity.UserFollow;
 import com.blog.domain.vo.FollowVO;
 import com.blog.repository.mapper.UserFollowMapper;
 import com.blog.repository.mapper.UserMapper;
+import com.blog.service.AchievementTriggerService;
 import com.blog.service.UserFollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class UserFollowServiceImpl implements UserFollowService {
 
     private final UserFollowMapper userFollowMapper;
     private final UserMapper userMapper;
+    private final AchievementTriggerService achievementTriggerService;
 
     @Override
     @Transactional
@@ -51,6 +53,10 @@ public class UserFollowServiceImpl implements UserFollowService {
         // 更新计数
         userMapper.updateFollowingCount(userId, 1);
         userMapper.updateFollowerCount(targetUserId, 1);
+
+        // 触发成就检查
+        achievementTriggerService.triggerFollowAchievements(userId);
+        achievementTriggerService.triggerFollowAchievements(targetUserId);
     }
 
     @Override

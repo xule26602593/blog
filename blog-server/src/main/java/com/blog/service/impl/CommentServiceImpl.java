@@ -15,6 +15,7 @@ import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.CommentMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
+import com.blog.service.AchievementTriggerService;
 import com.blog.service.CommentService;
 import com.blog.service.SensitiveWordService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private final ArticleMapper articleMapper;
     private final UserMapper userMapper;
     private final SensitiveWordService sensitiveWordService;
+    private final AchievementTriggerService achievementTriggerService;
 
     @Override
     public Page<CommentVO> pageComment(Long articleId, int pageNum, int pageSize) {
@@ -138,6 +140,9 @@ public class CommentServiceImpl implements CommentService {
         // 审核通过时更新文章评论数
         if (status == 1 && oldStatus != 1) {
             articleMapper.updateCommentCount(comment.getArticleId(), 1);
+            if (comment.getUserId() != null) {
+                achievementTriggerService.triggerCommentAchievements(comment.getUserId());
+            }
         } else if (status != 1 && oldStatus == 1) {
             articleMapper.updateCommentCount(comment.getArticleId(), -1);
         }

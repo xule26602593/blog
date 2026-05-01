@@ -30,6 +30,7 @@ import com.blog.repository.mapper.UserActionMapper;
 import com.blog.repository.mapper.UserFollowMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
+import com.blog.service.AchievementTriggerService;
 import com.blog.service.ArticleService;
 import com.blog.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final DistributedLockUtils lockUtils;
     private final NotificationService notificationService;
     private final UserFollowMapper userFollowMapper;
+    private final AchievementTriggerService achievementTriggerService;
 
     @Override
     public Page<ArticleListVO> pageArticle(ArticleQueryDTO query) {
@@ -220,11 +222,10 @@ public class ArticleServiceImpl implements ArticleService {
         if (article.getStatus() == 1 && article.getPublishTime() == null) {
             article.setPublishTime(LocalDateTime.now());
 
-            // 新发布文章，通知粉丝
             if (dto.getId() == null) {
-                // 异步通知粉丝
                 notifyFollowers(article.getId(), article.getTitle());
             }
+            achievementTriggerService.triggerArticleAchievements(getCurrentUserId());
         }
 
         if (dto.getId() == null) {

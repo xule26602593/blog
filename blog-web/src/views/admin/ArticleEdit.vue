@@ -37,8 +37,24 @@
         <div class="form-section">
           <label class="form-label">内容</label>
           <div class="content-toolbar">
-            <van-button type="primary" size="small" @click="showWritingPanel = true">
-              AI 写作助手
+            <van-popover
+              v-model:show="showAiMenu"
+              placement="top-start"
+              :actions="aiMenuActions"
+              @select="onAiMenuSelect"
+            >
+              <template #reference>
+                <van-button type="primary" size="small">
+                  AI 助手
+                  <van-icon name="arrow-down" />
+                </van-button>
+              </template>
+            </van-popover>
+            <van-button size="small" @click="showTemplateSelector = true">
+              模板
+            </van-button>
+            <van-button size="small" @click="showFormatPanel = true">
+              排版
             </van-button>
           </div>
           <MdEditor
@@ -152,7 +168,22 @@
         v-model:show="showWritingPanel"
         :article-title="form.title"
         :article-content="form.content"
+        :initial-tab="selectedAiTab"
         @apply-content="handleApplyWritingContent"
+        @update:initial-tab="selectedAiTab = null"
+      />
+
+      <!-- Template Selector -->
+      <TemplateSelector
+        v-model:show="showTemplateSelector"
+        @select="handleTemplateSelect"
+      />
+
+      <!-- Format Panel -->
+      <FormatPanel
+        v-model:show="showFormatPanel"
+        :content="form.content"
+        @apply="handleFormatApply"
       />
     </div>
   </div>
@@ -171,6 +202,8 @@ import { uploadImage } from '@/api/admin'
 import { generateSummary, extractTags } from '@/api/ai'
 import AiResultDialog from '@/components/AiResultDialog.vue'
 import AiWritingPanel from '@/components/AiWritingPanel.vue'
+import TemplateSelector from '@/components/writing/TemplateSelector.vue'
+import FormatPanel from '@/components/writing/FormatPanel.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -190,6 +223,20 @@ const aiDialogContent = ref('')
 const aiDialogType = ref('other')
 const aiLoading = ref(false)
 const showWritingPanel = ref(false)
+const showTemplateSelector = ref(false)
+const showFormatPanel = ref(false)
+const showAiMenu = ref(false)
+const selectedAiTab = ref(null)
+const aiMenuActions = [
+  { text: 'AI 写作助手', value: 'assistant' },
+  { text: '生成大纲', value: 'outline' },
+  { text: '续写内容', value: 'continue' },
+  { text: '扩写内容', value: 'expand' },
+  { text: '改写内容', value: 'rewrite' },
+  { text: '润色文本', value: 'polish' },
+  { text: '生成标题', value: 'titles' },
+  { text: '检查纠错', value: 'proofread' }
+]
 
 const isEdit = computed(() => !!route.params.id)
 
@@ -381,8 +428,27 @@ const handleApplyAiResult = (content) => {
 }
 
 const handleApplyWritingContent = (content) => {
-  // 将生成的内容追加到文章内容
   form.content += '\n\n' + content
+}
+
+const onAiMenuSelect = (action) => {
+  if (action.value === 'assistant') {
+    showWritingPanel.value = true
+  } else {
+    showWritingPanel.value = true
+    selectedAiTab.value = action.value
+  }
+}
+
+const handleTemplateSelect = async (template) => {
+  if (!template) return
+  form.content = template.content
+  showToast({ type: 'success', message: `已应用模板: ${template.name}` })
+}
+
+const handleFormatApply = (content) => {
+  form.content = content
+  showToast({ type: 'success', message: '排版完成' })
 }
 
 onMounted(() => {
@@ -437,6 +503,10 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: var(--space-2);
+}
+
+:deep(.van-popover__wrapper) {
+  display: inline-block;
 }
 
 .cover-upload {

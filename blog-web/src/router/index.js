@@ -127,6 +127,18 @@ const routes = [
             name: 'UserFollowers',
             component: () => import('@/views/portal/UserFollowers.vue'),
             meta: { title: '粉丝' }
+          },
+          {
+            path: 'checkin',
+            name: 'UserCheckin',
+            component: () => import('@/views/portal/Checkin.vue'),
+            meta: { title: '签到' }
+          },
+          {
+            path: 'achievements',
+            name: 'UserAchievements',
+            component: () => import('@/views/portal/Achievement.vue'),
+            meta: { title: '成就' }
           }
         ]
       }

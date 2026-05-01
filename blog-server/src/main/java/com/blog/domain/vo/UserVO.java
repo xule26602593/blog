@@ -18,4 +18,16 @@ public class UserVO {
     private String roleCode;
     
     private String createTime;
+
+    private Integer points;
+
+    private Integer totalPoints;
+
+    private Integer level;
+
+    private Integer checkinDays;
+
+    private Integer maxConsecutiveDays;
+
+    private Integer achievementCount;
 }

@@ -271,12 +271,12 @@ INSERT INTO `sys_role` (`role_name`, `role_code`, `description`, `status`) VALUE
 ('管理员', 'ADMIN', '系统管理员，拥有所有权限', 1),
 ('访客', 'visitor', '普通访客，只能浏览和评论', 1);
 
--- 初始化用户 (密码: admin123, test123 使用BCrypt加密)
+-- 初始化用户 (密码: test123 使用BCrypt加密)
 INSERT INTO `sys_user` (`username`, `password`, `nickname`, `email`, `status`, `role_id`, `role_code`) VALUES
 ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', '管理员', 'admin@blog.com', 1, 1, 'ADMIN'),
 ('test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', '测试用户', 'test@blog.com', 1, 2, 'visitor');
 
--- 更新正确的密码 (admin123, test123)
+-- 更新正确的密码 (两个用户密码均为 test123)
 UPDATE `sys_user` SET `password` = '$2a$10$lUJ.95sSopikye1oRS4dF.A0ekXgm6tqGQPYdajs7S5NXbZUkmXLm' WHERE `username` = 'admin';
 UPDATE `sys_user` SET `password` = '$2a$10$lUJ.95sSopikye1oRS4dF.A0ekXgm6tqGQPYdajs7S5NXbZUkmXLm' WHERE `username` = 'test';
 

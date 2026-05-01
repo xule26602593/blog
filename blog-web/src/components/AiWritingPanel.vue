@@ -6,13 +6,11 @@
     round
   >
     <div class="ai-writing-panel">
-      <!-- 标题栏 -->
       <div class="panel-header">
         <span class="title">AI 写作助手</span>
         <van-icon name="cross" @click="visible = false" />
       </div>
 
-      <!-- 功能标签页 -->
       <van-tabs v-model:active="activeTab">
         <van-tab title="大纲" name="outline">
           <div class="tab-content">
@@ -50,6 +48,39 @@
           </div>
         </van-tab>
 
+        <van-tab title="扩写" name="expand">
+          <div class="tab-content">
+            <van-field
+              v-model="inputText"
+              type="textarea"
+              rows="4"
+              placeholder="请输入需要扩写的内容"
+            />
+            <van-radio-group v-model="expandDirection" direction="horizontal">
+              <van-radio name="丰富内容细节">丰富细节</van-radio>
+              <van-radio name="增加实例说明">增加实例</van-radio>
+              <van-radio name="深入分析阐述">深入分析</van-radio>
+            </van-radio-group>
+          </div>
+        </van-tab>
+
+        <van-tab title="改写" name="rewrite">
+          <div class="tab-content">
+            <van-field
+              v-model="inputText"
+              type="textarea"
+              rows="4"
+              placeholder="请输入需要改写的内容"
+            />
+            <van-radio-group v-model="rewriteStyle" direction="horizontal">
+              <van-radio name="default">通俗易懂</van-radio>
+              <van-radio name="formal">正式专业</van-radio>
+              <van-radio name="casual">轻松活泼</van-radio>
+              <van-radio name="concise">简洁精炼</van-radio>
+            </van-radio-group>
+          </div>
+        </van-tab>
+
         <van-tab title="润色" name="polish">
           <div class="tab-content">
             <van-field
@@ -75,9 +106,19 @@
             />
           </div>
         </van-tab>
+
+        <van-tab title="纠错" name="proofread">
+          <div class="tab-content">
+            <van-field
+              v-model="inputText"
+              type="textarea"
+              rows="4"
+              placeholder="请输入需要纠错的内容"
+            />
+          </div>
+        </van-tab>
       </van-tabs>
 
-      <!-- 操作按钮 -->
       <div class="action-bar">
         <van-button v-if="!streamState.isStreaming.value" type="primary" block @click="handleGenerate">
           生成
@@ -87,15 +128,14 @@
         </van-button>
       </div>
 
-      <!-- 输出区域 -->
       <div class="output-area">
         <div class="output-header">
           <span>生成结果</span>
           <div class="output-actions">
-            <van-button v-if="streamState.isComplete.value" size="small" @click="handleCopy">
+            <van-button v-if="streamState.isComplete.value || proofreadResult" size="small" @click="handleCopy">
               复制
             </van-button>
-            <van-button v-if="streamState.isComplete.value" type="primary" size="small" @click="handleApply">
+            <van-button v-if="streamState.isComplete.value || proofreadResult" type="primary" size="small" @click="handleApply">
               应用到编辑器
             </van-button>
           </div>
@@ -104,8 +144,26 @@
           <template v-if="streamState.isLoading.value">
             <van-loading size="24px">生成中...</van-loading>
           </template>
+          <template v-else-if="activeTab === 'proofread' && proofreadResult">
+            <div v-if="proofreadResult.errors?.length > 0" class="error-list">
+              <div v-for="(error, index) in proofreadResult.errors" :key="index" class="error-item">
+                <van-tag :type="getErrorTagType(error.type)">{{ error.type }}</van-tag>
+                <span class="error-original">{{ error.original }}</span>
+                <van-icon name="arrow" />
+                <span class="error-corrected">{{ error.suggestion }}</span>
+              </div>
+            </div>
+            <div v-else class="no-error">
+              <van-icon name="passed" color="#07c160" />
+              <span>未发现明显错误</span>
+            </div>
+            <div v-if="proofreadResult.correctedText" class="corrected-text">
+              <div class="corrected-label">修改后文本：</div>
+              <pre>{{ proofreadResult.correctedText }}</pre>
+            </div>
+          </template>
           <template v-else-if="streamState.content.value">
-            <pre>{{ streamState.content.value }}</pre>
+            <div ref="outputRef" class="markdown-body" v-html="renderedContent"></div>
             <span v-if="streamState.isStreaming.value" class="cursor">█</span>
           </template>
           <template v-else>
@@ -118,18 +176,20 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { showToast } from 'vant'
-import { streamRequest } from '@/api/ai'
+import { marked } from 'marked'
+import { streamRequest, proofreadContent } from '@/api/ai'
 import { useStreamState } from '@/composables/useStreamState'
 
 const props = defineProps({
   show: Boolean,
   articleTitle: String,
-  articleContent: String
+  articleContent: String,
+  initialTab: String
 })
 
-const emit = defineEmits(['apply-content', 'update:show'])
+const emit = defineEmits(['apply-content', 'update:show', 'update:initial-tab'])
 
 const visible = computed({
   get: () => props.show,
@@ -143,17 +203,92 @@ const description = ref('')
 const outlineStyle = ref('tech')
 const direction = ref('继续写')
 const polishStyle = ref('formal')
+const expandDirection = ref('丰富内容细节')
+const rewriteStyle = ref('default')
+const proofreadResult = ref(null)
+const outputRef = ref(null)
 
-let abortController = null
+const renderedContent = computed(() => {
+  if (!streamState.content.value) return ''
+  return marked(streamState.content.value)
+})
 
-// 从文章标题自动填充
-watch(() => props.show, (show) => {
-  if (show && props.articleTitle && activeTab.value === 'outline') {
-    inputText.value = props.articleTitle
+watch(streamState.content, () => {
+  if (streamState.isStreaming.value && outputRef.value) {
+    nextTick(() => {
+      outputRef.value.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    })
   }
 })
 
-const handleGenerate = () => {
+let abortController = null
+
+const resetState = () => {
+  inputText.value = ''
+  description.value = ''
+  streamState.reset()
+  proofreadResult.value = null
+  if (abortController) {
+    abortController.abort()
+    abortController = null
+  }
+}
+
+watch(() => props.show, (show) => {
+  if (show) {
+    resetState()
+    if (props.articleTitle && activeTab.value === 'outline') {
+      inputText.value = props.articleTitle
+    }
+    if (props.articleContent && ['continue', 'polish', 'titles', 'expand', 'rewrite', 'proofread'].includes(activeTab.value)) {
+      inputText.value = props.articleContent
+    }
+  }
+})
+
+watch(activeTab, () => {
+  inputText.value = ''
+  description.value = ''
+  streamState.reset()
+  proofreadResult.value = null
+})
+
+watch(() => props.initialTab, (newTab) => {
+  if (newTab && ['outline', 'continue', 'polish', 'titles', 'expand', 'rewrite', 'proofread'].includes(newTab)) {
+    activeTab.value = newTab
+    emit('update:initial-tab', null)
+  }
+})
+
+const handleGenerate = async () => {
+  if (!inputText.value.trim()) {
+    const placeholderMap = {
+      outline: '请输入文章标题',
+      continue: '请输入上下文内容',
+      polish: '请输入需要润色的内容',
+      titles: '请输入文章内容',
+      expand: '请输入需要扩写的内容',
+      rewrite: '请输入需要改写的内容',
+      proofread: '请输入需要纠错的内容'
+    }
+    showToast(placeholderMap[activeTab.value] || '请输入内容')
+    return
+  }
+
+  if (activeTab.value === 'proofread') {
+    streamState.start()
+    try {
+      const res = await proofreadContent(inputText.value)
+      streamState.firstByte()
+      streamState.append(res.data.correctedText || '')
+      proofreadResult.value = res.data
+      streamState.complete()
+    } catch (error) {
+      streamState.error(error.message || '纠错失败')
+    }
+    return
+  }
+
   streamState.start()
 
   const data = {
@@ -164,76 +299,33 @@ const handleGenerate = () => {
     data.title = inputText.value
     data.description = description.value
     data.style = outlineStyle.value
-    // 使用 GET 请求
-    generateOutline(data)
-  } else {
-    if (activeTab.value === 'continue') {
-      data.context = inputText.value
-      data.direction = direction.value
-    } else if (activeTab.value === 'polish') {
-      data.content = inputText.value
-      data.style = polishStyle.value
-    } else if (activeTab.value === 'titles') {
-      data.content = inputText.value
-      data.count = 5
-    }
-
-    abortController = streamRequest(
-      '/api/admin/ai/writing/stream',
-      data,
-      (chunk) => {
-        if (streamState.isLoading.value) streamState.firstByte()
-        streamState.append(chunk)
-      },
-      () => streamState.complete(),
-      (error) => streamState.error(error.message)
-    )
+  } else if (activeTab.value === 'continue') {
+    data.context = inputText.value
+    data.direction = direction.value
+  } else if (activeTab.value === 'polish') {
+    data.content = inputText.value
+    data.style = polishStyle.value
+  } else if (activeTab.value === 'titles') {
+    data.content = inputText.value
+    data.count = 5
+  } else if (activeTab.value === 'expand') {
+    data.content = inputText.value
+    data.direction = expandDirection.value
+  } else if (activeTab.value === 'rewrite') {
+    data.content = inputText.value
+    data.style = rewriteStyle.value
   }
-}
 
-const generateOutline = async (data) => {
-  // 大纲使用 GET 请求
-  const url = `/api/admin/ai/writing/outline?title=${encodeURIComponent(data.title)}&description=${encodeURIComponent(data.description || '')}&style=${data.style}`
-  const token = localStorage.getItem('token') || ''
-
-  abortController = new AbortController()
-
-  fetch(url, {
-    method: 'GET',
-    headers: {
-      'Authorization': token ? `Bearer ${token}` : ''
+  abortController = streamRequest(
+    '/api/admin/ai/writing/stream',
+    data,
+    (chunk) => {
+      if (streamState.isLoading.value) streamState.firstByte()
+      streamState.append(chunk)
     },
-    signal: abortController.signal
-  })
-    .then(response => {
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-
-      function read() {
-        reader.read().then(({ done, value }) => {
-          if (done) {
-            streamState.complete()
-            return
-          }
-          const text = decoder.decode(value, { stream: true })
-          if (streamState.isLoading.value) streamState.firstByte()
-          const lines = text.split('\n')
-          lines.forEach(line => {
-            if (line.startsWith('data:')) {
-              const content = line.slice(5).trim()
-              if (content) streamState.append(content)
-            }
-          })
-          read()
-        })
-      }
-      read()
-    })
-    .catch(error => {
-      if (error.name !== 'AbortError') {
-        streamState.error(error.message)
-      }
-    })
+    () => streamState.complete(),
+    (error) => streamState.error(error.message)
+  )
 }
 
 const handleCancel = () => {
@@ -244,8 +336,11 @@ const handleCancel = () => {
 }
 
 const handleCopy = async () => {
+  const textToCopy = activeTab.value === 'proofread' && proofreadResult.value
+    ? proofreadResult.value.correctedText
+    : streamState.content.value
   try {
-    await navigator.clipboard.writeText(streamState.content.value)
+    await navigator.clipboard.writeText(textToCopy)
     showToast({ type: 'success', message: '已复制' })
   } catch {
     showToast('复制失败')
@@ -253,8 +348,21 @@ const handleCopy = async () => {
 }
 
 const handleApply = () => {
-  emit('apply-content', streamState.content.value)
+  const contentToApply = activeTab.value === 'proofread' && proofreadResult.value
+    ? proofreadResult.value.correctedText
+    : streamState.content.value
+  emit('apply-content', contentToApply)
   visible.value = false
+}
+
+const getErrorTagType = (type) => {
+  const typeMap = {
+    '拼写': 'danger',
+    '语法': 'warning',
+    '标点': 'primary',
+    '表达': 'success'
+  }
+  return typeMap[type] || 'default'
 }
 </script>
 
@@ -315,6 +423,36 @@ const handleApply = () => {
   border-radius: 4px;
 }
 
+.output-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.output-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.output-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .output-content::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  .output-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+  }
+  
+  .output-content::-webkit-scrollbar-thumb {
+    background: #b0b0b0;
+    border-radius: 5px;
+  }
+}
+
 .output-content pre {
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -332,5 +470,108 @@ const handleApply = () => {
 
 .placeholder {
   color: #999;
+}
+
+.error-list {
+  margin-bottom: 16px;
+}
+
+.error-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fff7e6;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.error-original {
+  color: #d4380d;
+  text-decoration: line-through;
+}
+
+.error-corrected {
+  color: #389e0d;
+  font-weight: 500;
+}
+
+.no-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  justify-content: center;
+  color: #52c41a;
+}
+
+.corrected-text {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.corrected-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.markdown-body {
+  line-height: 1.6;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 16px 0 8px;
+    font-weight: 600;
+  }
+
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.3em; }
+  h3 { font-size: 1.1em; }
+
+  ul, ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  li {
+    margin: 4px 0;
+  }
+
+  p {
+    margin: 8px 0;
+  }
+
+  code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid #ddd;
+    padding-left: 12px;
+    margin: 8px 0;
+    color: #666;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 16px 0;
+  }
 }
 </style>

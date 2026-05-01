@@ -121,7 +121,7 @@ docker-compose down
 
 | 角色 | 用户名 | 密码 |
 |------|--------|------|
-| 管理员 | admin | admin123 |
+| 管理员 | admin | test123 |
 | 测试用户 | test | test123 |
 
 ## 功能模块
