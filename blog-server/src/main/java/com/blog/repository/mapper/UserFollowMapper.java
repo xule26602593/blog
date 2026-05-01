@@ -3,16 +3,16 @@ package com.blog.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.UserFollow;
 import com.blog.domain.vo.FollowVO;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
-
 @Mapper
 public interface UserFollowMapper extends BaseMapper<UserFollow> {
 
-    @Select("""
+    @Select(
+            """
         SELECT u.id, u.username, u.nickname, u.avatar, uf.create_time AS followTime
         FROM user_follow uf
         INNER JOIN sys_user u ON uf.following_id = u.id
@@ -21,7 +21,8 @@ public interface UserFollowMapper extends BaseMapper<UserFollow> {
         """)
     List<FollowVO> selectFollowingList(@Param("userId") Long userId);
 
-    @Select("""
+    @Select(
+            """
         SELECT u.id, u.username, u.nickname, u.avatar, uf.create_time AS followTime
         FROM user_follow uf
         INNER JOIN sys_user u ON uf.follower_id = u.id

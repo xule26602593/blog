@@ -6,10 +6,9 @@ import com.blog.common.exception.BusinessException;
 import com.blog.domain.entity.WritingTemplate;
 import com.blog.repository.mapper.WritingTemplateMapper;
 import com.blog.service.WritingTemplateService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +30,7 @@ public class WritingTemplateServiceImpl implements WritingTemplateService {
     @Override
     public List<WritingTemplate> listAvailable(Long currentUserId) {
         LambdaQueryWrapper<WritingTemplate> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(w -> w
-            .eq(WritingTemplate::getIsBuiltin, 1)
-            .or()
-            .eq(WritingTemplate::getAuthorId, currentUserId)
-        );
+        wrapper.and(w -> w.eq(WritingTemplate::getIsBuiltin, 1).or().eq(WritingTemplate::getAuthorId, currentUserId));
         wrapper.eq(WritingTemplate::getStatus, 1);
         wrapper.orderByDesc(WritingTemplate::getUsageCount);
         return templateMapper.selectList(wrapper);

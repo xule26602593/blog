@@ -5,5 +5,4 @@ import com.blog.domain.entity.UserAction;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserActionMapper extends BaseMapper<UserAction> {
-}
+public interface UserActionMapper extends BaseMapper<UserAction> {}

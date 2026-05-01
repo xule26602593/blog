@@ -519,3 +519,28 @@ ON DUPLICATE KEY UPDATE
     `user_template` = VALUES(`user_template`),
     `variables` = VALUES(`variables`),
     `is_default` = VALUES(`is_default`);
+
+-- 话题分析Prompt模板
+INSERT INTO `prompt_template` (`template_key`, `template_name`, `category`, `system_prompt`, `user_template`, `variables`, `is_default`) VALUES
+('topic_analysis', '话题分析模板', 'analysis',
+ '你是内容策划专家。请分析以下话题的创作价值。请以JSON格式返回分析结果，不要包含其他内容。',
+ '<user_content>
+话题标题：{title}
+话题描述：{description}
+</user_content>
+
+请以JSON格式返回以下字段：
+{
+  "writingAngle": "推荐的写作角度（一句话概括）",
+  "targetAudience": "目标受众描述",
+  "difficulty": "BEGINNER 或 INTERMEDIATE 或 ADVANCED",
+  "estimatedReads": "预期阅读量级",
+  "keywords": ["关键词1", "关键词2", "关键词3"],
+  "valueAssessment": "内容价值评估",
+  "writingSuggestions": ["建议1", "建议2", "建议3"]
+}',
+ '{"variables": ["title", "description"]}', 1)
+ON DUPLICATE KEY UPDATE
+    `template_name` = VALUES(`template_name`),
+    `system_prompt` = VALUES(`system_prompt`),
+    `user_template` = VALUES(`user_template`);

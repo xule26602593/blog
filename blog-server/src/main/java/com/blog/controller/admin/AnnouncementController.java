@@ -3,10 +3,9 @@ package com.blog.controller.admin;
 import com.blog.common.result.Result;
 import com.blog.domain.entity.Announcement;
 import com.blog.service.AnnouncementService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/announcements")

@@ -8,11 +8,10 @@ import com.blog.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "后台标签管理")
 @RestController
@@ -32,8 +31,7 @@ public class AdminTagController {
     @Operation(summary = "分页查询标签")
     @GetMapping("/page")
     public Result<Page<TagVO>> pageTags(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         return Result.success(tagService.pageTag(pageNum, pageSize));
     }
 

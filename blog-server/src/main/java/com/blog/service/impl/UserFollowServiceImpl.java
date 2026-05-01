@@ -10,11 +10,10 @@ import com.blog.repository.mapper.UserFollowMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.service.AchievementTriggerService;
 import com.blog.service.UserFollowService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +37,7 @@ public class UserFollowServiceImpl implements UserFollowService {
 
         // 检查是否已关注
         LambdaQueryWrapper<UserFollow> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserFollow::getFollowerId, userId)
-               .eq(UserFollow::getFollowingId, targetUserId);
+        wrapper.eq(UserFollow::getFollowerId, userId).eq(UserFollow::getFollowingId, targetUserId);
         if (userFollowMapper.selectCount(wrapper) > 0) {
             return; // 已关注，幂等处理
         }
@@ -63,8 +61,7 @@ public class UserFollowServiceImpl implements UserFollowService {
     @Transactional
     public void unfollow(Long userId, Long targetUserId) {
         LambdaQueryWrapper<UserFollow> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserFollow::getFollowerId, userId)
-               .eq(UserFollow::getFollowingId, targetUserId);
+        wrapper.eq(UserFollow::getFollowerId, userId).eq(UserFollow::getFollowingId, targetUserId);
 
         UserFollow userFollow = userFollowMapper.selectOne(wrapper);
         if (userFollow == null) {
@@ -84,8 +81,7 @@ public class UserFollowServiceImpl implements UserFollowService {
             return false;
         }
         LambdaQueryWrapper<UserFollow> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserFollow::getFollowerId, userId)
-               .eq(UserFollow::getFollowingId, targetUserId);
+        wrapper.eq(UserFollow::getFollowerId, userId).eq(UserFollow::getFollowingId, targetUserId);
         return userFollowMapper.selectCount(wrapper) > 0;
     }
 

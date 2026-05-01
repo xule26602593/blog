@@ -30,24 +30,21 @@ public class RevisionController {
 
     @Operation(summary = "获取特定版本详情")
     @GetMapping("/{version}")
-    public Result<RevisionVO> getRevision(
-            @PathVariable Long articleId,
-            @PathVariable Integer version) {
+    public Result<RevisionVO> getRevision(@PathVariable Long articleId, @PathVariable Integer version) {
         return Result.success(revisionService.getRevision(articleId, version));
     }
 
     @Operation(summary = "回退到特定版本")
     @PostMapping("/{version}/restore")
-    public Result<Void> restore(
-            @PathVariable Long articleId,
-            @PathVariable Integer version) {
+    public Result<Void> restore(@PathVariable Long articleId, @PathVariable Integer version) {
         Long editorId = getCurrentUserId();
         revisionService.restore(articleId, version, editorId);
         return Result.success();
     }
 
     private Long getCurrentUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUser) {
             return ((LoginUser) principal).getUserId();
         }

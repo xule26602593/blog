@@ -13,11 +13,10 @@ import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.ArticleRevisionMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.service.RevisionService;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,25 +57,23 @@ public class RevisionServiceImpl implements RevisionService {
     @Override
     public Page<RevisionVO> getRevisions(Long articleId, int pageNum, int pageSize) {
         Page<ArticleRevision> page = new Page<>(pageNum, pageSize);
-        Page<ArticleRevision> result = revisionMapper.selectPage(page,
+        Page<ArticleRevision> result = revisionMapper.selectPage(
+                page,
                 new LambdaQueryWrapper<ArticleRevision>()
                         .eq(ArticleRevision::getArticleId, articleId)
                         .orderByDesc(ArticleRevision::getVersion));
 
         Page<RevisionVO> voPage = new Page<>(pageNum, pageSize, result.getTotal());
-        voPage.setRecords(result.getRecords().stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList()));
+        voPage.setRecords(result.getRecords().stream().map(this::convertToVO).collect(Collectors.toList()));
 
         return voPage;
     }
 
     @Override
     public RevisionVO getRevision(Long articleId, Integer version) {
-        ArticleRevision revision = revisionMapper.selectOne(
-                new LambdaQueryWrapper<ArticleRevision>()
-                        .eq(ArticleRevision::getArticleId, articleId)
-                        .eq(ArticleRevision::getVersion, version));
+        ArticleRevision revision = revisionMapper.selectOne(new LambdaQueryWrapper<ArticleRevision>()
+                .eq(ArticleRevision::getArticleId, articleId)
+                .eq(ArticleRevision::getVersion, version));
 
         if (revision == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "版本不存在");
@@ -88,10 +85,9 @@ public class RevisionServiceImpl implements RevisionService {
     @Override
     @Transactional
     public void restore(Long articleId, Integer version, Long editorId) {
-        ArticleRevision revision = revisionMapper.selectOne(
-                new LambdaQueryWrapper<ArticleRevision>()
-                        .eq(ArticleRevision::getArticleId, articleId)
-                        .eq(ArticleRevision::getVersion, version));
+        ArticleRevision revision = revisionMapper.selectOne(new LambdaQueryWrapper<ArticleRevision>()
+                .eq(ArticleRevision::getArticleId, articleId)
+                .eq(ArticleRevision::getVersion, version));
 
         if (revision == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "版本不存在");
@@ -111,16 +107,14 @@ public class RevisionServiceImpl implements RevisionService {
 
     private void cleanOldRevisions(Long articleId) {
         Long count = revisionMapper.selectCount(
-                new LambdaQueryWrapper<ArticleRevision>()
-                        .eq(ArticleRevision::getArticleId, articleId));
+                new LambdaQueryWrapper<ArticleRevision>().eq(ArticleRevision::getArticleId, articleId));
 
         if (count > MAX_VERSIONS) {
             // 删除最旧的版本
-            revisionMapper.delete(
-                    new LambdaQueryWrapper<ArticleRevision>()
-                            .eq(ArticleRevision::getArticleId, articleId)
-                            .orderByAsc(ArticleRevision::getVersion)
-                            .last("LIMIT " + (count - MAX_VERSIONS)));
+            revisionMapper.delete(new LambdaQueryWrapper<ArticleRevision>()
+                    .eq(ArticleRevision::getArticleId, articleId)
+                    .orderByAsc(ArticleRevision::getVersion)
+                    .last("LIMIT " + (count - MAX_VERSIONS)));
         }
     }
 

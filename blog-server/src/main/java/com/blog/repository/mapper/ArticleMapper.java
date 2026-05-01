@@ -4,32 +4,31 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.Article;
 import com.blog.domain.vo.ArticleVO.ArticleNavVO;
 import com.blog.domain.vo.SearchVO;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.List;
-
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
-    
+
     @Update("UPDATE article SET view_count = view_count + 1 WHERE id = #{id}")
     int incrementViewCount(@Param("id") Long id);
-    
+
     @Update("UPDATE article SET like_count = like_count + #{delta} WHERE id = #{id}")
     int updateLikeCount(@Param("id") Long id, @Param("delta") int delta);
-    
+
     @Update("UPDATE article SET comment_count = comment_count + #{delta} WHERE id = #{id}")
     int updateCommentCount(@Param("id") Long id, @Param("delta") int delta);
-    
+
     @Select("SELECT COUNT(*) FROM article WHERE deleted = 0 AND status = 1")
     Long countPublished();
-    
+
     @Select("SELECT COUNT(*) FROM article WHERE deleted = 0 AND status = 1 AND DATE(publish_time) = CURDATE()")
     Long countTodayPublished();
-    
+
     @Select("SELECT IFNULL(SUM(view_count), 0) FROM article WHERE deleted = 0")
     Long sumViewCount();
 
@@ -38,7 +37,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     /**
      * 查找同分类的上一篇文章（发布时间早于当前文章，按时间倒序取第一条）
      */
-    @Select("""
+    @Select(
+            """
         SELECT a.id, a.title, c.name AS categoryName
         FROM article a
         LEFT JOIN category c ON a.category_id = c.id
@@ -53,7 +53,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     /**
      * 查找同分类的下一篇文章（发布时间晚于当前文章，按时间正序取第一条）
      */
-    @Select("""
+    @Select(
+            """
         SELECT a.id, a.title, c.name AS categoryName
         FROM article a
         LEFT JOIN category c ON a.category_id = c.id
@@ -80,7 +81,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     /**
      * 查找全局上一篇文章（无分类和标签过滤）
      */
-    @Select("""
+    @Select(
+            """
         SELECT a.id, a.title, c.name AS categoryName
         FROM article a
         LEFT JOIN category c ON a.category_id = c.id
@@ -94,7 +96,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     /**
      * 查找全局下一篇文章（无分类和标签过滤）
      */
-    @Select("""
+    @Select(
+            """
         SELECT a.id, a.title, c.name AS categoryName
         FROM article a
         LEFT JOIN category c ON a.category_id = c.id
@@ -110,10 +113,11 @@ public interface ArticleMapper extends BaseMapper<Article> {
     /**
      * 全文检索文章（使用 MATCH AGAINST）
      */
-    List<SearchVO> searchFulltext(@Param("keyword") String keyword,
-                                  @Param("sortBy") String sortBy,
-                                  @Param("offset") int offset,
-                                  @Param("size") int size);
+    List<SearchVO> searchFulltext(
+            @Param("keyword") String keyword,
+            @Param("sortBy") String sortBy,
+            @Param("offset") int offset,
+            @Param("size") int size);
 
     /**
      * 全文检索文章总数

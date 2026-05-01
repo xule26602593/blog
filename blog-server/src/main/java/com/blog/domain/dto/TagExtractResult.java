@@ -1,9 +1,8 @@
 package com.blog.domain.dto;
 
 import com.blog.domain.entity.Tag;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class TagExtractResult {

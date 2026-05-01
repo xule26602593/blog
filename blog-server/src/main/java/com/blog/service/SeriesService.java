@@ -5,7 +5,6 @@ import com.blog.domain.dto.SeriesDTO;
 import com.blog.domain.dto.SeriesQueryDTO;
 import com.blog.domain.vo.SeriesListVO;
 import com.blog.domain.vo.SeriesVO;
-
 import java.util.List;
 
 public interface SeriesService {

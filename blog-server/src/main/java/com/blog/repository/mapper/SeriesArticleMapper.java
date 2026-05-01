@@ -2,11 +2,10 @@ package com.blog.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.SeriesArticle;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 @Mapper
 public interface SeriesArticleMapper extends BaseMapper<SeriesArticle> {

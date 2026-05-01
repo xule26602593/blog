@@ -5,5 +5,4 @@ import com.blog.domain.entity.ArticleAiMeta;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ArticleAiMetaMapper extends BaseMapper<ArticleAiMeta> {
-}
+public interface ArticleAiMetaMapper extends BaseMapper<ArticleAiMeta> {}

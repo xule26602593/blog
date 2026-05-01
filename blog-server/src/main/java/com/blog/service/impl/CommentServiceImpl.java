@@ -18,16 +18,15 @@ import com.blog.security.LoginUser;
 import com.blog.service.AchievementTriggerService;
 import com.blog.service.CommentService;
 import com.blog.service.SensitiveWordService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,16 +42,17 @@ public class CommentServiceImpl implements CommentService {
     public Page<CommentVO> pageComment(Long articleId, int pageNum, int pageSize) {
         // 查询顶级评论
         Page<Comment> page = new Page<>(pageNum, pageSize);
-        Page<Comment> commentPage = commentMapper.selectPage(page,
+        Page<Comment> commentPage = commentMapper.selectPage(
+                page,
                 new LambdaQueryWrapper<Comment>()
                         .eq(Comment::getArticleId, articleId)
                         .eq(Comment::getParentId, 0)
                         .eq(Comment::getStatus, 1)
                         .orderByDesc(Comment::getCreateTime));
-        
+
         Page<CommentVO> voPage = new Page<>(pageNum, pageSize, commentPage.getTotal());
         voPage.setRecords(convertToVOList(commentPage.getRecords(), articleId));
-        
+
         return voPage;
     }
 
@@ -64,27 +64,29 @@ public class CommentServiceImpl implements CommentService {
             wrapper.eq(Comment::getStatus, status);
         }
         wrapper.orderByDesc(Comment::getCreateTime);
-        
+
         Page<Comment> commentPage = commentMapper.selectPage(page, wrapper);
-        
+
         Page<CommentVO> voPage = new Page<>(pageNum, pageSize, commentPage.getTotal());
-        voPage.setRecords(commentPage.getRecords().stream().map(comment -> {
-            CommentVO vo = BeanCopyUtils.copy(comment, CommentVO.class);
-            if (comment.getArticleId() != null) {
-                Article article = articleMapper.selectById(comment.getArticleId());
-                if (article != null) {
-                    vo.setArticleTitle(article.getTitle());
-                }
-            }
-            if (comment.getUserId() != null) {
-                User user = userMapper.selectById(comment.getUserId());
-                if (user != null) {
-                    vo.setAvatar(user.getAvatar());
-                }
-            }
-            return vo;
-        }).collect(Collectors.toList()));
-        
+        voPage.setRecords(commentPage.getRecords().stream()
+                .map(comment -> {
+                    CommentVO vo = BeanCopyUtils.copy(comment, CommentVO.class);
+                    if (comment.getArticleId() != null) {
+                        Article article = articleMapper.selectById(comment.getArticleId());
+                        if (article != null) {
+                            vo.setArticleTitle(article.getTitle());
+                        }
+                    }
+                    if (comment.getUserId() != null) {
+                        User user = userMapper.selectById(comment.getUserId());
+                        if (user != null) {
+                            vo.setAvatar(user.getAvatar());
+                        }
+                    }
+                    return vo;
+                })
+                .collect(Collectors.toList()));
+
         return voPage;
     }
 
@@ -101,7 +103,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(filteredContent);
 
         comment.setIpAddress(IpUtils.getIpAddress());
-        
+
         // 获取当前登录用户
         Long userId = getCurrentUserId();
         if (userId != null) {
@@ -116,12 +118,12 @@ public class CommentServiceImpl implements CommentService {
             comment.setNickname(dto.getNickname());
             comment.setEmail(dto.getEmail());
         }
-        
+
         // 默认需要审核
         comment.setStatus(0);
-        
+
         commentMapper.insert(comment);
-        
+
         // 更新文章评论数（审核通过后才更新）
         // articleMapper.updateCommentCount(dto.getArticleId(), 1);
     }
@@ -133,10 +135,10 @@ public class CommentServiceImpl implements CommentService {
         if (comment == null) {
             throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        
+
         int oldStatus = comment.getStatus();
         commentMapper.updateStatus(id, status);
-        
+
         // 审核通过时更新文章评论数
         if (status == 1 && oldStatus != 1) {
             articleMapper.updateCommentCount(comment.getArticleId(), 1);
@@ -155,66 +157,67 @@ public class CommentServiceImpl implements CommentService {
         if (comment == null) {
             return;
         }
-        
+
         // 如果已审核通过，减少文章评论数
         if (comment.getStatus() == 1) {
             articleMapper.updateCommentCount(comment.getArticleId(), -1);
         }
-        
+
         commentMapper.deleteById(id);
     }
 
     @Override
     public Long countPending() {
-        return commentMapper.selectCount(new LambdaQueryWrapper<Comment>()
-                .eq(Comment::getStatus, 0));
+        return commentMapper.selectCount(new LambdaQueryWrapper<Comment>().eq(Comment::getStatus, 0));
     }
-    
+
     private List<CommentVO> convertToVOList(List<Comment> comments, Long articleId) {
         if (comments.isEmpty()) {
             return new ArrayList<>();
         }
-        
+
         // 获取所有子评论
         List<Long> parentIds = comments.stream().map(Comment::getId).collect(Collectors.toList());
-        List<Comment> children = commentMapper.selectList(
-                new LambdaQueryWrapper<Comment>()
-                        .eq(Comment::getArticleId, articleId)
-                        .in(Comment::getParentId, parentIds)
-                        .eq(Comment::getStatus, 1));
-        
-        Map<Long, List<Comment>> childrenMap = children.stream()
-                .collect(Collectors.groupingBy(Comment::getParentId));
-        
-        return comments.stream().map(comment -> {
-            CommentVO vo = BeanCopyUtils.copy(comment, CommentVO.class);
-            
-            if (comment.getUserId() != null) {
-                User user = userMapper.selectById(comment.getUserId());
-                if (user != null) {
-                    vo.setAvatar(user.getAvatar());
-                }
-            }
-            
-            // 设置子评论
-            List<Comment> childComments = childrenMap.get(comment.getId());
-            if (childComments != null) {
-                vo.setChildren(childComments.stream().map(child -> {
-                    CommentVO childVo = BeanCopyUtils.copy(child, CommentVO.class);
-                    if (child.getUserId() != null) {
-                        User user = userMapper.selectById(child.getUserId());
+        List<Comment> children = commentMapper.selectList(new LambdaQueryWrapper<Comment>()
+                .eq(Comment::getArticleId, articleId)
+                .in(Comment::getParentId, parentIds)
+                .eq(Comment::getStatus, 1));
+
+        Map<Long, List<Comment>> childrenMap = children.stream().collect(Collectors.groupingBy(Comment::getParentId));
+
+        return comments.stream()
+                .map(comment -> {
+                    CommentVO vo = BeanCopyUtils.copy(comment, CommentVO.class);
+
+                    if (comment.getUserId() != null) {
+                        User user = userMapper.selectById(comment.getUserId());
                         if (user != null) {
-                            childVo.setAvatar(user.getAvatar());
+                            vo.setAvatar(user.getAvatar());
                         }
                     }
-                    return childVo;
-                }).collect(Collectors.toList()));
-            }
-            
-            return vo;
-        }).collect(Collectors.toList());
+
+                    // 设置子评论
+                    List<Comment> childComments = childrenMap.get(comment.getId());
+                    if (childComments != null) {
+                        vo.setChildren(childComments.stream()
+                                .map(child -> {
+                                    CommentVO childVo = BeanCopyUtils.copy(child, CommentVO.class);
+                                    if (child.getUserId() != null) {
+                                        User user = userMapper.selectById(child.getUserId());
+                                        if (user != null) {
+                                            childVo.setAvatar(user.getAvatar());
+                                        }
+                                    }
+                                    return childVo;
+                                })
+                                .collect(Collectors.toList()));
+                    }
+
+                    return vo;
+                })
+                .collect(Collectors.toList());
     }
-    
+
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof LoginUser) {

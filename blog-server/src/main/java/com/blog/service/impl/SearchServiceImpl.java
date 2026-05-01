@@ -10,6 +10,7 @@ import com.blog.repository.mapper.SearchHistoryMapper;
 import com.blog.repository.mapper.SearchSuggestionMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.SearchService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -17,8 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,15 +45,13 @@ public class SearchServiceImpl implements SearchService {
         int offset = (dto.getPage() - 1) * dto.getSize();
 
         // 执行全文检索
-        List<SearchVO> results = articleMapper.searchFulltext(
-                keyword, dto.getSortBy(), offset, dto.getSize());
+        List<SearchVO> results = articleMapper.searchFulltext(keyword, dto.getSortBy(), offset, dto.getSize());
         Long total = articleMapper.searchFulltextCount(keyword);
 
         // 高亮处理
         for (SearchVO vo : results) {
             vo.setTitle(HighlightUtil.highlightOnly(vo.getTitle(), keyword));
-            vo.setContentHighlight(HighlightUtil.highlight(
-                    vo.getContentHighlight(), keyword, highlightContentLength));
+            vo.setContentHighlight(HighlightUtil.highlight(vo.getContentHighlight(), keyword, highlightContentLength));
         }
 
         // 记录搜索历史和更新建议统计

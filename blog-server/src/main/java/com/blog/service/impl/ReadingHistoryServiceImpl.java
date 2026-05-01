@@ -9,12 +9,11 @@ import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.ReadingHistoryMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.ReadingHistoryService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +40,7 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
 
         // 查询用户的阅读历史
         LambdaQueryWrapper<ReadingHistory> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ReadingHistory::getUserId, userId)
-               .orderByDesc(ReadingHistory::getUpdateTime);
+        wrapper.eq(ReadingHistory::getUserId, userId).orderByDesc(ReadingHistory::getUpdateTime);
 
         List<ReadingHistory> allHistory = readingHistoryMapper.selectList(wrapper);
 
@@ -86,8 +84,7 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
         if (userId == null) {
             return;
         }
-        readingHistoryMapper.delete(new LambdaQueryWrapper<ReadingHistory>()
-                .eq(ReadingHistory::getUserId, userId));
+        readingHistoryMapper.delete(new LambdaQueryWrapper<ReadingHistory>().eq(ReadingHistory::getUserId, userId));
     }
 
     private ReadingHistoryVO buildHistoryVO(ReadingHistory history, Article article) {
@@ -101,7 +98,8 @@ public class ReadingHistoryServiceImpl implements ReadingHistoryService {
     }
 
     private Long getCurrentUserId() {
-        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof LoginUser loginUser) {
             return loginUser.getUserId();
         }

@@ -16,16 +16,18 @@ public interface UserMapper extends BaseMapper<User> {
     @Update("UPDATE sys_user SET follower_count = follower_count + #{delta} WHERE id = #{userId}")
     int updateFollowerCount(@Param("userId") Long userId, @Param("delta") int delta);
 
-    @Update("UPDATE sys_user SET points = points + #{points}, total_points = total_points + #{points}, " +
-            "checkin_days = checkin_days + 1, max_consecutive_days = GREATEST(max_consecutive_days, #{consecutive}), " +
-            "last_checkin_date = CURRENT_DATE WHERE id = #{userId}")
-    void updateCheckinInfo(@Param("userId") Long userId, @Param("points") int points, @Param("consecutive") int consecutive);
+    @Update("UPDATE sys_user SET points = points + #{points}, total_points = total_points + #{points}, "
+            + "checkin_days = checkin_days + 1, max_consecutive_days = GREATEST(max_consecutive_days, #{consecutive}), "
+            + "last_checkin_date = CURRENT_DATE WHERE id = #{userId}")
+    void updateCheckinInfo(
+            @Param("userId") Long userId, @Param("points") int points, @Param("consecutive") int consecutive);
 
-    @Update("UPDATE sys_user SET points = points + #{points}, total_points = total_points + #{points} WHERE id = #{userId}")
+    @Update(
+            "UPDATE sys_user SET points = points + #{points}, total_points = total_points + #{points} WHERE id = #{userId}")
     void addPoints(@Param("userId") Long userId, @Param("points") int points);
 
-    @Update("UPDATE sys_user SET achievement_count = achievement_count + 1, " +
-            "total_achievement_points = total_achievement_points + #{points} WHERE id = #{userId}")
+    @Update("UPDATE sys_user SET achievement_count = achievement_count + 1, "
+            + "total_achievement_points = total_achievement_points + #{points} WHERE id = #{userId}")
     void incrementAchievementCount(@Param("userId") Long userId, @Param("points") int points);
 
     @Select("SELECT COUNT(*) FROM article WHERE author_id = #{userId} AND deleted = 0 AND status = 1")

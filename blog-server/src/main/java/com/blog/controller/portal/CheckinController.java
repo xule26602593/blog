@@ -8,11 +8,11 @@ import com.blog.security.LoginUser;
 import com.blog.service.CheckinService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
-import java.util.List;
 
 @Tag(name = "签到接口", description = "用户签到相关接口")
 @RestController

@@ -3,17 +3,17 @@ package com.blog.repository.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.Notification;
 import com.blog.domain.vo.NotificationVO;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.List;
-
 @Mapper
 public interface NotificationMapper extends BaseMapper<Notification> {
 
-    @Select("""
+    @Select(
+            """
         SELECT n.id, n.type AS typeCode, n.title, n.content, n.related_id, n.sender_id,
                u.nickname AS senderName, u.avatar AS senderAvatar, n.is_read, n.create_time
         FROM notification n
@@ -23,7 +23,8 @@ public interface NotificationMapper extends BaseMapper<Notification> {
         """)
     List<NotificationVO> selectNotificationList(@Param("userId") Long userId);
 
-    @Select("""
+    @Select(
+            """
         SELECT n.id, n.type AS typeCode, n.title, n.content, n.related_id, n.sender_id,
                u.nickname AS senderName, u.avatar AS senderAvatar, n.is_read, n.create_time
         FROM notification n

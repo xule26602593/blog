@@ -16,12 +16,11 @@ import com.blog.service.UserActionService;
 import com.blog.service.ai.RecommendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "前台文章接口")
 @RestController
@@ -128,13 +127,10 @@ public class PortalController {
     @Operation(summary = "获取推荐文章")
     @GetMapping("/articles/recommendations")
     public Result<List<ArticleListVO>> getRecommendations(
-            @RequestParam(required = false) Long articleId,
-            @RequestParam(defaultValue = "5") int limit) {
+            @RequestParam(required = false) Long articleId, @RequestParam(defaultValue = "5") int limit) {
         Long userId = getCurrentUserId();
         List<Article> articles = recommendService.getRecommendations(userId, articleId, limit);
-        List<ArticleListVO> vos = articles.stream()
-                .map(this::convertToListVO)
-                .toList();
+        List<ArticleListVO> vos = articles.stream().map(this::convertToListVO).toList();
         return Result.success(vos);
     }
 

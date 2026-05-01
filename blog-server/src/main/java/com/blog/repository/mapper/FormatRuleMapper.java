@@ -5,5 +5,4 @@ import com.blog.domain.entity.FormatRule;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface FormatRuleMapper extends BaseMapper<FormatRule> {
-}
+public interface FormatRuleMapper extends BaseMapper<FormatRule> {}

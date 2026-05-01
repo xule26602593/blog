@@ -22,8 +22,7 @@ public class MessageController {
     @Operation(summary = "分页查询留言列表")
     @GetMapping
     public Result<Page<MessageVO>> pageList(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         return Result.success(messageService.pagePublicList(pageNum, pageSize));
     }
 

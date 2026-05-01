@@ -5,5 +5,4 @@ import com.blog.domain.entity.UserReadingProfile;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserReadingProfileMapper extends BaseMapper<UserReadingProfile> {
-}
+public interface UserReadingProfileMapper extends BaseMapper<UserReadingProfile> {}

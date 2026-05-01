@@ -1,15 +1,14 @@
 package com.blog.domain.vo;
 
-import com.blog.common.enums.NotificationType;
-import lombok.Data;
-
+import com.blog.domain.enums.NotificationType;
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Data
 public class NotificationVO {
     private Long id;
-    private Integer typeCode;  // 数据库原始值
-    private String type;       // 字符串类型: FOLLOW, COMMENT, REPLY, ANNOUNCEMENT
+    private Integer typeCode; // 数据库原始值
+    private String type; // 字符串类型: FOLLOW, COMMENT, REPLY, ANNOUNCEMENT
     private String title;
     private String content;
     private Long relatedId;

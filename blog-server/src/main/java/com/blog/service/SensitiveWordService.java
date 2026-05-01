@@ -3,7 +3,6 @@ package com.blog.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.domain.dto.SensitiveWordDTO;
 import com.blog.domain.vo.SensitiveWordVO;
-
 import java.util.List;
 
 public interface SensitiveWordService {

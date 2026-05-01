@@ -5,5 +5,4 @@ import com.blog.domain.entity.SysConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface SysConfigMapper extends BaseMapper<SysConfig> {
-}
+public interface SysConfigMapper extends BaseMapper<SysConfig> {}

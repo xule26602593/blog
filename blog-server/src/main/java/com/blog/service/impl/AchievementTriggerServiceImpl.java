@@ -2,12 +2,12 @@ package com.blog.service.impl;
 
 import com.blog.service.AchievementService;
 import com.blog.service.AchievementTriggerService;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -17,27 +17,36 @@ public class AchievementTriggerServiceImpl implements AchievementTriggerService 
     private final AchievementService achievementService;
 
     private static final List<String> ARTICLE_ACHIEVEMENTS = Arrays.asList(
-        "first_article", "article_10", "article_50", "article_100", "article_500",
-        "like_100", "like_500", "like_1000", "like_5000",
-        "view_1000", "view_10000", "view_100000"
-    );
+            "first_article",
+            "article_10",
+            "article_50",
+            "article_100",
+            "article_500",
+            "like_100",
+            "like_500",
+            "like_1000",
+            "like_5000",
+            "view_1000",
+            "view_10000",
+            "view_100000");
 
-    private static final List<String> COMMENT_ACHIEVEMENTS = Arrays.asList(
-        "first_comment", "comment_10", "comment_50", "comment_100"
-    );
+    private static final List<String> COMMENT_ACHIEVEMENTS =
+            Arrays.asList("first_comment", "comment_10", "comment_50", "comment_100");
 
     private static final List<String> FOLLOW_ACHIEVEMENTS = Arrays.asList(
-        "follower_10", "follower_50", "follower_100", "follower_500", "follower_1000",
-        "following_10", "following_50"
-    );
+            "follower_10",
+            "follower_50",
+            "follower_100",
+            "follower_500",
+            "follower_1000",
+            "following_10",
+            "following_50");
 
-    private static final List<String> CHECKIN_STREAK_ACHIEVEMENTS = Arrays.asList(
-        "checkin_7", "checkin_30", "checkin_100", "checkin_365"
-    );
+    private static final List<String> CHECKIN_STREAK_ACHIEVEMENTS =
+            Arrays.asList("checkin_7", "checkin_30", "checkin_100", "checkin_365");
 
-    private static final List<String> CHECKIN_TOTAL_ACHIEVEMENTS = Arrays.asList(
-        "checkin_1", "checkin_total_30", "checkin_total_100", "checkin_total_365"
-    );
+    private static final List<String> CHECKIN_TOTAL_ACHIEVEMENTS =
+            Arrays.asList("checkin_1", "checkin_total_30", "checkin_total_100", "checkin_total_365");
 
     @Override
     @Async
@@ -82,7 +91,7 @@ public class AchievementTriggerServiceImpl implements AchievementTriggerService 
     @Async
     public void triggerCheckinAchievements(Long userId, int consecutiveDays) {
         log.debug("Triggering checkin achievements for user: {}, consecutiveDays: {}", userId, consecutiveDays);
-        
+
         CHECKIN_STREAK_ACHIEVEMENTS.forEach(code -> {
             try {
                 achievementService.checkAndUnlock(userId, code);
@@ -90,7 +99,7 @@ public class AchievementTriggerServiceImpl implements AchievementTriggerService 
                 log.error("Achievement check failed: code={}, userId={}", code, userId, e);
             }
         });
-        
+
         CHECKIN_TOTAL_ACHIEVEMENTS.forEach(code -> {
             try {
                 achievementService.checkAndUnlock(userId, code);

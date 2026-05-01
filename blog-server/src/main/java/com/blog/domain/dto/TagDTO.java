@@ -5,11 +5,11 @@ import lombok.Data;
 
 @Data
 public class TagDTO {
-    
+
     private Long id;
-    
+
     @NotBlank(message = "标签名称不能为空")
     private String name;
-    
+
     private String color;
 }

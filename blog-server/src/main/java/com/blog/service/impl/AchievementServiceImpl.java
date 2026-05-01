@@ -10,15 +10,15 @@ import com.blog.repository.mapper.UserAchievementMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.service.AchievementService;
 import com.blog.service.NotificationService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,66 +33,64 @@ public class AchievementServiceImpl implements AchievementService {
     @Override
     @Cacheable(value = "achievements", key = "'all'")
     public List<AchievementVO> listAll() {
-        return achievementMapper.selectList(
-            new LambdaQueryWrapper<Achievement>()
-                .eq(Achievement::getStatus, 1)
-                .orderByAsc(Achievement::getCategory)
-                .orderByAsc(Achievement::getSort)
-        ).stream().map(this::convertToVO).collect(Collectors.toList());
+        return achievementMapper
+                .selectList(new LambdaQueryWrapper<Achievement>()
+                        .eq(Achievement::getStatus, 1)
+                        .orderByAsc(Achievement::getCategory)
+                        .orderByAsc(Achievement::getSort))
+                .stream()
+                .map(this::convertToVO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<AchievementVO> listByCategory(String category) {
-        return achievementMapper.selectList(
-            new LambdaQueryWrapper<Achievement>()
-                .eq(Achievement::getStatus, 1)
-                .eq(Achievement::getCategory, category)
-                .orderByAsc(Achievement::getSort)
-        ).stream().map(this::convertToVO).collect(Collectors.toList());
+        return achievementMapper
+                .selectList(new LambdaQueryWrapper<Achievement>()
+                        .eq(Achievement::getStatus, 1)
+                        .eq(Achievement::getCategory, category)
+                        .orderByAsc(Achievement::getSort))
+                .stream()
+                .map(this::convertToVO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<UserAchievementVO> getUserAchievements(Long userId) {
-        List<Achievement> achievements = achievementMapper.selectList(
-            new LambdaQueryWrapper<Achievement>()
+        List<Achievement> achievements = achievementMapper.selectList(new LambdaQueryWrapper<Achievement>()
                 .eq(Achievement::getStatus, 1)
-                .orderByAsc(Achievement::getSort)
-        );
+                .orderByAsc(Achievement::getSort));
 
         List<UserAchievement> userAchievements = userAchievementMapper.selectList(
-            new LambdaQueryWrapper<UserAchievement>()
-                .eq(UserAchievement::getUserId, userId)
-        );
+                new LambdaQueryWrapper<UserAchievement>().eq(UserAchievement::getUserId, userId));
 
         return achievements.stream()
-            .map(achievement -> {
-                UserAchievement ua = userAchievements.stream()
-                    .filter(u -> u.getAchievementId().equals(achievement.getId()))
-                    .findFirst()
-                    .orElse(null);
-                return convertToUserVO(achievement, ua, userId);
-            })
-            .collect(Collectors.toList());
+                .map(achievement -> {
+                    UserAchievement ua = userAchievements.stream()
+                            .filter(u -> u.getAchievementId().equals(achievement.getId()))
+                            .findFirst()
+                            .orElse(null);
+                    return convertToUserVO(achievement, ua, userId);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<UserAchievementVO> getUserUnlockedAchievements(Long userId) {
         return getUserAchievements(userId).stream()
-            .filter(UserAchievementVO::getUnlocked)
-            .collect(Collectors.toList());
+                .filter(UserAchievementVO::getUnlocked)
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserAchievementVO getUserAchievementProgress(Long userId, Long achievementId) {
         Achievement achievement = achievementMapper.selectById(achievementId);
         if (achievement == null) return null;
-        
-        UserAchievement ua = userAchievementMapper.selectOne(
-            new LambdaQueryWrapper<UserAchievement>()
+
+        UserAchievement ua = userAchievementMapper.selectOne(new LambdaQueryWrapper<UserAchievement>()
                 .eq(UserAchievement::getUserId, userId)
-                .eq(UserAchievement::getAchievementId, achievementId)
-        );
-        
+                .eq(UserAchievement::getAchievementId, achievementId));
+
         return convertToUserVO(achievement, ua, userId);
     }
 
@@ -100,22 +98,18 @@ public class AchievementServiceImpl implements AchievementService {
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "userAchievements", key = "#userId")
     public boolean checkAndUnlock(Long userId, String achievementCode) {
-        Achievement achievement = achievementMapper.selectOne(
-            new LambdaQueryWrapper<Achievement>()
+        Achievement achievement = achievementMapper.selectOne(new LambdaQueryWrapper<Achievement>()
                 .eq(Achievement::getCode, achievementCode)
-                .eq(Achievement::getStatus, 1)
-        );
+                .eq(Achievement::getStatus, 1));
 
         if (achievement == null) {
             log.warn("Achievement not found: {}", achievementCode);
             return false;
         }
 
-        UserAchievement ua = userAchievementMapper.selectOne(
-            new LambdaQueryWrapper<UserAchievement>()
+        UserAchievement ua = userAchievementMapper.selectOne(new LambdaQueryWrapper<UserAchievement>()
                 .eq(UserAchievement::getUserId, userId)
-                .eq(UserAchievement::getAchievementId, achievement.getId())
-        );
+                .eq(UserAchievement::getAchievementId, achievement.getId()));
 
         if (ua != null && ua.getUnlocked() == 1) {
             return false;
@@ -157,12 +151,10 @@ public class AchievementServiceImpl implements AchievementService {
 
     @Override
     public void checkCategory(Long userId, String category) {
-        List<Achievement> achievements = achievementMapper.selectList(
-            new LambdaQueryWrapper<Achievement>()
+        List<Achievement> achievements = achievementMapper.selectList(new LambdaQueryWrapper<Achievement>()
                 .eq(Achievement::getStatus, 1)
-                .eq(Achievement::getCategory, category)
-        );
-        
+                .eq(Achievement::getCategory, category));
+
         for (Achievement achievement : achievements) {
             try {
                 checkAndUnlock(userId, achievement.getCode());
@@ -174,7 +166,7 @@ public class AchievementServiceImpl implements AchievementService {
 
     private int calculateProgress(Long userId, Achievement achievement) {
         String code = achievement.getCode();
-        
+
         if (code.startsWith("article_")) {
             return userMapper.countArticles(userId);
         }
@@ -205,16 +197,15 @@ public class AchievementServiceImpl implements AchievementService {
         if ("special".equals(achievement.getType())) {
             return achievement.getConditionValue();
         }
-        
+
         return 0;
     }
 
     private void sendUnlockNotification(Long userId, Achievement achievement) {
         try {
             notificationService.createAnnouncementNotification(
-                achievement.getId(),
-                String.format("恭喜解锁成就【%s】！获得%d积分奖励", achievement.getName(), achievement.getPoints())
-            );
+                    achievement.getId(),
+                    String.format("恭喜解锁成就【%s】！获得%d积分奖励", achievement.getName(), achievement.getPoints()));
         } catch (Exception e) {
             log.error("Failed to send achievement notification", e);
         }
@@ -247,9 +238,9 @@ public class AchievementServiceImpl implements AchievementService {
         vo.setConditionValue(achievement.getConditionValue());
         vo.setPoints(achievement.getPoints());
         vo.setLevel(achievement.getLevel());
-        
+
         int progress = ua != null ? ua.getProgress() : calculateProgress(userId, achievement);
-        
+
         if (ua != null) {
             vo.setProgress(ua.getProgress());
             vo.setUnlocked(ua.getUnlocked() == 1);
@@ -258,13 +249,13 @@ public class AchievementServiceImpl implements AchievementService {
             vo.setProgress(progress);
             vo.setUnlocked(false);
         }
-        
+
         if ("special".equals(achievement.getType())) {
             vo.setProgressPercent(vo.getUnlocked() ? 100 : 0);
         } else {
-            vo.setProgressPercent(Math.min(100, (int)(progress * 100.0 / achievement.getConditionValue())));
+            vo.setProgressPercent(Math.min(100, (int) (progress * 100.0 / achievement.getConditionValue())));
         }
-        
+
         return vo;
     }
 }

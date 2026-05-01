@@ -2,10 +2,9 @@ package com.blog.repository.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.blog.domain.entity.SensitiveWord;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 @Mapper
 public interface SensitiveWordMapper extends BaseMapper<SensitiveWord> {

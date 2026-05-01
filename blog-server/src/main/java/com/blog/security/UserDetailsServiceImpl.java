@@ -1,16 +1,15 @@
 package com.blog.security;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.domain.entity.User;
 import com.blog.repository.mapper.UserMapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username));
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
 
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在: " + username);
@@ -31,8 +29,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("账号已被禁用: " + username);
         }
 
-        return new LoginUser(user, Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRoleCode())
-        ));
+        return new LoginUser(user, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRoleCode())));
     }
 }

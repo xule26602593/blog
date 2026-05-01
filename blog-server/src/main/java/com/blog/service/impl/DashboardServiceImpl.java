@@ -19,21 +19,21 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public DashboardVO getDashboardData() {
         DashboardVO vo = new DashboardVO();
-        
+
         // 文章统计
         vo.setArticleCount(articleMapper.countPublished());
         vo.setTodayArticleCount(articleMapper.countTodayPublished());
-        
+
         // 评论统计
         vo.setCommentCount(commentMapper.countApproved());
         vo.setTodayCommentCount(commentMapper.countTodayApproved());
-        
+
         // 用户统计
         vo.setUserCount(userMapper.selectCount(null));
-        
+
         // 浏览量统计
         vo.setViewCount(articleMapper.sumViewCount());
-        
+
         return vo;
     }
 }

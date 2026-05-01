@@ -12,8 +12,8 @@ public class ArticleMapperProvider {
     public String selectPrevByTags(Long currentId, String tagIdsStr) {
         if (tagIdsStr == null || tagIdsStr.isEmpty()) {
             // 返回一个永远为空的结果
-            return "SELECT a.id, a.title, c.name AS categoryName " +
-                   "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
+            return "SELECT a.id, a.title, c.name AS categoryName "
+                    + "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
         }
         // Validate format: only digits and commas to prevent SQL injection
         if (!tagIdsStr.matches("^[0-9]+(,[0-9]+)*$")) {
@@ -38,8 +38,8 @@ public class ArticleMapperProvider {
      */
     public String selectNextByTags(Long currentId, String tagIdsStr) {
         if (tagIdsStr == null || tagIdsStr.isEmpty()) {
-            return "SELECT a.id, a.title, c.name AS categoryName " +
-                   "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
+            return "SELECT a.id, a.title, c.name AS categoryName "
+                    + "FROM article a LEFT JOIN category c ON 1=0 WHERE 1=0";
         }
         // Validate format: only digits and commas to prevent SQL injection
         if (!tagIdsStr.matches("^[0-9]+(,[0-9]+)*$")) {

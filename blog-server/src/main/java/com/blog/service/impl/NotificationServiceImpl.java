@@ -1,20 +1,19 @@
 package com.blog.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.blog.common.enums.NotificationType;
 import com.blog.domain.entity.Announcement;
 import com.blog.domain.entity.Notification;
 import com.blog.domain.entity.User;
+import com.blog.domain.enums.NotificationType;
 import com.blog.domain.vo.NotificationVO;
 import com.blog.repository.mapper.AnnouncementMapper;
 import com.blog.repository.mapper.NotificationMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.service.NotificationService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async
-    public void createFollowNotification(Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
+    public void createFollowNotification(
+            Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
         Notification notification = new Notification();
         notification.setUserId(userId);
         notification.setType(NotificationType.FOLLOW.getCode());
@@ -63,7 +63,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async
-    public void createCommentNotification(Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
+    public void createCommentNotification(
+            Long userId, Long articleId, String articleTitle, Long senderId, String senderName) {
         Notification notification = new Notification();
         notification.setUserId(userId);
         notification.setType(NotificationType.COMMENT.getCode());
@@ -103,11 +104,9 @@ public class NotificationServiceImpl implements NotificationService {
         long total = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getDeleted, 0));
 
         while ((long) (pageNo - 1) * pageSize < total) {
-            List<User> users = userMapper.selectList(
-                new LambdaQueryWrapper<User>()
+            List<User> users = userMapper.selectList(new LambdaQueryWrapper<User>()
                     .eq(User::getDeleted, 0)
-                    .last("LIMIT " + pageSize + " OFFSET " + (pageNo - 1) * pageSize)
-            );
+                    .last("LIMIT " + pageSize + " OFFSET " + (pageNo - 1) * pageSize));
 
             for (User user : users) {
                 Notification notification = new Notification();

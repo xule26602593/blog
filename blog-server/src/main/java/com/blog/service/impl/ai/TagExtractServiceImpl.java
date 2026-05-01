@@ -7,13 +7,12 @@ import com.blog.service.ai.AiService;
 import com.blog.service.ai.TagExtractService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -26,18 +25,16 @@ public class TagExtractServiceImpl implements TagExtractService {
 
     @Override
     public TagExtractResult extractTags(String title, String content) {
-        String result = aiService.generate("tags_default", Map.of(
-            "title", title != null ? title : "",
-            "content", truncate(content, 6000)
-        ));
+        String result = aiService.generate(
+                "tags_default", Map.of("title", title != null ? title : "", "content", truncate(content, 6000)));
 
         List<String> aiTags = parseTags(result);
 
         // 与现有标签库匹配
         List<Tag> existingTags = tagService.findByNames(aiTags);
         List<String> newTagNames = aiTags.stream()
-            .filter(tag -> existingTags.stream().noneMatch(t -> t.getName().equals(tag)))
-            .toList();
+                .filter(tag -> existingTags.stream().noneMatch(t -> t.getName().equals(tag)))
+                .toList();
 
         TagExtractResult tagResult = new TagExtractResult();
         tagResult.setExistingTags(existingTags);

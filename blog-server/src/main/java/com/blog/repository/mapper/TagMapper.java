@@ -5,5 +5,4 @@ import com.blog.domain.entity.Tag;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface TagMapper extends BaseMapper<Tag> {
-}
+public interface TagMapper extends BaseMapper<Tag> {}

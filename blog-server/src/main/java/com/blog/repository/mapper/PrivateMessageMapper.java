@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface PrivateMessageMapper extends BaseMapper<PrivateMessage> {
 
-    @Update("UPDATE private_message SET is_read = 1 WHERE conversation_id = #{conversationId} AND receiver_id = #{receiverId} AND is_read = 0")
+    @Update(
+            "UPDATE private_message SET is_read = 1 WHERE conversation_id = #{conversationId} AND receiver_id = #{receiverId} AND is_read = 0")
     int markAsRead(@Param("conversationId") Long conversationId, @Param("receiverId") Long receiverId);
 }

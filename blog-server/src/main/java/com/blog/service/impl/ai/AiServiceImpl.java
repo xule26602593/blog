@@ -7,6 +7,8 @@ import com.blog.domain.entity.PromptTemplate;
 import com.blog.service.ai.AiService;
 import com.blog.service.ai.PromptTemplateService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -14,9 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +39,7 @@ public class AiServiceImpl implements AiService {
      */
     private String wrapUserContent(String content) {
         if (content == null) return "";
-        String sanitized = content
-            .replace("<user_content>", "")
-            .replace("</user_content>", "");
+        String sanitized = content.replace("<user_content>", "").replace("</user_content>", "");
         return "<user_content>\n" + sanitized + "\n</user_content>";
     }
 
@@ -66,18 +63,19 @@ public class AiServiceImpl implements AiService {
 
         try {
             ChatClient chatClient = chatClientBuilder.build();
-            return chatClient.prompt()
-                .system(template.getSystemPrompt())
-                .user(u -> u.text(template.getUserTemplate())
-                    .param("title", sanitizedParams.getOrDefault("title", ""))
-                    .param("content", sanitizedParams.getOrDefault("content", ""))
-                    .param("description", sanitizedParams.getOrDefault("description", ""))
-                    .param("context", sanitizedParams.getOrDefault("context", ""))
-                    .param("direction", sanitizedParams.getOrDefault("direction", ""))
-                    .param("question", sanitizedParams.getOrDefault("question", ""))
-                    .param("count", sanitizedParams.getOrDefault("count", "5")))
-                .call()
-                .content();
+            return chatClient
+                    .prompt()
+                    .system(template.getSystemPrompt())
+                    .user(u -> u.text(template.getUserTemplate())
+                            .param("title", sanitizedParams.getOrDefault("title", ""))
+                            .param("content", sanitizedParams.getOrDefault("content", ""))
+                            .param("description", sanitizedParams.getOrDefault("description", ""))
+                            .param("context", sanitizedParams.getOrDefault("context", ""))
+                            .param("direction", sanitizedParams.getOrDefault("direction", ""))
+                            .param("question", sanitizedParams.getOrDefault("question", ""))
+                            .param("count", sanitizedParams.getOrDefault("count", "5")))
+                    .call()
+                    .content();
         } catch (Exception e) {
             log.error("AI调用失败", e);
             throw new BusinessException("AI服务暂时不可用");
@@ -108,46 +106,47 @@ public class AiServiceImpl implements AiService {
 
         try {
             ChatClient chatClient = chatClientBuilder.build();
-            Flux<String> contentFlux = chatClient.prompt()
-                .system(template.getSystemPrompt())
-                .user(u -> u.text(template.getUserTemplate())
-                    .param("title", sanitizedParams.getOrDefault("title", ""))
-                    .param("content", sanitizedParams.getOrDefault("content", ""))
-                    .param("description", sanitizedParams.getOrDefault("description", ""))
-                    .param("context", sanitizedParams.getOrDefault("context", ""))
-                    .param("direction", sanitizedParams.getOrDefault("direction", ""))
-                    .param("question", sanitizedParams.getOrDefault("question", ""))
-                    .param("count", sanitizedParams.getOrDefault("count", "5")))
-                .stream()
-                .content();
+            Flux<String> contentFlux = chatClient
+                    .prompt()
+                    .system(template.getSystemPrompt())
+                    .user(u -> u.text(template.getUserTemplate())
+                            .param("title", sanitizedParams.getOrDefault("title", ""))
+                            .param("content", sanitizedParams.getOrDefault("content", ""))
+                            .param("description", sanitizedParams.getOrDefault("description", ""))
+                            .param("context", sanitizedParams.getOrDefault("context", ""))
+                            .param("direction", sanitizedParams.getOrDefault("direction", ""))
+                            .param("question", sanitizedParams.getOrDefault("question", ""))
+                            .param("count", sanitizedParams.getOrDefault("count", "5")))
+                    .stream()
+                    .content();
 
             contentFlux.subscribe(
-                content -> {
-                    try {
-                        Map<String, String> delta = Map.of("type", "delta", "text", content);
-                        emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(delta)));
-                    } catch (Exception e) {
-                        log.error("发送SSE事件失败", e);
-                        emitter.completeWithError(e);
-                    }
-                },
-                error -> {
-                    log.error("AI流式调用失败", error);
-                    try {
-                        Map<String, String> err = Map.of("type", "error", "message", error.getMessage());
-                        emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(err)));
-                    } catch (Exception ignored) {}
-                    emitter.completeWithError(error);
-                },
-                () -> {
-                    try {
-                        emitter.send(SseEmitter.event().data("[DONE]"));
-                        emitter.complete();
-                    } catch (Exception e) {
-                        emitter.completeWithError(e);
-                    }
-                }
-            );
+                    content -> {
+                        try {
+                            Map<String, String> delta = Map.of("type", "delta", "text", content);
+                            emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(delta)));
+                        } catch (Exception e) {
+                            log.error("发送SSE事件失败", e);
+                            emitter.completeWithError(e);
+                        }
+                    },
+                    error -> {
+                        log.error("AI流式调用失败", error);
+                        try {
+                            Map<String, String> err = Map.of("type", "error", "message", error.getMessage());
+                            emitter.send(SseEmitter.event().data(objectMapper.writeValueAsString(err)));
+                        } catch (Exception ignored) {
+                        }
+                        emitter.completeWithError(error);
+                    },
+                    () -> {
+                        try {
+                            emitter.send(SseEmitter.event().data("[DONE]"));
+                            emitter.complete();
+                        } catch (Exception e) {
+                            emitter.completeWithError(e);
+                        }
+                    });
         } catch (Exception e) {
             log.error("创建流式响应失败", e);
             emitter.completeWithError(e);

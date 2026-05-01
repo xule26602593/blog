@@ -5,7 +5,6 @@ import com.blog.domain.dto.ArticleDTO;
 import com.blog.domain.dto.ArticleQueryDTO;
 import com.blog.domain.vo.ArticleListVO;
 import com.blog.domain.vo.ArticleVO;
-
 import java.util.List;
 
 public interface ArticleService {

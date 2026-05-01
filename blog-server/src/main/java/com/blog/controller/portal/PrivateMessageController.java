@@ -23,8 +23,7 @@ public class PrivateMessageController {
     @Operation(summary = "获取会话列表")
     @GetMapping("/conversations")
     public Result<Page<ConversationVO>> getConversations(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         return Result.success(privateMessageService.getConversations(pageNum, pageSize));
     }
 

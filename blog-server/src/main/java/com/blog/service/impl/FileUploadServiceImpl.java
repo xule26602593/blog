@@ -3,10 +3,6 @@ package com.blog.service.impl;
 import com.blog.common.exception.BusinessException;
 import com.blog.common.result.ErrorCode;
 import com.blog.service.FileUploadService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -14,6 +10,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
@@ -41,10 +40,12 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         // 校验文件类型
         String originalFilename = file.getOriginalFilename();
-        String suffix = originalFilename != null && originalFilename.contains(".") 
-                ? originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase() 
+        String suffix = originalFilename != null && originalFilename.contains(".")
+                ? originalFilename
+                        .substring(originalFilename.lastIndexOf(".") + 1)
+                        .toLowerCase()
                 : "";
-        
+
         List<String> allowedList = Arrays.asList(allowedTypes.split(","));
         if (!allowedList.contains(suffix)) {
             throw new BusinessException(ErrorCode.FILE_TYPE_ERROR);
@@ -52,11 +53,11 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         // 生成文件名
         String newFilename = UUID.randomUUID().toString().replace("-", "") + "." + suffix;
-        
+
         // 按日期分目录存储
         String datePath = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         String dirPath = uploadPath + datePath + "/";
-        
+
         File dir = new File(dirPath);
         if (!dir.exists()) {
             dir.mkdirs();

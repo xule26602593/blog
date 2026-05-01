@@ -17,16 +17,15 @@ import com.blog.repository.mapper.SeriesArticleMapper;
 import com.blog.repository.mapper.SeriesMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.SeriesService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +52,7 @@ public class SeriesServiceImpl implements SeriesService {
             wrapper.eq(Series::getStatus, query.getStatus());
         }
 
-        wrapper.orderByDesc(Series::getSort)
-               .orderByDesc(Series::getCreateTime);
+        wrapper.orderByDesc(Series::getSort).orderByDesc(Series::getCreateTime);
 
         Page<Series> seriesPage = seriesMapper.selectPage(page, wrapper);
 
@@ -87,9 +85,8 @@ public class SeriesServiceImpl implements SeriesService {
 
         List<SeriesArticle> seriesArticles = seriesArticleMapper.selectList(saWrapper);
         if (!seriesArticles.isEmpty()) {
-            List<Long> articleIds = seriesArticles.stream()
-                    .map(SeriesArticle::getArticleId)
-                    .collect(Collectors.toList());
+            List<Long> articleIds =
+                    seriesArticles.stream().map(SeriesArticle::getArticleId).collect(Collectors.toList());
 
             List<Article> articles = articleMapper.selectBatchIds(articleIds);
 
@@ -120,10 +117,10 @@ public class SeriesServiceImpl implements SeriesService {
     public List<SeriesListVO> getHotSeries(int limit) {
         LambdaQueryWrapper<Series> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Series::getDeleted, 0)
-               .eq(Series::getStatus, 1)
-               .gt(Series::getArticleCount, 0)
-               .orderByDesc(Series::getViewCount)
-               .last("LIMIT " + limit);
+                .eq(Series::getStatus, 1)
+                .gt(Series::getArticleCount, 0)
+                .orderByDesc(Series::getViewCount)
+                .last("LIMIT " + limit);
 
         List<Series> seriesList = seriesMapper.selectList(wrapper);
         return seriesList.stream()
@@ -174,8 +171,7 @@ public class SeriesServiceImpl implements SeriesService {
             throw new BusinessException(ErrorCode.NOT_FOUND);
         }
 
-        seriesArticleMapper.delete(new LambdaQueryWrapper<SeriesArticle>()
-                .eq(SeriesArticle::getSeriesId, id));
+        seriesArticleMapper.delete(new LambdaQueryWrapper<SeriesArticle>().eq(SeriesArticle::getSeriesId, id));
 
         seriesMapper.deleteById(id);
     }

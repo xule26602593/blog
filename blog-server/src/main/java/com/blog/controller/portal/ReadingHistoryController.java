@@ -27,8 +27,7 @@ public class ReadingHistoryController {
     @Operation(summary = "获取阅读历史列表")
     @GetMapping
     public Result<PageResult<ReadingHistoryVO>> getHistoryList(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
+            @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize) {
         return Result.success(readingHistoryService.getHistoryList(pageNum, pageSize));
     }
 

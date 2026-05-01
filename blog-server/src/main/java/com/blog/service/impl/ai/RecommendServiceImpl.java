@@ -2,7 +2,6 @@ package com.blog.service.impl.ai;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.domain.entity.Article;
-import com.blog.domain.entity.ArticleTag;
 import com.blog.domain.entity.Tag;
 import com.blog.domain.entity.UserReadingProfile;
 import com.blog.repository.mapper.ArticleMapper;
@@ -12,15 +11,13 @@ import com.blog.repository.mapper.UserReadingProfileMapper;
 import com.blog.service.ai.RecommendService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,9 +55,7 @@ public class RecommendServiceImpl implements RecommendService {
         // 基于用户画像的推荐
         if (userId != null) {
             UserReadingProfile profile = profileMapper.selectOne(
-                new LambdaQueryWrapper<UserReadingProfile>()
-                    .eq(UserReadingProfile::getUserId, userId)
-            );
+                    new LambdaQueryWrapper<UserReadingProfile>().eq(UserReadingProfile::getUserId, userId));
             if (profile != null) {
                 recommendations.addAll(findPreferredArticles(profile, limit));
             }
@@ -97,9 +92,7 @@ public class RecommendServiceImpl implements RecommendService {
             if (article == null) return;
 
             UserReadingProfile profile = profileMapper.selectOne(
-                new LambdaQueryWrapper<UserReadingProfile>()
-                    .eq(UserReadingProfile::getUserId, userId)
-            );
+                    new LambdaQueryWrapper<UserReadingProfile>().eq(UserReadingProfile::getUserId, userId));
 
             if (profile == null) {
                 profile = new UserReadingProfile();
@@ -142,15 +135,13 @@ public class RecommendServiceImpl implements RecommendService {
 
     private List<Article> findSimilarArticles(Article article, int limit) {
         // 基于分类查找相似文章
-        return articleMapper.selectList(
-            new LambdaQueryWrapper<Article>()
+        return articleMapper.selectList(new LambdaQueryWrapper<Article>()
                 .eq(Article::getCategoryId, article.getCategoryId())
                 .eq(Article::getStatus, 1)
                 .eq(Article::getDeleted, 0)
                 .ne(Article::getId, article.getId())
                 .orderByDesc(Article::getViewCount)
-                .last("LIMIT " + limit)
-        );
+                .last("LIMIT " + limit));
     }
 
     private List<Article> findPreferredArticles(UserReadingProfile profile, int limit) {
@@ -159,29 +150,25 @@ public class RecommendServiceImpl implements RecommendService {
 
         // 找出权重最高的分类
         String topCategory = categoryWeights.entrySet().stream()
-            .max(Map.Entry.comparingByValue())
-            .map(Map.Entry::getKey)
-            .orElse(null);
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
 
         if (topCategory == null) return Collections.emptyList();
 
-        return articleMapper.selectList(
-            new LambdaQueryWrapper<Article>()
+        return articleMapper.selectList(new LambdaQueryWrapper<Article>()
                 .eq(Article::getStatus, 1)
                 .eq(Article::getDeleted, 0)
                 .orderByDesc(Article::getViewCount)
-                .last("LIMIT " + limit)
-        );
+                .last("LIMIT " + limit));
     }
 
     private List<Article> findHotArticles(int limit) {
-        return articleMapper.selectList(
-            new LambdaQueryWrapper<Article>()
+        return articleMapper.selectList(new LambdaQueryWrapper<Article>()
                 .eq(Article::getStatus, 1)
                 .eq(Article::getDeleted, 0)
                 .orderByDesc(Article::getViewCount)
-                .last("LIMIT " + limit)
-        );
+                .last("LIMIT " + limit));
     }
 
     private Map<String, Double> parseWeights(String json) {

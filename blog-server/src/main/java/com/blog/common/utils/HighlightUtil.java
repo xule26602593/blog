@@ -1,8 +1,7 @@
 package com.blog.common.utils;
 
-import org.springframework.util.StringUtils;
-
 import java.util.regex.Pattern;
+import org.springframework.util.StringUtils;
 
 public class HighlightUtil {
 
@@ -39,10 +38,7 @@ public class HighlightUtil {
         String snippet = extractSnippet(text, index, maxLength);
 
         // 高亮关键词(忽略大小写)
-        return snippet.replaceAll(
-                "(?i)(" + Pattern.quote(keyword) + ")",
-                HIGHLIGHT_PREFIX + "$1" + HIGHLIGHT_SUFFIX
-        );
+        return snippet.replaceAll("(?i)(" + Pattern.quote(keyword) + ")", HIGHLIGHT_PREFIX + "$1" + HIGHLIGHT_SUFFIX);
     }
 
     /**
@@ -52,10 +48,7 @@ public class HighlightUtil {
         if (!StringUtils.hasText(text) || !StringUtils.hasText(keyword)) {
             return text;
         }
-        return text.replaceAll(
-                "(?i)(" + Pattern.quote(keyword) + ")",
-                HIGHLIGHT_PREFIX + "$1" + HIGHLIGHT_SUFFIX
-        );
+        return text.replaceAll("(?i)(" + Pattern.quote(keyword) + ")", HIGHLIGHT_PREFIX + "$1" + HIGHLIGHT_SUFFIX);
     }
 
     /**

@@ -10,14 +10,13 @@ import com.blog.domain.entity.Category;
 import com.blog.domain.vo.CategoryVO;
 import com.blog.repository.mapper.CategoryMapper;
 import com.blog.service.CategoryService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,29 +28,31 @@ public class CategoryServiceImpl implements CategoryService {
     @Cacheable(value = "category", key = "'list'")
     public List<CategoryVO> listAll() {
         List<Category> categories = categoryMapper.selectList(
-                new LambdaQueryWrapper<Category>()
-                        .eq(Category::getStatus, 1)
-                        .orderByAsc(Category::getSort));
+                new LambdaQueryWrapper<Category>().eq(Category::getStatus, 1).orderByAsc(Category::getSort));
 
-        return categories.stream().map(category -> {
-            CategoryVO vo = BeanCopyUtils.copy(category, CategoryVO.class);
-            vo.setArticleCount(categoryMapper.countArticles(category.getId()));
-            return vo;
-        }).collect(Collectors.toList());
+        return categories.stream()
+                .map(category -> {
+                    CategoryVO vo = BeanCopyUtils.copy(category, CategoryVO.class);
+                    vo.setArticleCount(categoryMapper.countArticles(category.getId()));
+                    return vo;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     public Page<CategoryVO> pageCategory(int pageNum, int pageSize) {
         Page<Category> page = new Page<>(pageNum, pageSize);
-        Page<Category> categoryPage = categoryMapper.selectPage(page,
-                new LambdaQueryWrapper<Category>().orderByAsc(Category::getSort));
+        Page<Category> categoryPage =
+                categoryMapper.selectPage(page, new LambdaQueryWrapper<Category>().orderByAsc(Category::getSort));
 
         Page<CategoryVO> voPage = new Page<>(pageNum, pageSize, categoryPage.getTotal());
-        voPage.setRecords(categoryPage.getRecords().stream().map(category -> {
-            CategoryVO vo = BeanCopyUtils.copy(category, CategoryVO.class);
-            vo.setArticleCount(categoryMapper.countArticles(category.getId()));
-            return vo;
-        }).collect(Collectors.toList()));
+        voPage.setRecords(categoryPage.getRecords().stream()
+                .map(category -> {
+                    CategoryVO vo = BeanCopyUtils.copy(category, CategoryVO.class);
+                    vo.setArticleCount(categoryMapper.countArticles(category.getId()));
+                    return vo;
+                })
+                .collect(Collectors.toList()));
 
         return voPage;
     }

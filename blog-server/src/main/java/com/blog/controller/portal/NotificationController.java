@@ -1,18 +1,17 @@
 package com.blog.controller.portal;
 
-import com.blog.common.enums.NotificationType;
 import com.blog.common.result.Result;
+import com.blog.domain.enums.NotificationType;
 import com.blog.domain.vo.NotificationVO;
 import com.blog.security.LoginUser;
 import com.blog.service.NotificationService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/portal")

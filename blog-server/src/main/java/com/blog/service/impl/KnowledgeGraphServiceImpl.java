@@ -9,12 +9,11 @@ import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.ArticleTagMapper;
 import com.blog.repository.mapper.TagMapper;
 import com.blog.service.KnowledgeGraphService;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,15 +29,13 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
         KnowledgeGraphVO graph = new KnowledgeGraphVO();
 
         // 获取所有标签
-        List<Tag> tags = tagMapper.selectList(
-                new LambdaQueryWrapper<Tag>());
+        List<Tag> tags = tagMapper.selectList(new LambdaQueryWrapper<Tag>());
 
         // 获取每个标签的文章数量
         Map<Long, Integer> tagArticleCount = new HashMap<>();
         for (Tag tag : tags) {
             Long count = articleTagMapper.selectCount(
-                    new LambdaQueryWrapper<ArticleTag>()
-                            .eq(ArticleTag::getTagId, tag.getId()));
+                    new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, tag.getId()));
             tagArticleCount.put(tag.getId(), count.intValue());
         }
 
@@ -60,18 +57,13 @@ public class KnowledgeGraphServiceImpl implements KnowledgeGraphService {
 
         // 获取所有已发布文章
         List<Article> articles = articleMapper.selectList(
-                new LambdaQueryWrapper<Article>()
-                        .eq(Article::getStatus, 1)
-                        .eq(Article::getDeleted, 0));
+                new LambdaQueryWrapper<Article>().eq(Article::getStatus, 1).eq(Article::getDeleted, 0));
 
         for (Article article : articles) {
             List<ArticleTag> articleTags = articleTagMapper.selectList(
-                    new LambdaQueryWrapper<ArticleTag>()
-                            .eq(ArticleTag::getArticleId, article.getId()));
+                    new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getArticleId, article.getId()));
 
-            List<Long> tagIds = articleTags.stream()
-                    .map(ArticleTag::getTagId)
-                    .collect(Collectors.toList());
+            List<Long> tagIds = articleTags.stream().map(ArticleTag::getTagId).collect(Collectors.toList());
 
             // 两两组合标签
             for (int i = 0; i < tagIds.size(); i++) {

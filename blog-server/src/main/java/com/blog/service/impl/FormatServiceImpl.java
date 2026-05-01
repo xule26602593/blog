@@ -8,11 +8,6 @@ import com.blog.repository.mapper.FormatRuleMapper;
 import com.blog.service.FormatService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,6 +21,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -50,8 +49,8 @@ public class FormatServiceImpl implements FormatService {
         }
 
         result.setTotalChanges(result.getChanges().stream()
-            .mapToInt(FormatPreviewResult.Change::getCount)
-            .sum());
+                .mapToInt(FormatPreviewResult.Change::getCount)
+                .sum());
 
         return result;
     }
@@ -70,9 +69,7 @@ public class FormatServiceImpl implements FormatService {
 
     @Override
     public List<FormatRule> getRules() {
-        return ruleMapper.selectList(
-            new LambdaQueryWrapper<FormatRule>().orderByAsc(FormatRule::getPriority)
-        );
+        return ruleMapper.selectList(new LambdaQueryWrapper<FormatRule>().orderByAsc(FormatRule::getPriority));
     }
 
     @Override
@@ -110,7 +107,9 @@ public class FormatServiceImpl implements FormatService {
         }
 
         result.setTotal(result.getLinks().size());
-        result.setValid((int) result.getLinks().stream().filter(LinkCheckResult.LinkInfo::isValid).count());
+        result.setValid((int) result.getLinks().stream()
+                .filter(LinkCheckResult.LinkInfo::isValid)
+                .count());
         result.setInvalid(result.getTotal() - result.getValid());
 
         return result;
@@ -118,20 +117,16 @@ public class FormatServiceImpl implements FormatService {
 
     private List<FormatRule> getEnabledRules(List<String> ruleKeys) {
         if (ruleKeys == null || ruleKeys.isEmpty()) {
-            return ruleMapper.selectList(
-                new LambdaQueryWrapper<FormatRule>()
+            return ruleMapper.selectList(new LambdaQueryWrapper<FormatRule>()
                     .eq(FormatRule::getStatus, 1)
                     .eq(FormatRule::getIsDefault, 1)
-                    .orderByAsc(FormatRule::getPriority)
-            );
+                    .orderByAsc(FormatRule::getPriority));
         }
 
-        return ruleMapper.selectList(
-            new LambdaQueryWrapper<FormatRule>()
+        return ruleMapper.selectList(new LambdaQueryWrapper<FormatRule>()
                 .in(FormatRule::getRuleKey, ruleKeys)
                 .eq(FormatRule::getStatus, 1)
-                .orderByAsc(FormatRule::getPriority)
-        );
+                .orderByAsc(FormatRule::getPriority));
     }
 
     private FormatPreviewResult.Change applyRulePreview(String content, FormatRule rule) {
@@ -153,10 +148,11 @@ public class FormatServiceImpl implements FormatService {
             change.setDescription(rule.getRuleName());
             change.setDetails(new ArrayList<>());
 
-            boolean skipInCode = config.has("skipInCode") && config.get("skipInCode").asBoolean();
+            boolean skipInCode =
+                    config.has("skipInCode") && config.get("skipInCode").asBoolean();
             String workingContent = content;
             Map<String, String> codeBlocks = new LinkedHashMap<>();
-            
+
             if (skipInCode) {
                 workingContent = extractCodeBlocks(content, codeBlocks);
             }
@@ -165,8 +161,8 @@ public class FormatServiceImpl implements FormatService {
                 for (JsonNode patternNode : config.get("patterns")) {
                     String pattern = patternNode.get("pattern").asText();
                     String replaceWith = patternNode.has("replaceWith")
-                        ? patternNode.get("replaceWith").asText()
-                        : patternNode.get("replacement").asText();
+                            ? patternNode.get("replaceWith").asText()
+                            : patternNode.get("replacement").asText();
 
                     Pattern p = Pattern.compile(pattern, Pattern.MULTILINE);
                     Matcher m = p.matcher(workingContent);
@@ -204,10 +200,11 @@ public class FormatServiceImpl implements FormatService {
         try {
             JsonNode config = objectMapper.readTree(rule.getRuleConfig());
             String result = content;
-            
-            boolean skipInCode = config.has("skipInCode") && config.get("skipInCode").asBoolean();
+
+            boolean skipInCode =
+                    config.has("skipInCode") && config.get("skipInCode").asBoolean();
             Map<String, String> codeBlocks = new LinkedHashMap<>();
-            
+
             if (skipInCode) {
                 result = extractCodeBlocks(result, codeBlocks);
             }
@@ -216,8 +213,8 @@ public class FormatServiceImpl implements FormatService {
                 for (JsonNode patternNode : config.get("patterns")) {
                     String pattern = patternNode.get("pattern").asText();
                     String replacement = patternNode.has("replacement")
-                        ? patternNode.get("replacement").asText()
-                        : patternNode.get("replaceWith").asText();
+                            ? patternNode.get("replacement").asText()
+                            : patternNode.get("replaceWith").asText();
                     result = result.replaceAll(pattern, replacement);
                 }
             }
@@ -238,22 +235,22 @@ public class FormatServiceImpl implements FormatService {
     }
 
     private static final Pattern CODE_BLOCK_PATTERN = Pattern.compile("```[\\s\\S]*?```|`[^`]+`");
-    
+
     private String extractCodeBlocks(String content, Map<String, String> codeBlocks) {
         AtomicInteger counter = new AtomicInteger(0);
         Matcher matcher = CODE_BLOCK_PATTERN.matcher(content);
         StringBuffer sb = new StringBuffer();
-        
+
         while (matcher.find()) {
             String placeholder = "___CODE_BLOCK_" + counter.getAndIncrement() + "___";
             codeBlocks.put(placeholder, matcher.group());
             matcher.appendReplacement(sb, placeholder);
         }
         matcher.appendTail(sb);
-        
+
         return sb.toString();
     }
-    
+
     private String restoreCodeBlocks(String content, Map<String, String> codeBlocks) {
         String result = content;
         for (Map.Entry<String, String> entry : codeBlocks.entrySet()) {
@@ -274,15 +271,15 @@ public class FormatServiceImpl implements FormatService {
 
         try {
             HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(5))
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .build();
 
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .timeout(Duration.ofSeconds(5))
-                .method("HEAD", HttpRequest.BodyPublishers.noBody())
-                .build();
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(5))
+                    .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                    .build();
 
             HttpResponse<Void> response = client.send(request, HttpResponse.BodyHandlers.discarding());
 

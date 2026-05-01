@@ -1,5 +1,7 @@
 package com.blog.common.utils;
 
+import java.time.Duration;
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBucket;
 import org.redisson.api.RList;
@@ -7,11 +9,6 @@ import org.redisson.api.RMap;
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
-
-import java.time.Duration;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor

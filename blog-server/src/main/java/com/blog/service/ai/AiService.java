@@ -1,8 +1,7 @@
 package com.blog.service.ai;
 
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.Map;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface AiService {
 

@@ -8,10 +8,9 @@ import com.blog.domain.vo.SeriesVO;
 import com.blog.service.SeriesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "门户系列")
 @RestController

@@ -9,12 +9,11 @@ import com.blog.repository.mapper.ArticleMapper;
 import com.blog.repository.mapper.UserActionMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.FavoriteService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +32,8 @@ public class FavoriteServiceImpl implements FavoriteService {
         // 查询用户的收藏记录（action_type = 2）
         LambdaQueryWrapper<UserAction> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserAction::getUserId, userId)
-               .eq(UserAction::getActionType, 2)
-               .orderByDesc(UserAction::getCreateTime);
+                .eq(UserAction::getActionType, 2)
+                .orderByDesc(UserAction::getCreateTime);
 
         List<UserAction> allFavorites = userActionMapper.selectList(wrapper);
 
@@ -77,7 +76,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     private Long getCurrentUserId() {
-        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof LoginUser loginUser) {
             return loginUser.getUserId();
         }

@@ -8,11 +8,10 @@ import com.blog.domain.entity.Message;
 import com.blog.domain.vo.StatisticsOverviewVO;
 import com.blog.repository.mapper.*;
 import com.blog.service.StatisticsService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -31,41 +30,31 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 今日统计
         LocalDate today = LocalDate.now();
         DailyStatistics todayStats = dailyStatisticsMapper.selectOne(
-                new LambdaQueryWrapper<DailyStatistics>()
-                        .eq(DailyStatistics::getDate, today));
+                new LambdaQueryWrapper<DailyStatistics>().eq(DailyStatistics::getDate, today));
 
         vo.setTodayPv(todayStats != null ? todayStats.getPv() : 0);
         vo.setTodayUv(todayStats != null ? todayStats.getUv() : 0);
 
         // 文章总数
         Long totalArticles = articleMapper.selectCount(
-                new LambdaQueryWrapper<Article>()
-                        .eq(Article::getStatus, 1)
-                        .eq(Article::getDeleted, 0));
+                new LambdaQueryWrapper<Article>().eq(Article::getStatus, 1).eq(Article::getDeleted, 0));
         vo.setTotalArticles(totalArticles.intValue());
 
         // 评论总数
-        Long totalComments = commentMapper.selectCount(
-                new LambdaQueryWrapper<Comment>()
-                        .eq(Comment::getStatus, 1));
+        Long totalComments = commentMapper.selectCount(new LambdaQueryWrapper<Comment>().eq(Comment::getStatus, 1));
         vo.setTotalComments(totalComments.intValue());
 
         // 用户总数
         Long totalUsers = userMapper.selectCount(
-                new LambdaQueryWrapper<com.blog.domain.entity.User>()
-                        .eq(com.blog.domain.entity.User::getDeleted, 0));
+                new LambdaQueryWrapper<com.blog.domain.entity.User>().eq(com.blog.domain.entity.User::getDeleted, 0));
         vo.setTotalUsers(totalUsers.intValue());
 
         // 待审核评论
-        Long pendingComments = commentMapper.selectCount(
-                new LambdaQueryWrapper<Comment>()
-                        .eq(Comment::getStatus, 0));
+        Long pendingComments = commentMapper.selectCount(new LambdaQueryWrapper<Comment>().eq(Comment::getStatus, 0));
         vo.setPendingComments(pendingComments.intValue());
 
         // 待审核留言
-        Long pendingMessages = messageMapper.selectCount(
-                new LambdaQueryWrapper<Message>()
-                        .eq(Message::getStatus, 0));
+        Long pendingMessages = messageMapper.selectCount(new LambdaQueryWrapper<Message>().eq(Message::getStatus, 0));
         vo.setPendingMessages(pendingMessages.intValue());
 
         return vo;
@@ -77,11 +66,10 @@ public class StatisticsServiceImpl implements StatisticsService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(days - 1);
 
-        List<DailyStatistics> stats = dailyStatisticsMapper.selectList(
-                new LambdaQueryWrapper<DailyStatistics>()
-                        .ge(DailyStatistics::getDate, startDate)
-                        .le(DailyStatistics::getDate, endDate)
-                        .orderByAsc(DailyStatistics::getDate));
+        List<DailyStatistics> stats = dailyStatisticsMapper.selectList(new LambdaQueryWrapper<DailyStatistics>()
+                .ge(DailyStatistics::getDate, startDate)
+                .le(DailyStatistics::getDate, endDate)
+                .orderByAsc(DailyStatistics::getDate));
 
         Map<LocalDate, DailyStatistics> statsMap = new HashMap<>();
         for (DailyStatistics stat : stats) {
@@ -103,12 +91,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public List<Map<String, Object>> getHotArticles(Integer limit) {
-        List<Article> articles = articleMapper.selectList(
-                new LambdaQueryWrapper<Article>()
-                        .eq(Article::getStatus, 1)
-                        .eq(Article::getDeleted, 0)
-                        .orderByDesc(Article::getViewCount)
-                        .last("LIMIT " + limit));
+        List<Article> articles = articleMapper.selectList(new LambdaQueryWrapper<Article>()
+                .eq(Article::getStatus, 1)
+                .eq(Article::getDeleted, 0)
+                .orderByDesc(Article::getViewCount)
+                .last("LIMIT " + limit));
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Article article : articles) {

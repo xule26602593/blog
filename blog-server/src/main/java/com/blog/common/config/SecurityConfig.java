@@ -31,40 +31,42 @@ public class SecurityConfig {
 
     // 白名单路径
     private static final String[] WHITE_LIST = {
-            "/actuator/**",
-            "/api/portal/**",
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/captcha",
-            "/uploads/**",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/doc.html",
-            "/webjars/**",
-            "/error"
+        "/actuator/**",
+        "/api/portal/**",
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/captcha",
+        "/uploads/**",
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/doc.html",
+        "/webjars/**",
+        "/error"
     };
 
     // AI端点 - 需要登录认证
-    private static final String[] AI_AUTHENTICATED = {
-            "/api/portal/ai/**"
-    };
+    private static final String[] AI_AUTHENTICATED = {"/api/portal/ai/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
+        http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         // 允许异步分发（SSE需要）
-                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
-                        .requestMatchers(AI_AUTHENTICATED).authenticated()
-                        .requestMatchers(WHITE_LIST).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC)
+                        .permitAll()
+                        .requestMatchers(AI_AUTHENTICATED)
+                        .authenticated()
+                        .requestMatchers(WHITE_LIST)
+                        .permitAll()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+                        .anyRequest()
+                        .authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

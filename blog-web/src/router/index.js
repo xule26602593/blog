@@ -221,6 +221,18 @@ const routes = [
         name: 'Statistics',
         component: () => import('@/views/admin/Statistics.vue'),
         meta: { title: '访问统计' }
+      },
+      {
+        path: 'topics',
+        name: 'TopicList',
+        component: () => import('@/views/admin/TopicList.vue'),
+        meta: { title: '话题灵感', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'topics/:id',
+        name: 'TopicDetail',
+        component: () => import('@/views/admin/TopicDetail.vue'),
+        meta: { title: '话题详情', requiresAuth: true, requiresAdmin: true }
       }
     ]
   },

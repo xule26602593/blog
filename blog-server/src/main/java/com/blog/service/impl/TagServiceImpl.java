@@ -12,14 +12,13 @@ import com.blog.domain.vo.TagVO;
 import com.blog.repository.mapper.ArticleTagMapper;
 import com.blog.repository.mapper.TagMapper;
 import com.blog.service.TagService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +31,7 @@ public class TagServiceImpl implements TagService {
     @Cacheable(value = "tag", key = "'list'")
     public List<TagVO> listAll() {
         List<Tag> tags = tagMapper.selectList(null);
-        return tags.stream()
-                .map(tag -> BeanCopyUtils.copy(tag, TagVO.class))
-                .collect(Collectors.toList());
+        return tags.stream().map(tag -> BeanCopyUtils.copy(tag, TagVO.class)).collect(Collectors.toList());
     }
 
     @Override
@@ -58,8 +55,7 @@ public class TagServiceImpl implements TagService {
         if (dto.getId() == null) {
             tag = new Tag();
             // 检查标签名是否已存在
-            Long count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>()
-                    .eq(Tag::getName, dto.getName()));
+            Long count = tagMapper.selectCount(new LambdaQueryWrapper<Tag>().eq(Tag::getName, dto.getName()));
             if (count > 0) {
                 throw new BusinessException("标签名称已存在");
             }
@@ -85,8 +81,7 @@ public class TagServiceImpl implements TagService {
     @CacheEvict(value = "tag", key = "'list'")
     public void delete(Long id) {
         // 删除标签与文章的关联
-        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>()
-                .eq(ArticleTag::getTagId, id));
+        articleTagMapper.delete(new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, id));
         tagMapper.deleteById(id);
     }
 
@@ -95,7 +90,6 @@ public class TagServiceImpl implements TagService {
         if (names == null || names.isEmpty()) {
             return List.of();
         }
-        return tagMapper.selectList(new LambdaQueryWrapper<Tag>()
-                .in(Tag::getName, names));
+        return tagMapper.selectList(new LambdaQueryWrapper<Tag>().in(Tag::getName, names));
     }
 }

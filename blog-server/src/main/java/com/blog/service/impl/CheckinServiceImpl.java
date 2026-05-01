@@ -13,14 +13,14 @@ import com.blog.repository.mapper.UserCheckinMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.service.AchievementTriggerService;
 import com.blog.service.CheckinService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -49,7 +49,7 @@ public class CheckinServiceImpl implements CheckinService {
 
         LocalDate yesterday = today.minusDays(1);
         UserCheckin yesterdayCheckin = checkinMapper.findByUserAndDate(userId, yesterday);
-        
+
         int consecutiveDays;
         if (yesterdayCheckin != null) {
             consecutiveDays = yesterdayCheckin.getConsecutiveDays() + 1;
@@ -100,9 +100,9 @@ public class CheckinServiceImpl implements CheckinService {
         LocalDate yesterday = today.minusDays(1);
 
         boolean isCheckedToday = checkinMapper.existsByUserAndDate(userId, today);
-        
+
         var user = userMapper.selectById(userId);
-        
+
         int currentConsecutiveDays = 0;
         if (isCheckedToday) {
             UserCheckin todayCheckin = checkinMapper.findByUserAndDate(userId, today);
@@ -132,18 +132,18 @@ public class CheckinServiceImpl implements CheckinService {
     public List<CheckinCalendarVO> getCheckinCalendar(Long userId, String month) {
         LocalDate startDate = LocalDate.parse(month + "-01");
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
-        
+
         List<UserCheckin> checkins = checkinMapper.selectByUserAndDateRange(userId, startDate, endDate);
-        
+
         List<CheckinCalendarVO> calendar = new ArrayList<>();
         for (UserCheckin checkin : checkins) {
             calendar.add(CheckinCalendarVO.builder()
-                .date(checkin.getCheckinDate())
-                .checked(true)
-                .points(checkin.getPointsEarned())
-                .build());
+                    .date(checkin.getCheckinDate())
+                    .checked(true)
+                    .points(checkin.getPointsEarned())
+                    .build());
         }
-        
+
         return calendar;
     }
 
@@ -151,18 +151,17 @@ public class CheckinServiceImpl implements CheckinService {
     public Page<UserCheckin> getCheckinHistory(Long userId, int page, int size) {
         Page<UserCheckin> pageObj = new Page<>(page, size);
         LambdaQueryWrapper<UserCheckin> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(UserCheckin::getUserId, userId)
-               .orderByDesc(UserCheckin::getCheckinDate);
+        wrapper.eq(UserCheckin::getUserId, userId).orderByDesc(UserCheckin::getCheckinDate);
         return checkinMapper.selectPage(pageObj, wrapper);
     }
 
     private int calculateBonusPoints(int consecutiveDays) {
         LambdaQueryWrapper<CheckinConfig> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CheckinConfig::getStatus, 1)
-               .le(CheckinConfig::getConsecutiveDays, consecutiveDays)
-               .orderByDesc(CheckinConfig::getConsecutiveDays)
-               .last("LIMIT 1");
-        
+                .le(CheckinConfig::getConsecutiveDays, consecutiveDays)
+                .orderByDesc(CheckinConfig::getConsecutiveDays)
+                .last("LIMIT 1");
+
         CheckinConfig config = configMapper.selectOne(wrapper);
         return config != null ? config.getRewardPoints() : 0;
     }
@@ -177,11 +176,11 @@ public class CheckinServiceImpl implements CheckinService {
 
     private String generateCheckinMessage(int days, boolean isEarlyBird) {
         StringBuilder msg = new StringBuilder();
-        
+
         if (isEarlyBird) {
             msg.append("早起鸟儿有虫吃！早起签到额外+").append(EARLY_BIRD_BONUS).append("积分\n");
         }
-        
+
         if (days == 1) {
             msg.append("开始你的签到之旅！");
         } else if (days < 7) {
@@ -195,7 +194,7 @@ public class CheckinServiceImpl implements CheckinService {
         } else {
             msg.append("封神！").append(days).append("天！你是签到之王！");
         }
-        
+
         return msg.toString();
     }
 }

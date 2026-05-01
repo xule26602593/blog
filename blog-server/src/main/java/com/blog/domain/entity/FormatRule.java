@@ -1,8 +1,8 @@
 package com.blog.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import lombok.Data;
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Data
 @TableName("format_rule")

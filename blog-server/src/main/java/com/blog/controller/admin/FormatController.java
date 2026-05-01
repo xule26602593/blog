@@ -5,11 +5,10 @@ import com.blog.domain.dto.FormatPreviewResult;
 import com.blog.domain.dto.LinkCheckResult;
 import com.blog.domain.entity.FormatRule;
 import com.blog.service.FormatService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/format")
@@ -45,10 +44,7 @@ public class FormatController {
     }
 
     @PutMapping("/rules/{id}")
-    public Result<Void> updateRuleStatus(
-        @PathVariable Long id,
-        @RequestBody Map<String, Integer> request
-    ) {
+    public Result<Void> updateRuleStatus(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
         formatService.updateRuleStatus(id, request.get("status"));
         return Result.success();
     }

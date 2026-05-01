@@ -3,7 +3,6 @@ package com.blog.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.domain.dto.TemplateDTO;
 import com.blog.domain.vo.TemplateVO;
-
 import java.util.List;
 
 public interface TemplateService {

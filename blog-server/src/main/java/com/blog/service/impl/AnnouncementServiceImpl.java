@@ -7,12 +7,11 @@ import com.blog.domain.entity.Announcement;
 import com.blog.repository.mapper.AnnouncementMapper;
 import com.blog.service.AnnouncementService;
 import com.blog.service.NotificationService;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +23,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     public List<Announcement> getAnnouncementList() {
         return announcementMapper.selectList(
-            new LambdaQueryWrapper<Announcement>()
-                .orderByDesc(Announcement::getCreateTime)
-        );
+                new LambdaQueryWrapper<Announcement>().orderByDesc(Announcement::getCreateTime));
     }
 
     @Override
     public List<Announcement> getPublishedAnnouncements() {
-        return announcementMapper.selectList(
-            new LambdaQueryWrapper<Announcement>()
+        return announcementMapper.selectList(new LambdaQueryWrapper<Announcement>()
                 .eq(Announcement::getStatus, 1)
-                .orderByDesc(Announcement::getPublishTime)
-        );
+                .orderByDesc(Announcement::getPublishTime));
     }
 
     @Override

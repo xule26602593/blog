@@ -1,7 +1,6 @@
 package com.blog.service.ai;
 
 import com.blog.domain.entity.PromptTemplate;
-
 import java.util.List;
 
 public interface PromptTemplateService {

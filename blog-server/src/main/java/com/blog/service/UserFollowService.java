@@ -1,7 +1,6 @@
 package com.blog.service;
 
 import com.blog.domain.vo.FollowVO;
-
 import java.util.List;
 
 public interface UserFollowService {

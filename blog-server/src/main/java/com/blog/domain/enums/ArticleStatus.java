@@ -1,4 +1,4 @@
-package com.blog.common.enums;
+package com.blog.domain.enums;
 
 import lombok.Getter;
 

@@ -13,14 +13,13 @@ import com.blog.domain.vo.UserVO;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.AuthService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -32,28 +31,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginVO login(LoginDTO dto) {
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, dto.getUsername()));
-        
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, dto.getUsername()));
+
         if (user == null) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         }
-        
+
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BusinessException(ErrorCode.PASSWORD_ERROR);
         }
-        
+
         if (user.getStatus() == 0) {
             throw new BusinessException(ErrorCode.ACCOUNT_DISABLED);
         }
-        
+
         // 更新最后登录时间
         user.setLastLoginTime(LocalDateTime.now());
         userMapper.updateById(user);
-        
+
         // 生成Token
         String token = jwtUtils.generateToken(user.getUsername());
-        
+
         LoginVO vo = new LoginVO();
         vo.setToken(token);
         vo.setUserId(user.getId());
@@ -61,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());
         vo.setRoleCode(user.getRoleCode());
-        
+
         return vo;
     }
 
@@ -69,21 +67,19 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void register(RegisterDTO dto) {
         // 检查用户名是否存在
-        Long count = userMapper.selectCount(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, dto.getUsername()));
+        Long count = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUsername, dto.getUsername()));
         if (count > 0) {
             throw new BusinessException(ErrorCode.USERNAME_EXISTS);
         }
-        
+
         // 检查邮箱是否存在
         if (dto.getEmail() != null) {
-            count = userMapper.selectCount(new LambdaQueryWrapper<User>()
-                    .eq(User::getEmail, dto.getEmail()));
+            count = userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, dto.getEmail()));
             if (count > 0) {
                 throw new BusinessException(ErrorCode.EMAIL_EXISTS);
             }
         }
-        
+
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -92,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         user.setStatus(1);
         user.setRoleId(2L);
         user.setRoleCode("visitor");
-        
+
         userMapper.insert(user);
     }
 
@@ -125,15 +121,15 @@ public class AuthServiceImpl implements AuthService {
     public void updatePassword(String oldPassword, String newPassword) {
         LoginUser loginUser = getLoginUser();
         User user = userMapper.selectById(loginUser.getUserId());
-        
+
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new BusinessException(ErrorCode.PASSWORD_ERROR);
         }
-        
+
         user.setPassword(passwordEncoder.encode(newPassword));
         userMapper.updateById(user);
     }
-    
+
     private LoginUser getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof LoginUser)) {

@@ -11,12 +11,11 @@ import com.blog.domain.entity.SensitiveWord;
 import com.blog.domain.vo.SensitiveWordVO;
 import com.blog.repository.mapper.SensitiveWordMapper;
 import com.blog.service.SensitiveWordService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +52,7 @@ public class SensitiveWordServiceImpl implements SensitiveWordService {
     public void add(SensitiveWordDTO dto) {
         // 检查是否已存在
         Long count = sensitiveWordMapper.selectCount(
-                new LambdaQueryWrapper<SensitiveWord>()
-                        .eq(SensitiveWord::getWord, dto.getWord()));
+                new LambdaQueryWrapper<SensitiveWord>().eq(SensitiveWord::getWord, dto.getWord()));
         if (count > 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "敏感词已存在");
         }

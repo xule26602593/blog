@@ -5,5 +5,4 @@ import com.blog.domain.entity.DailyStatistics;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface DailyStatisticsMapper extends BaseMapper<DailyStatistics> {
-}
+public interface DailyStatisticsMapper extends BaseMapper<DailyStatistics> {}

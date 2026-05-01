@@ -5,5 +5,4 @@ import com.blog.domain.entity.ArticleTemplate;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ArticleTemplateMapper extends BaseMapper<ArticleTemplate> {
-}
+public interface ArticleTemplateMapper extends BaseMapper<ArticleTemplate> {}

@@ -17,13 +17,12 @@ import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import com.blog.service.PrivateMessageService;
 import com.blog.service.SensitiveWordService;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +38,8 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         Long userId = getCurrentUserId();
 
         Page<Conversation> page = new Page<>(pageNum, pageSize);
-        Page<Conversation> result = conversationMapper.selectPage(page,
+        Page<Conversation> result = conversationMapper.selectPage(
+                page,
                 new LambdaQueryWrapper<Conversation>()
                         .eq(Conversation::getUser1Id, userId)
                         .or()
@@ -63,12 +63,14 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "会话不存在");
         }
 
-        if (!conversation.getUser1Id().equals(userId) && !conversation.getUser2Id().equals(userId)) {
+        if (!conversation.getUser1Id().equals(userId)
+                && !conversation.getUser2Id().equals(userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问该会话");
         }
 
         Page<PrivateMessage> page = new Page<>(pageNum, pageSize);
-        Page<PrivateMessage> result = privateMessageMapper.selectPage(page,
+        Page<PrivateMessage> result = privateMessageMapper.selectPage(
+                page,
                 new LambdaQueryWrapper<PrivateMessage>()
                         .eq(PrivateMessage::getConversationId, conversationId)
                         .orderByAsc(PrivateMessage::getCreateTime));
@@ -99,10 +101,9 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         Long user1Id = Math.min(senderId, receiverId);
         Long user2Id = Math.max(senderId, receiverId);
 
-        Conversation conversation = conversationMapper.selectOne(
-                new LambdaQueryWrapper<Conversation>()
-                        .eq(Conversation::getUser1Id, user1Id)
-                        .eq(Conversation::getUser2Id, user2Id));
+        Conversation conversation = conversationMapper.selectOne(new LambdaQueryWrapper<Conversation>()
+                .eq(Conversation::getUser1Id, user1Id)
+                .eq(Conversation::getUser2Id, user2Id));
 
         if (conversation == null) {
             conversation = new Conversation();
@@ -138,19 +139,17 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     @Override
     public Long getUnreadCount() {
         Long userId = getCurrentUserId();
-        return privateMessageMapper.selectCount(
-                new LambdaQueryWrapper<PrivateMessage>()
-                        .eq(PrivateMessage::getReceiverId, userId)
-                        .eq(PrivateMessage::getIsRead, 0));
+        return privateMessageMapper.selectCount(new LambdaQueryWrapper<PrivateMessage>()
+                .eq(PrivateMessage::getReceiverId, userId)
+                .eq(PrivateMessage::getIsRead, 0));
     }
 
     private ConversationVO convertToConversationVO(Conversation conversation, Long currentUserId) {
         ConversationVO vo = new ConversationVO();
         vo.setId(conversation.getId());
 
-        Long peerId = conversation.getUser1Id().equals(currentUserId)
-                ? conversation.getUser2Id()
-                : conversation.getUser1Id();
+        Long peerId =
+                conversation.getUser1Id().equals(currentUserId) ? conversation.getUser2Id() : conversation.getUser1Id();
         vo.setPeerId(peerId);
 
         User peer = userMapper.selectById(peerId);
@@ -170,11 +169,10 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
         vo.setLastMessageTime(conversation.getLastMessageTime());
         vo.setCreateTime(conversation.getCreateTime());
 
-        Long unreadCount = privateMessageMapper.selectCount(
-                new LambdaQueryWrapper<PrivateMessage>()
-                        .eq(PrivateMessage::getConversationId, conversation.getId())
-                        .eq(PrivateMessage::getReceiverId, currentUserId)
-                        .eq(PrivateMessage::getIsRead, 0));
+        Long unreadCount = privateMessageMapper.selectCount(new LambdaQueryWrapper<PrivateMessage>()
+                .eq(PrivateMessage::getConversationId, conversation.getId())
+                .eq(PrivateMessage::getReceiverId, currentUserId)
+                .eq(PrivateMessage::getIsRead, 0));
         vo.setUnreadCount(unreadCount.intValue());
 
         return vo;
@@ -193,7 +191,8 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     }
 
     private Long getCurrentUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUser) {
             return ((LoginUser) principal).getUserId();
         }

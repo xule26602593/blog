@@ -39,10 +39,11 @@ public class UserManageController {
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
 
         if (keyword != null && !keyword.isEmpty()) {
-            wrapper.and(w -> w
-                    .like(User::getUsername, keyword)
-                    .or().like(User::getNickname, keyword)
-                    .or().like(User::getEmail, keyword));
+            wrapper.and(w -> w.like(User::getUsername, keyword)
+                    .or()
+                    .like(User::getNickname, keyword)
+                    .or()
+                    .like(User::getEmail, keyword));
         }
         if (roleCode != null && !roleCode.isEmpty()) {
             wrapper.eq(User::getRoleCode, roleCode);
@@ -122,7 +123,8 @@ public class UserManageController {
     }
 
     private Long getCurrentUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUser) {
             return ((LoginUser) principal).getUserId();
         }

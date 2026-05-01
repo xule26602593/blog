@@ -5,11 +5,10 @@ import com.blog.common.result.Result;
 import com.blog.domain.entity.WritingTemplate;
 import com.blog.security.LoginUser;
 import com.blog.service.WritingTemplateService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/writing-templates")
@@ -27,10 +26,9 @@ public class WritingTemplateController {
 
     @GetMapping("/page")
     public Result<Page<WritingTemplate>> page(
-        @RequestParam(defaultValue = "1") int pageNum,
-        @RequestParam(defaultValue = "10") int pageSize,
-        @RequestParam(required = false) Long authorId
-    ) {
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) Long authorId) {
         Page<WritingTemplate> page = templateService.page(pageNum, pageSize, authorId);
         return Result.success(page);
     }
@@ -68,7 +66,8 @@ public class WritingTemplateController {
     }
 
     private Long getCurrentUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUser) {
             return ((LoginUser) principal).getUserId();
         }

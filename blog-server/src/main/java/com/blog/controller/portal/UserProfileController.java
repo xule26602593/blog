@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.common.result.Result;
 import com.blog.common.utils.BeanCopyUtils;
-import com.blog.domain.entity.User;
 import com.blog.domain.entity.Comment;
+import com.blog.domain.entity.User;
 import com.blog.domain.entity.UserFollow;
-import com.blog.domain.vo.UserPublicVO;
 import com.blog.domain.vo.CommentVO;
-import com.blog.repository.mapper.UserMapper;
+import com.blog.domain.vo.UserPublicVO;
 import com.blog.repository.mapper.CommentMapper;
 import com.blog.repository.mapper.UserFollowMapper;
+import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,10 +46,9 @@ public class UserProfileController {
         // 检查当前用户是否关注了该用户
         Long currentUserId = getCurrentUserId();
         if (currentUserId != null && !currentUserId.equals(id)) {
-            Long count = userFollowMapper.selectCount(
-                    new LambdaQueryWrapper<UserFollow>()
-                            .eq(UserFollow::getFollowerId, currentUserId)
-                            .eq(UserFollow::getFollowingId, id));
+            Long count = userFollowMapper.selectCount(new LambdaQueryWrapper<UserFollow>()
+                    .eq(UserFollow::getFollowerId, currentUserId)
+                    .eq(UserFollow::getFollowingId, id));
             vo.setIsFollowing(count > 0);
         } else {
             vo.setIsFollowing(false);
@@ -66,7 +65,8 @@ public class UserProfileController {
             @RequestParam(defaultValue = "5") int pageSize) {
 
         Page<Comment> page = new Page<>(pageNum, pageSize);
-        Page<Comment> commentPage = commentMapper.selectPage(page,
+        Page<Comment> commentPage = commentMapper.selectPage(
+                page,
                 new LambdaQueryWrapper<Comment>()
                         .eq(Comment::getUserId, id)
                         .eq(Comment::getStatus, 1)
@@ -87,7 +87,8 @@ public class UserProfileController {
     }
 
     private Long getCurrentUserId() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal =
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof LoginUser) {
             return ((LoginUser) principal).getUserId();
         }

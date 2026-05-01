@@ -12,12 +12,11 @@ import com.blog.domain.vo.TemplateVO;
 import com.blog.repository.mapper.ArticleTemplateMapper;
 import com.blog.repository.mapper.CategoryMapper;
 import com.blog.service.TemplateService;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,23 +33,20 @@ public class TemplateServiceImpl implements TemplateService {
         if (name != null && !name.isEmpty()) {
             wrapper.like(ArticleTemplate::getName, name);
         }
-        wrapper.orderByDesc(ArticleTemplate::getIsDefault)
-               .orderByDesc(ArticleTemplate::getCreateTime);
+        wrapper.orderByDesc(ArticleTemplate::getIsDefault).orderByDesc(ArticleTemplate::getCreateTime);
 
         Page<ArticleTemplate> result = templateMapper.selectPage(page, wrapper);
 
         Page<TemplateVO> voPage = new Page<>(pageNum, pageSize, result.getTotal());
-        voPage.setRecords(result.getRecords().stream()
-                .map(this::convertToVO)
-                .collect(Collectors.toList()));
+        voPage.setRecords(result.getRecords().stream().map(this::convertToVO).collect(Collectors.toList()));
 
         return voPage;
     }
 
     @Override
     public List<TemplateVO> listAll() {
-        return templateMapper.selectList(
-                new LambdaQueryWrapper<ArticleTemplate>()
+        return templateMapper
+                .selectList(new LambdaQueryWrapper<ArticleTemplate>()
                         .eq(ArticleTemplate::getStatus, 1)
                         .orderByDesc(ArticleTemplate::getIsDefault)
                         .orderByDesc(ArticleTemplate::getCreateTime))

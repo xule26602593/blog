@@ -5,5 +5,4 @@ import com.blog.domain.entity.Achievement;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface AchievementMapper extends BaseMapper<Achievement> {
-}
+public interface AchievementMapper extends BaseMapper<Achievement> {}

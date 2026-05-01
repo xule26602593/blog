@@ -3,7 +3,6 @@ package com.blog.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blog.domain.dto.SearchDTO;
 import com.blog.domain.vo.SearchVO;
-
 import java.util.List;
 
 public interface SearchService {

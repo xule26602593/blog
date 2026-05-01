@@ -1,9 +1,8 @@
 package com.blog.domain.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class SeriesDTO {

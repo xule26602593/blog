@@ -11,12 +11,11 @@ import com.blog.service.ai.PromptTemplateService;
 import com.blog.service.ai.SummaryService;
 import com.blog.service.ai.TagExtractService;
 import com.blog.service.ai.WritingAssistantService;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/ai")
@@ -34,10 +33,9 @@ public class AiAdminController {
     @PostMapping("/summary")
     public Result<String> generateSummary(@RequestBody AiSummaryRequest request) {
         String summary = summaryService.generateSummary(
-            request.getTitle(),
-            request.getContent(),
-            request.getTemplateKey() != null ? request.getTemplateKey() : "summary_default"
-        );
+                request.getTitle(),
+                request.getContent(),
+                request.getTemplateKey() != null ? request.getTemplateKey() : "summary_default");
         return Result.success(summary);
     }
 
@@ -46,10 +44,7 @@ public class AiAdminController {
      */
     @PostMapping("/tags")
     public Result<TagExtractResult> extractTags(@RequestBody AiTagRequest request) {
-        TagExtractResult result = tagExtractService.extractTags(
-            request.getTitle(),
-            request.getContent()
-        );
+        TagExtractResult result = tagExtractService.extractTags(request.getTitle(), request.getContent());
         return Result.success(result);
     }
 
@@ -113,10 +108,7 @@ public class AiAdminController {
                     return emitter;
                 }
                 return writingAssistantService.generateOutline(
-                    title,
-                    (String) request.get("description"),
-                    (String) request.getOrDefault("style", "tech")
-                );
+                        title, (String) request.get("description"), (String) request.getOrDefault("style", "tech"));
             case "continue":
                 String context = (String) request.get("context");
                 if (context == null || context.isBlank()) {
@@ -124,10 +116,7 @@ public class AiAdminController {
                     emitter.completeWithError(new BusinessException("上下文内容不能为空"));
                     return emitter;
                 }
-                return writingAssistantService.continueWriting(
-                    context,
-                    (String) request.get("direction")
-                );
+                return writingAssistantService.continueWriting(context, (String) request.get("direction"));
             case "polish":
             case "titles":
             case "expand":
@@ -139,22 +128,13 @@ public class AiAdminController {
                     return emitter;
                 }
                 return switch (type) {
-                    case "polish" -> writingAssistantService.polish(
-                        content,
-                        (String) request.get("style")
-                    );
+                    case "polish" -> writingAssistantService.polish(content, (String) request.get("style"));
                     case "titles" -> writingAssistantService.generateTitles(
-                        content,
-                        request.get("count") != null ? ((Number) request.get("count")).intValue() : 5
-                    );
+                            content, request.get("count") != null ? ((Number) request.get("count")).intValue() : 5);
                     case "expand" -> writingAssistantService.expandWriting(
-                        content,
-                        (String) request.getOrDefault("direction", "丰富内容细节")
-                    );
+                            content, (String) request.getOrDefault("direction", "丰富内容细节"));
                     case "rewrite" -> writingAssistantService.rewriteWriting(
-                        content,
-                        (String) request.getOrDefault("style", "default")
-                    );
+                            content, (String) request.getOrDefault("style", "default"));
                     default -> {
                         SseEmitter emitter = new SseEmitter();
                         emitter.completeWithError(new BusinessException("未知的写作辅助类型"));
@@ -176,10 +156,7 @@ public class AiAdminController {
             emitter.completeWithError(new BusinessException("内容不能为空"));
             return emitter;
         }
-        return writingAssistantService.expandWriting(
-            content,
-            request.getOrDefault("direction", "丰富内容细节")
-        );
+        return writingAssistantService.expandWriting(content, request.getOrDefault("direction", "丰富内容细节"));
     }
 
     @PostMapping("/writing/rewrite")
@@ -190,10 +167,7 @@ public class AiAdminController {
             emitter.completeWithError(new BusinessException("内容不能为空"));
             return emitter;
         }
-        return writingAssistantService.rewriteWriting(
-            content,
-            request.getOrDefault("style", "default")
-        );
+        return writingAssistantService.rewriteWriting(content, request.getOrDefault("style", "default"));
     }
 
     @PostMapping("/writing/proofread")

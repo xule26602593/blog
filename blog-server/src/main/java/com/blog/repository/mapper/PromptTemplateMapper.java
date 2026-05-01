@@ -5,5 +5,4 @@ import com.blog.domain.entity.PromptTemplate;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface PromptTemplateMapper extends BaseMapper<PromptTemplate> {
-}
+public interface PromptTemplateMapper extends BaseMapper<PromptTemplate> {}

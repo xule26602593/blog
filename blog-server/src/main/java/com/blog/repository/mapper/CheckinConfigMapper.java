@@ -5,5 +5,4 @@ import com.blog.domain.entity.CheckinConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface CheckinConfigMapper extends BaseMapper<CheckinConfig> {
-}
+public interface CheckinConfigMapper extends BaseMapper<CheckinConfig> {}

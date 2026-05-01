@@ -7,10 +7,10 @@ import com.blog.security.LoginUser;
 import com.blog.service.AchievementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @Tag(name = "成就接口", description = "成就徽章相关接口")
 @RestController
@@ -47,8 +47,7 @@ public class AchievementController {
     @Operation(summary = "获取单个成就进度")
     @GetMapping("/{achievementId}/progress")
     public Result<UserAchievementVO> getProgress(
-            @AuthenticationPrincipal LoginUser loginUser,
-            @PathVariable Long achievementId) {
+            @AuthenticationPrincipal LoginUser loginUser, @PathVariable Long achievementId) {
         return Result.success(achievementService.getUserAchievementProgress(loginUser.getUserId(), achievementId));
     }
 }

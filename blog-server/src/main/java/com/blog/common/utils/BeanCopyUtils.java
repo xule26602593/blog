@@ -1,13 +1,12 @@
 package com.blog.common.utils;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 public class BeanCopyUtils {
 
@@ -44,9 +43,7 @@ public class BeanCopyUtils {
         if (sourceList == null) {
             return null;
         }
-        return sourceList.stream()
-                .map(source -> copy(source, targetClass))
-                .collect(Collectors.toList());
+        return sourceList.stream().map(source -> copy(source, targetClass)).collect(Collectors.toList());
     }
 
     private static String[] getNullPropertyNames(Object source) {

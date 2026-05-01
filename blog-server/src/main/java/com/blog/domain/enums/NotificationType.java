@@ -1,11 +1,10 @@
-package com.blog.common.enums;
-
-import lombok.Getter;
+package com.blog.domain.enums;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 @Getter
 public enum NotificationType {
@@ -26,10 +25,10 @@ public enum NotificationType {
 
     // 延迟加载缓存
     private static class Cache {
-        static final Map<Integer, NotificationType> CODE_MAP = Arrays.stream(values())
-                .collect(Collectors.toMap(NotificationType::getCode, Function.identity()));
-        static final Map<String, NotificationType> NAME_MAP = Arrays.stream(values())
-                .collect(Collectors.toMap(t -> t.name.toLowerCase(), Function.identity()));
+        static final Map<Integer, NotificationType> CODE_MAP =
+                Arrays.stream(values()).collect(Collectors.toMap(NotificationType::getCode, Function.identity()));
+        static final Map<String, NotificationType> NAME_MAP =
+                Arrays.stream(values()).collect(Collectors.toMap(t -> t.name.toLowerCase(), Function.identity()));
     }
 
     public static String getNameByCode(Integer code) {
