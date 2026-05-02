@@ -192,7 +192,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
 import { getArticle, saveArticle } from '@/api/article'
@@ -332,7 +332,7 @@ const handleCoverChange = async (event) => {
   try {
     const res = await uploadImage(file)
     form.coverImage = res.data.url
-    showToast({ type: 'success', message: '封面上传成功' })
+    showSuccess('封面上传成功')
   } catch (error) {
     console.error('上传封面失败', error)
     showToast('上传封面失败')
@@ -358,7 +358,7 @@ const handleSubmit = async () => {
 const submitForm = async () => {
   try {
     await saveArticle(form)
-    showToast({ type: 'success', message: isEdit.value ? '更新成功' : '发布成功' })
+    showSuccess(isEdit.value ? '更新成功' : '发布成功')
     router.push('/admin/articles')
   } catch (error) {
     console.error('保存失败', error)
@@ -409,9 +409,9 @@ const handleExtractTags = async () => {
       form.tagIds = [...new Set([...form.tagIds, ...existingTagIds])]
     }
     if (res.data.newTagNames?.length > 0) {
-      showToast({ type: 'success', message: `发现 ${res.data.newTagNames.length} 个新标签建议: ${res.data.newTagNames.join(', ')}` })
+      showSuccess(`发现 ${res.data.newTagNames.length} 个新标签建议: ${res.data.newTagNames.join(', ')}`)
     } else {
-      showToast({ type: 'success', message: '标签提取成功' })
+      showSuccess('标签提取成功')
     }
   } catch (error) {
     console.error('标签提取失败', error)
@@ -443,12 +443,12 @@ const onAiMenuSelect = (action) => {
 const handleTemplateSelect = async (template) => {
   if (!template) return
   form.content = template.content
-  showToast({ type: 'success', message: `已应用模板: ${template.name}` })
+  showSuccess(`已应用模板: ${template.name}`)
 }
 
 const handleFormatApply = (content) => {
   form.content = content
-  showToast({ type: 'success', message: '排版完成' })
+  showSuccess('排版完成')
 }
 
 onMounted(() => {

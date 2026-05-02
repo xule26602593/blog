@@ -125,7 +125,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminArticles, deleteArticle, updateArticleStatus, toggleArticleTop } from '@/api/article'
 import { getAdminAllCategories } from '@/api/category'
 
@@ -230,7 +230,7 @@ const handleEdit = (row) => {
 const handlePublish = async (row) => {
   try {
     await updateArticleStatus(row.id, 1)
-    showToast({ type: 'success', message: '发布成功' })
+    showSuccess('发布成功')
     fetchArticles()
   } catch (error) {
     console.error('发布失败', error)
@@ -241,7 +241,7 @@ const handlePublish = async (row) => {
 const handleWithdraw = async (row) => {
   try {
     await updateArticleStatus(row.id, 0)
-    showToast({ type: 'success', message: '撤回成功' })
+    showSuccess('撤回成功')
     fetchArticles()
   } catch (error) {
     console.error('撤回失败', error)
@@ -252,7 +252,7 @@ const handleWithdraw = async (row) => {
 const handleTopChange = async (row) => {
   try {
     await toggleArticleTop(row.id)
-    showToast({ type: 'success', message: '操作成功' })
+    showSuccess('操作成功')
     fetchArticles()
   } catch (error) {
     console.error('操作失败', error)
@@ -269,7 +269,7 @@ const confirmDelete = async () => {
   if (!articleToDelete.value) return
   try {
     await deleteArticle(articleToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     fetchArticles()
   } catch (error) {
     console.error('删除失败', error)

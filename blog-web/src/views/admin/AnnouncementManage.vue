@@ -132,7 +132,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import {
   getAnnouncements,
   createAnnouncement,
@@ -234,7 +234,7 @@ const handleSubmit = async () => {
     } else {
       await createAnnouncement(form)
     }
-    showToast({ type: 'success', message: isEdit.value ? '更新成功' : '新增成功' })
+    showSuccess(isEdit.value ? '更新成功' : '新增成功')
     dialogVisible.value = false
     fetchAnnouncements()
   } catch (error) {
@@ -252,7 +252,7 @@ const confirmDelete = async () => {
   if (!announcementToDelete.value) return
   try {
     await deleteAnnouncement(announcementToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     fetchAnnouncements()
   } catch (error) {
     console.error('删除失败', error)
@@ -271,7 +271,7 @@ const confirmPublish = async () => {
   if (!announcementToPublish.value) return
   try {
     await publishAnnouncement(announcementToPublish.value.id)
-    showToast({ type: 'success', message: '发布成功，已通知所有用户' })
+    showSuccess('发布成功，已通知所有用户')
     fetchAnnouncements()
   } catch (error) {
     console.error('发布失败', error)

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { showToast } from 'vant'
+import { showToast } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
 

@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 
 const props = defineProps({
   show: Boolean,
@@ -83,7 +83,7 @@ const renderedContent = computed(() => {
 const handleCopy = async () => {
   try {
     await navigator.clipboard.writeText(props.content)
-    showToast({ type: 'success', message: '已复制' })
+    showSuccess('已复制')
   } catch {
     showToast('复制失败')
   }

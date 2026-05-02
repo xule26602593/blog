@@ -9,12 +9,16 @@ import com.blog.domain.entity.User;
 import com.blog.domain.entity.UserFollow;
 import com.blog.domain.vo.CommentVO;
 import com.blog.domain.vo.UserPublicVO;
+import com.blog.domain.vo.UserSimpleVO;
 import com.blog.repository.mapper.CommentMapper;
 import com.blog.repository.mapper.UserFollowMapper;
 import com.blog.repository.mapper.UserMapper;
 import com.blog.security.LoginUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -84,6 +88,32 @@ public class UserProfileController {
                 .toList());
 
         return Result.success(voPage);
+    }
+
+    @Operation(summary = "搜索用户（用于@提及）")
+    @GetMapping("/search")
+    public Result<List<UserSimpleVO>> searchUsers(
+            @RequestParam String keyword, @RequestParam(defaultValue = "10") int size) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Result.success(new ArrayList<>());
+        }
+
+        List<User> users = userMapper.selectList(new LambdaQueryWrapper<User>()
+                .eq(User::getStatus, 1)
+                .and(w -> w.like(User::getNickname, keyword).or().like(User::getUsername, keyword))
+                .last("LIMIT " + size));
+
+        List<UserSimpleVO> vos = users.stream()
+                .map(user -> {
+                    UserSimpleVO vo = new UserSimpleVO();
+                    vo.setUserId(user.getId());
+                    vo.setNickname(user.getNickname());
+                    vo.setAvatar(user.getAvatar());
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        return Result.success(vos);
     }
 
     private Long getCurrentUserId() {

@@ -105,7 +105,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast } from '@/utils/toast'
 import { getDashboard } from '@/api/admin'
 
 const dashboard = ref({})

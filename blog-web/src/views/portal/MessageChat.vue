@@ -13,7 +13,7 @@
           :class="{ 'is-self': msg.senderId === currentUserId }"
         >
           <div class="msg-avatar">
-            <img :src="msg.senderAvatar || defaultAvatar" />
+            <img :src="getAvatar(msg.senderAvatar)" />
           </div>
           <div class="msg-content">
             <div class="msg-bubble">{{ msg.content }}</div>
@@ -38,13 +38,13 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
+import { getAvatar } from '@/utils/avatar'
 import { getMessages, sendMessage as sendMessageApi, markAsRead } from '@/api/privateMessage'
 
 const route = useRoute()
 const userStore = useUserStore()
-const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 
 const currentUserId = userStore.userInfo?.id
 const conversationId = route.params.id

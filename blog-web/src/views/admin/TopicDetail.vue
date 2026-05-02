@@ -308,7 +308,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getTopic, updateTopic, analyzeTopic, updateTopicStatus } from '@/api/topic'
 
 const route = useRoute()
@@ -504,7 +504,7 @@ const handleAnalyze = async () => {
   try {
     await analyzeTopic(topic.value.id)
     aiStatus.value = 'analyzing'
-    showToast({ type: 'success', message: 'AI分析已开始' })
+    showSuccess('AI分析已开始')
     // 开始轮询
     startPolling()
   } catch (error) {
@@ -531,7 +531,7 @@ const handleSave = async () => {
       sourceLink: editForm.sourceLink,
       priority: editForm.priority
     })
-    showToast({ type: 'success', message: '保存成功' })
+    showSuccess('保存成功')
     showEditDialog.value = false
     // 刷新数据
     await fetchTopic()
@@ -547,7 +547,7 @@ const handleSave = async () => {
 const handleStatusUpdate = async (status) => {
   try {
     await updateTopicStatus(topic.value.id, status)
-    showToast({ type: 'success', message: '状态更新成功' })
+    showSuccess('状态更新成功')
     // 刷新数据
     await fetchTopic()
   } catch (error) {

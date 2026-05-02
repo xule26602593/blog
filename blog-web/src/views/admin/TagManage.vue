@@ -110,7 +110,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminTags, saveTag, deleteTag } from '@/api/tag'
 
 const loading = ref(false)
@@ -179,7 +179,7 @@ const handleEdit = (row) => {
 const handleSubmit = async () => {
   try {
     await saveTag(form)
-    showToast({ type: 'success', message: isEdit.value ? '更新成功' : '新增成功' })
+    showSuccess(isEdit.value ? '更新成功' : '新增成功')
     dialogVisible.value = false
     fetchTags()
   } catch (error) {
@@ -197,7 +197,7 @@ const confirmDelete = async () => {
   if (!tagToDelete.value) return
   try {
     await deleteTag(tagToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     fetchTags()
   } catch (error) {
     console.error('删除失败', error)

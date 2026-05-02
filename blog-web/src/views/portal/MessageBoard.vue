@@ -53,7 +53,7 @@
       <template v-else-if="messageList.length > 0">
         <div class="message-item" v-for="msg in messageList" :key="msg.id">
           <div class="message-avatar">
-            <img :src="msg.avatar || defaultAvatar" :alt="msg.nickname" />
+            <img :src="getAvatar(msg.avatar)" :alt="msg.nickname" />
           </div>
           <div class="message-content">
             <div class="message-meta">
@@ -78,13 +78,12 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
+import { getAvatar } from '@/utils/avatar'
 import { getMessages, submitMessage } from '@/api/message'
 
 const userStore = useUserStore()
-
-const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -155,7 +154,7 @@ const submitForm = async () => {
       nickname: userStore.isLoggedIn ? undefined : form.nickname,
       email: userStore.isLoggedIn ? undefined : form.email
     })
-    showToast({ type: 'success', message: '留言提交成功，等待审核' })
+    showSuccess('留言提交成功，等待审核')
     form.content = ''
     form.nickname = ''
     form.email = ''

@@ -80,7 +80,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminComments, auditComment, deleteComment } from '@/api/comment'
 import { usePendingCount } from '@/composables/usePendingCount'
 
@@ -152,7 +152,7 @@ const handleStatusChange = () => {
 const handleAudit = async (row, status) => {
   try {
     await auditComment(row.id, status)
-    showToast({ type: 'success', message: status === 1 ? '审核通过' : '已拒绝' })
+    showSuccess(status === 1 ? '审核通过' : '已拒绝')
     decrementPendingCount()
     fetchComments()
   } catch (error) {
@@ -170,7 +170,7 @@ const confirmDelete = async () => {
   if (!commentToDelete.value) return
   try {
     await deleteComment(commentToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     // 如果删除的是待审核评论，需要更新待审核数量
     if (commentToDelete.value.status === 0) {
       decrementPendingCount()

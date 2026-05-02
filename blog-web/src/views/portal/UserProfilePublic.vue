@@ -6,7 +6,7 @@
       <!-- User Info Card -->
       <div class="user-card">
         <div class="user-avatar">
-          <img :src="user.avatar || defaultAvatar" :alt="user.nickname" />
+          <img :src="getUserAvatar({ avatar: user.avatar, nickname: user.nickname, userId: user.id })" :alt="user.nickname" />
         </div>
         <h1 class="user-nickname">{{ user.nickname }}</h1>
         <p v-if="user.bio" class="user-bio">{{ user.bio }}</p>
@@ -64,14 +64,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
+import { getUserAvatar } from '@/utils/avatar'
 import request from '@/utils/request'
 
 const route = useRoute()
 const userStore = useUserStore()
-
-const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 
 const loading = ref(false)
 const user = ref(null)
@@ -138,7 +137,7 @@ const handleFollow = async () => {
     user.value.isFollowing = !user.value.isFollowing
     if (user.value.isFollowing) {
       user.value.followerCount++
-      showToast({ type: 'success', message: '关注成功' })
+      showSuccess('关注成功')
     } else {
       user.value.followerCount--
       showToast('已取消关注')

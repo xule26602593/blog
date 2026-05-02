@@ -305,7 +305,7 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { register } from '@/api/auth'
 
 const router = useRouter()
@@ -439,7 +439,7 @@ const handleRegister = async () => {
       email: form.email || undefined
     })
 
-    showToast({ type: 'success', message: '注册成功，请登录' })
+    showSuccess('注册成功，请登录')
     router.push('/login')
   } catch (error) {
     if (error?.message) {

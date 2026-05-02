@@ -58,7 +58,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import qrcode from 'qrcode-generator'
 
 const props = defineProps({
@@ -95,11 +95,11 @@ const copyLink = async () => {
     // 方案1: 使用现代 Clipboard API（需要 HTTPS）
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(props.url)
-      showToast({ type: 'success', message: '链接已复制' })
+      showSuccess('链接已复制')
       visible.value = false
       return
     }
-    
+
     // 方案2: 降级使用 document.execCommand（兼容 HTTP）
     const textArea = document.createElement('textarea')
     textArea.value = props.url
@@ -109,12 +109,12 @@ const copyLink = async () => {
     document.body.appendChild(textArea)
     textArea.focus()
     textArea.select()
-    
+
     const successful = document.execCommand('copy')
     document.body.removeChild(textArea)
-    
+
     if (successful) {
-      showToast({ type: 'success', message: '链接已复制' })
+      showSuccess('链接已复制')
       visible.value = false
     } else {
       showToast('复制失败，请手动复制')

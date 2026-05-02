@@ -115,7 +115,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminSeriesDetail, saveSeries, addArticlesToSeries, removeArticleFromSeries, updateArticlesOrder } from '@/api/series'
 import { getAdminArticles } from '@/api/article'
 import { uploadImage } from '@/api/admin'
@@ -152,7 +152,7 @@ const handleCoverChange = async (event) => {
   try {
     const res = await uploadImage(file)
     form.coverImage = res.data.url
-    showToast({ type: 'success', message: '封面上传成功' })
+    showSuccess('封面上传成功')
   } catch (error) {
     console.error('上传封面失败', error)
     showToast('上传封面失败')
@@ -201,7 +201,7 @@ const addArticle = async (article) => {
         title: article.title,
         chapterOrder: seriesArticles.value.length + 1
       })
-      showToast({ type: 'success', message: '添加成功' })
+      showSuccess('添加成功')
     } catch (error) {
       console.error('添加文章失败', error)
       showToast('添加失败')
@@ -221,7 +221,7 @@ const removeArticle = async (index) => {
     try {
       await removeArticleFromSeries(form.id, seriesArticles.value[index].id)
       seriesArticles.value.splice(index, 1)
-      showToast({ type: 'success', message: '移除成功' })
+      showSuccess('移除成功')
     } catch (error) {
       console.error('移除文章失败', error)
       showToast('移除失败')
@@ -253,7 +253,7 @@ const handleSubmit = async () => {
       articleIds: isEdit.value ? undefined : seriesArticles.value.map(a => a.id)
     }
     await saveSeries(data)
-    showToast({ type: 'success', message: isEdit.value ? '更新成功' : '创建成功' })
+    showSuccess(isEdit.value ? '更新成功' : '创建成功')
     router.push('/admin/series')
   } catch (error) {
     console.error('保存失败', error)

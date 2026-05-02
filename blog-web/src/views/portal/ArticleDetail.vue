@@ -158,61 +158,7 @@
 
     <!-- 评论区 -->
     <section class="comments">
-      <div class="comments-header">
-        <h3 class="comments-title">
-          评论
-          <span class="comments-count">{{ article.commentCount || 0 }}</span>
-        </h3>
-      </div>
-
-      <div class="comment-form">
-        <div class="comment-avatar">
-          <img v-if="userStore.userInfo?.avatar" :src="userStore.userInfo.avatar" :alt="userStore.userInfo.nickname" />
-          <span v-else>{{ userStore.userInfo?.nickname?.charAt(0) || '?' }}</span>
-        </div>
-        <div class="comment-input-wrapper">
-          <textarea
-            v-model="commentContent"
-            :rows="3"
-            placeholder="分享你的想法..."
-            class="comment-textarea"
-          ></textarea>
-          <div class="comment-actions">
-            <button
-              class="submit-btn"
-              @click="handleComment"
-              :disabled="commentLoading || !commentContent.trim()"
-            >
-              <span v-if="commentLoading" class="loading-spinner"></span>
-              {{ commentLoading ? '发送中...' : '发表评论' }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="comment-list">
-        <div v-for="comment in comments" :key="comment.id" class="comment-item">
-          <div class="comment-avatar">
-            <img v-if="comment.avatar" :src="comment.avatar" :alt="comment.nickname" />
-            <span v-else>{{ comment.nickname?.charAt(0) || '?' }}</span>
-          </div>
-          <div class="comment-body">
-            <div class="comment-header">
-              <span class="comment-author">{{ comment.nickname }}</span>
-              <span class="comment-time">{{ formatDate(comment.createTime) }}</span>
-            </div>
-            <div class="comment-text">{{ comment.content }}</div>
-          </div>
-        </div>
-        <div v-if="comments.length === 0" class="empty-state">
-          <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-            </svg>
-          </div>
-          <p class="empty-text">暂无评论，来抢沙发吧~</p>
-        </div>
-      </div>
+      <CommentList :article-id="article.id" />
     </section>
     </template>
 
@@ -231,7 +177,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
 import dayjs from 'dayjs'
@@ -245,6 +191,7 @@ import { useToc } from '@/composables/useToc'
 import TocNavigation from '@/components/TocNavigation.vue'
 import SharePanel from '@/components/SharePanel.vue'
 import ReadingSettings from '@/components/ReadingSettings.vue'
+import CommentList from '@/components/comment/CommentList.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -383,7 +330,7 @@ const handleComment = async () => {
       articleId: article.value.id,
       content: commentContent.value
     })
-    showToast({ type: 'success', message: '评论成功' })
+    showSuccess('评论成功')
     commentContent.value = ''
     fetchComments()
   } catch (error) {

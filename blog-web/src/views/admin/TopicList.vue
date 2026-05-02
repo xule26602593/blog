@@ -199,7 +199,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getTopics, createTopic, deleteTopic, analyzeTopic } from '@/api/topic'
 
 const router = useRouter()
@@ -398,7 +398,7 @@ const handleAnalyze = async (topic) => {
   try {
     topic.aiAnalyzing = true
     await analyzeTopic(topic.id)
-    showToast({ type: 'success', message: 'AI分析已开始' })
+    showSuccess('AI分析已开始')
     // 重新获取列表以更新状态
     fetchTopics()
   } catch (error) {
@@ -424,7 +424,7 @@ const confirmDelete = async () => {
   if (!topicToDelete.value) return
   try {
     await deleteTopic(topicToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     fetchTopics()
   } catch (error) {
     console.error('删除失败', error)
@@ -461,7 +461,7 @@ const handleCreate = async () => {
       description: formData.description,
       autoAnalyze: formData.autoAnalyze
     })
-    showToast({ type: 'success', message: '创建成功' })
+    showSuccess('创建成功')
     showCreateDialog.value = false
     resetForm()
     queryParams.pageNum = 1

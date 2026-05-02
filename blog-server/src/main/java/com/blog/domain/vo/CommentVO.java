@@ -29,7 +29,19 @@ public class CommentVO {
 
     private Integer status;
 
+    private Integer likeCount;
+
+    private Boolean isLiked;
+
+    private Integer replyCount;
+
+    private Long replyToUserId;
+
+    private String replyToNickname;
+
     private LocalDateTime createTime;
+
+    private List<ReplyVO> replies;
 
     private List<CommentVO> children;
 }

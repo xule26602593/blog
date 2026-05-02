@@ -95,7 +95,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
+import { showConfirmDialog } from 'vant'
+import { showSuccess } from '@/utils/toast'
 import { getFavorites, favoriteArticle } from '@/api/favorite'
 import dayjs from 'dayjs'
 
@@ -149,7 +150,7 @@ const handleRemove = async (item) => {
       message: '确定要取消收藏这篇文章吗？'
     })
     await favoriteArticle(item.articleId)
-    showToast({ type: 'success', message: '已取消收藏' })
+    showSuccess('已取消收藏')
     fetchFavorites()
   } catch (error) {
     if (error !== 'cancel') {

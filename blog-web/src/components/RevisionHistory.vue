@@ -50,7 +50,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { showConfirmDialog, showToast } from 'vant'
+import { showConfirmDialog } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import request from '@/utils/request'
 
 const props = defineProps({
@@ -127,7 +128,7 @@ const confirmRestore = (rev) => {
 const restoreRevision = async (version) => {
   try {
     await request.post(`/api/admin/articles/${props.articleId}/revisions/${version}/restore`)
-    showToast({ type: 'success', message: '恢复成功' })
+    showSuccess('恢复成功')
     visible.value = false
     emit('restored')
   } catch (error) {

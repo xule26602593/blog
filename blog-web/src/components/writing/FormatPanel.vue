@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getFormatRules, applyFormat, checkLinks } from '@/api/format'
 
 const props = defineProps({
@@ -104,7 +104,7 @@ const handleCheckLinks = async () => {
   if (result.invalid > 0) {
     showToast(`发现 ${result.invalid} 个无效链接`)
   } else {
-    showToast({ type: 'success', message: '所有链接有效' })
+    showSuccess('所有链接有效')
   }
 }
 

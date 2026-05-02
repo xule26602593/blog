@@ -82,3 +82,4 @@ upload_data/
 
 # Worktrees
 .worktrees/
+.claude/

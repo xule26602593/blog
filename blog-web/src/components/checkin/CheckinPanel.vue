@@ -86,7 +86,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showFail } from '@/utils/toast'
 import { useCheckinStore } from '@/stores/checkin'
 
 const checkinStore = useCheckinStore()
@@ -103,10 +103,7 @@ const handleCheckin = async () => {
       showResult.value = true
     }
   } catch (error) {
-    showToast({
-      type: 'fail',
-      message: error.response?.data?.message || '签到失败，请稍后重试'
-    })
+    showFail(error.response?.data?.message || '签到失败，请稍后重试')
   }
 }
 

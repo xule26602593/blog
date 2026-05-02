@@ -182,7 +182,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
@@ -259,7 +259,7 @@ const handleLogin = async () => {
       localStorage.removeItem('rememberedUsername')
     }
 
-    showToast({ type: 'success', message: '登录成功' })
+    showSuccess('登录成功')
     router.push(route.query.redirect || '/')
   } catch (error) {
     if (error?.message) {

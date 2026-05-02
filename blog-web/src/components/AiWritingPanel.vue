@@ -177,7 +177,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { marked } from 'marked'
 import { streamRequest, proofreadContent } from '@/api/ai'
 import { useStreamState } from '@/composables/useStreamState'
@@ -341,7 +341,7 @@ const handleCopy = async () => {
     : streamState.content.value
   try {
     await navigator.clipboard.writeText(textToCopy)
-    showToast({ type: 'success', message: '已复制' })
+    showSuccess('已复制')
   } catch {
     showToast('复制失败')
   }

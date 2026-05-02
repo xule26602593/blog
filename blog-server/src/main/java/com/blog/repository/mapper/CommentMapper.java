@@ -18,4 +18,10 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
     @Select("SELECT COUNT(*) FROM comment WHERE status = 1 AND DATE(create_time) = CURDATE()")
     Long countTodayApproved();
+
+    @Select("SELECT COUNT(*) FROM comment WHERE parent_id = #{parentId} AND status = 1")
+    Integer countReplies(@Param("parentId") Long parentId);
+
+    @Select("SELECT like_count FROM comment WHERE id = #{commentId}")
+    Integer selectLikeCount(@Param("commentId") Long commentId);
 }

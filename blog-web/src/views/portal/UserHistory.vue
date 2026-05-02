@@ -79,7 +79,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
+import { showConfirmDialog } from 'vant'
+import { showSuccess } from '@/utils/toast'
 import { getHistory, deleteHistory, clearHistory } from '@/api/history'
 import dayjs from 'dayjs'
 
@@ -126,7 +127,7 @@ const handleRemove = async (articleId) => {
       message: '确定要删除这条阅读记录吗？'
     })
     await deleteHistory(articleId)
-    showToast({ type: 'success', message: '已删除' })
+    showSuccess('已删除')
     fetchHistory()
   } catch (error) {
     if (error !== 'cancel') {
@@ -142,7 +143,7 @@ const handleClear = async () => {
       message: '确定要清空所有阅读历史吗？此操作不可恢复。'
     })
     await clearHistory()
-    showToast({ type: 'success', message: '已清空' })
+    showSuccess('已清空')
     historyList.value = []
     total.value = 0
   } catch (error) {

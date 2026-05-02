@@ -111,7 +111,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { useUserStore } from '@/stores/user'
 import { updateCurrentUser, updatePassword } from '@/api/auth'
 import { uploadImage } from '@/api/admin'
@@ -142,7 +142,7 @@ const handleFileChange = async (event) => {
   try {
     const res = await uploadImage(file)
     form.avatar = res.data.url
-    showToast({ type: 'success', message: '头像上传成功' })
+    showSuccess('头像上传成功')
   } catch (error) {
     console.error('上传失败', error)
   }
@@ -152,7 +152,7 @@ const handleUpdate = async () => {
   try {
     await updateCurrentUser(form)
     userStore.updateUserInfo(form)
-    showToast({ type: 'success', message: '保存成功' })
+    showSuccess('保存成功')
   } catch (error) {
     console.error('保存失败', error)
   }
@@ -169,7 +169,7 @@ const handlePasswordUpdate = async () => {
   }
   try {
     await updatePassword(passwordForm.oldPassword, passwordForm.newPassword)
-    showToast({ type: 'success', message: '密码修改成功' })
+    showSuccess('密码修改成功')
     passwordForm.oldPassword = ''
     passwordForm.newPassword = ''
     passwordForm.confirmPassword = ''

@@ -108,7 +108,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showSuccess, showFail } from '@/utils/toast'
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '@/api/notification'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -220,10 +220,10 @@ const handleMarkAllRead = async () => {
     await markAllAsRead()
     notifications.value.forEach(n => n.isRead = true)
     unreadCount.value = 0
-    showToast({ type: 'success', message: '已全部标记为已读' })
+    showSuccess('已全部标记为已读')
   } catch (error) {
     console.error('标记全部已读失败', error)
-    showToast({ type: 'fail', message: '操作失败' })
+    showFail('操作失败')
   }
 }
 

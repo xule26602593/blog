@@ -53,7 +53,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
+import { showConfirmDialog } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminSeries, deleteSeries } from '@/api/series'
 
 const router = useRouter()
@@ -110,7 +111,7 @@ const confirmDelete = async (id) => {
 const handleDelete = async (id) => {
   try {
     await deleteSeries(id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     pageNum.value = 1
     fetchSeries()
   } catch (error) {

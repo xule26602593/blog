@@ -11,7 +11,8 @@ public enum NotificationType {
     FOLLOW(1, "FOLLOW", "关注"),
     COMMENT(2, "COMMENT", "评论"),
     REPLY(3, "REPLY", "回复"),
-    ANNOUNCEMENT(4, "ANNOUNCEMENT", "公告");
+    ANNOUNCEMENT(4, "ANNOUNCEMENT", "公告"),
+    MENTION(5, "MENTION", "@提及");
 
     private final Integer code;
     private final String name;

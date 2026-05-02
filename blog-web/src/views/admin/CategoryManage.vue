@@ -122,7 +122,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 import { getAdminCategories, saveCategory, deleteCategory } from '@/api/category'
 
 const loading = ref(false)
@@ -197,7 +197,7 @@ const handleEdit = (row) => {
 const handleSubmit = async () => {
   try {
     await saveCategory(form)
-    showToast({ type: 'success', message: isEdit.value ? '更新成功' : '新增成功' })
+    showSuccess(isEdit.value ? '更新成功' : '新增成功')
     dialogVisible.value = false
     fetchCategories()
   } catch (error) {
@@ -215,7 +215,7 @@ const confirmDelete = async () => {
   if (!categoryToDelete.value) return
   try {
     await deleteCategory(categoryToDelete.value.id)
-    showToast({ type: 'success', message: '删除成功' })
+    showSuccess('删除成功')
     fetchCategories()
   } catch (error) {
     console.error('删除失败', error)

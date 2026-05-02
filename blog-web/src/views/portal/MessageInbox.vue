@@ -13,7 +13,7 @@
           @click="openChat(conv)"
         >
           <div class="conv-avatar">
-            <img :src="conv.peerAvatar || defaultAvatar" :alt="conv.peerNickname" />
+            <img :src="getAvatar(conv.peerAvatar)" :alt="conv.peerNickname" />
           </div>
           <div class="conv-content">
             <div class="conv-header">
@@ -34,10 +34,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getAvatar } from '@/utils/avatar'
 import { getConversations } from '@/api/privateMessage'
 
 const router = useRouter()
-const defaultAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
 
 const loading = ref(false)
 const conversations = ref([])

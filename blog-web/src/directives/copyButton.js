@@ -1,4 +1,4 @@
-import { showToast } from 'vant'
+import { showToast, showSuccess } from '@/utils/toast'
 
 // 代码块复制按钮自定义指令
 export const vCopyButton = {
@@ -35,12 +35,7 @@ export const vCopyButton = {
             `
             copyBtn.classList.add('copied')
             copyBtn.title = '已复制'
-            showToast({
-              type: 'success',
-              message: '✓ 代码已复制到剪贴板',
-              duration: 2000,
-              position: 'bottom'
-            })
+            showSuccess('✓ 代码已复制到剪贴板')
 
             setTimeout(() => {
               copyBtn.innerHTML = `
@@ -87,12 +82,7 @@ export const vCopyButton = {
             `
             copyBtn.classList.add('copied')
             copyBtn.title = '已复制'
-            showToast({
-              type: 'success',
-              message: '✓ 代码已复制到剪贴板',
-              duration: 2000,
-              position: 'bottom'
-            })
+            showSuccess('✓ 代码已复制到剪贴板')
 
             setTimeout(() => {
               copyBtn.innerHTML = `

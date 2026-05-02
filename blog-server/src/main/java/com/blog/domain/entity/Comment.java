@@ -18,6 +18,8 @@ public class Comment implements Serializable {
 
     private Long replyId;
 
+    private Long replyToUserId;
+
     private Long userId;
 
     private String nickname;
@@ -27,6 +29,8 @@ public class Comment implements Serializable {
     private String content;
 
     private Integer status;
+
+    private Integer likeCount;
 
     private String ipAddress;
 
